@@ -40,7 +40,7 @@ const markup = async ({ content, filename }) => {
 
   if (pluginOptions.includePaths.length) {
     for (const includePath of pluginOptions.includePaths) {
-      if (filename.indexOf(path.resolve(__dirname, includePath)) === -1) {
+      if (filename.indexOf(path.resolve(includePath)) === -1) {
         return { code };
       }
     }
@@ -48,7 +48,7 @@ const markup = async ({ content, filename }) => {
 
   if (!regex.module.test(content)) {
     return { code };
-  }  
+  }
 
   const styles = content.match(regex.style);
   let parsedStyles = null;
@@ -85,7 +85,7 @@ const markup = async ({ content, filename }) => {
   }
 };
 
-export default (options) => {
+module.exports = (options) => {
   for (const option in options) {
     pluginOptions[option] = options[option];
   }
