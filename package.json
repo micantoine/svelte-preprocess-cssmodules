@@ -1,0 +1,35 @@
+{
+  "name": "svelte-preprocess-cssmodules",
+  "version": "0.1.0",
+  "description": "Svelte preprocess to generate CSS Modules classname on Svelte components",
+  "keywords": [
+    "svelte",
+    "svelte-preprocess",
+    "css-modules"
+  ],
+  "homepage": "https://github.com/micantoine/svelte-preprocess-cssmodules",
+  "bugs": {
+    "url": "https://github.com/micantoine/svelte-preprocess-cssmodules/issues"
+  },
+  "author": {
+    "name": "micantoine"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "directories": {
+    "example": "example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/micantoine/svelte-preprocess-cssmodules.git"
+  },
+  "dependencies": {
+    "loader-utils": "^1.1.0"
+  },
+  "peerDependencies": {
+    "svelte": ">1.44.0"
+  },
+  "files": [
+    "index.js"
+  ]
+}
