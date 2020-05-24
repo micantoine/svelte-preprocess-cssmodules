@@ -8,7 +8,7 @@ npm install --save-dev svelte-preprocess-cssmodules
 
 ## Rollup Configuration
 
-To be used with the plugin `rollup-plugin-svelte`.
+To be used with the plugin [`rollup-plugin-svelte`](https://github.com/sveltejs/rollup-plugin-svelte).
 
 ```js
 import svelte from 'rollup-plugin-svelte';
@@ -27,6 +27,37 @@ export default {
 }
 ```
 
+## Webpack Configuration
+
+To be used with the loader [`svelte-loader`](https://github.com/sveltejs/svelte-loader).
+
+```js
+const cssModules = require('svelte-preprocess-cssmodules');
+
+module.exports = {
+  ...
+  module: {
+    rules: [
+      {
+        test: /\.svelte$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'svelte-loader',
+            options: {
+              preprocess: [
+                cssModules(),
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ...
+}
+```
+
 ## Options
 Pass an object of the following properties
 
@@ -34,6 +65,7 @@ Pass an object of the following properties
 | ------------- | ------------- | ------------- | ------------- |
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token from [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename) |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
+
 
 
 ## Usage on Svelte Component
@@ -142,6 +174,47 @@ kebab-case or camelCase, name the classes the way you're more comfortable with.
 <span class="red-2xTdmA">Red</span>
 <span class="red-crimson-1lu8Sg">Crimson</span>
 <span class="redMajenta-2wdRa3">Majenta</span>
+```
+
+### Use class multiple times
+A class can be naturally used on multiple elements.
+
+*Before*
+
+```html
+<style>
+  .red { color: red; }
+  .blue { color: blue; }
+  .bold { font-weight: bold; }
+</style>
+
+<p class="$style.red $style.bold">My red text</p>
+<p class="$style.blue $style.bold">My blue text</p>
+```
+
+*After*
+
+```html
+<style>
+  .red-en-6pb { color: red; }
+  .blue-oVk-n1 { color: blue; }
+  .bold-2jIMhI { font-weight: bold; }
+</style>
+
+<p class="red-en-6pb bold-2jIMhI">My red text</p>
+<p class="blue-oVk-n1 bold-2jIMhI">My blue text</p>
+```
+
+### Work with class directives
+Toggling a class on an element.
+
+```html
+<style>
+  .bold { font-weight: bold; }
+</style>
+
+<p class:$style.bold={isActive}>My red text</p>
+<p class="{isActive ? '$style.bold' : ''}">My blue text</p>
 ```
 
 ## Example
