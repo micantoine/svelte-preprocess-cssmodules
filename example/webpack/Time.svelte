@@ -12,6 +12,9 @@
 </script>
 
 <style>
+  .datetime {
+    color: gray;
+  }
   div {
     text-align: right;
     font-size: 1.2rem;

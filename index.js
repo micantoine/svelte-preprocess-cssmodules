@@ -11,6 +11,8 @@ const regex = {
   style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi
 };
 
+let moduleClasses = {};
+
 function generateName(resourcePath, styles, className) {
   const filePath = resourcePath
   const fileName = path.basename(filePath)
@@ -51,38 +53,44 @@ const markup = async ({ content, filename }) => {
   }
 
   const styles = content.match(regex.style);
-  let parsedStyles = null;
+  moduleClasses[filename] = {};
 
-  let parsedSource = content.replace(regex.module, (match, className) => {
+  return { code: content.replace(regex.module, (match, className) => {
     let replacement = '';
-
     if (styles.length) {
       const classRegex = new RegExp(`\\.(${className})\\b(?![-_])`, 'gm');
-      const toBeParsed = parsedStyles ? parsedStyles : styles[0];
 
-      if (classRegex.test(toBeParsed)) {
+      if (classRegex.test(styles[0])) {
         const interpolatedName = generateName(
           filename,
           styles[0],
           className
         );
-        parsedStyles = toBeParsed.replace(
-          classRegex,
-          () => `:global(.${interpolatedName})`
-        );
+        moduleClasses[filename][className] = interpolatedName;
         replacement = interpolatedName;
       }
     }
     return replacement;
-  });
+  })};
+};
 
-  if (parsedStyles) {
-    parsedSource = parsedSource.replace(regex.style, parsedStyles);
+const style = async ({ content, filename }) => {
+  let code = content;
+  const classes = moduleClasses[filename];
+
+  if (Object.keys(classes).length === 0) {
+    return { code };
   }
 
-  return {
-    code: parsedSource
+  for (const className in classes) {
+    const classRegex = new RegExp(`\\.(${className})\\b(?![-_])`, 'gm');
+    code = code.replace(
+      classRegex,
+      () => `:global(.${classes[className]})`
+    );
   }
+
+  return { code };
 };
 
 module.exports = (options) => {
@@ -91,5 +99,6 @@ module.exports = (options) => {
   }
   return {
     markup,
+    style,
   }
 };

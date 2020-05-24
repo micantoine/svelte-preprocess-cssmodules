@@ -21,7 +21,6 @@ module.exports = {
             options: {
               preprocess: [
                 cssModules({
-                  localIdentName: '[hash:base64:10]',
                   includePaths: ['./']
                 })
               ],

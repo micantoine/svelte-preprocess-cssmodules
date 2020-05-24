@@ -1,4 +1,5 @@
 # Svelte preprocess CSS Modules
+@todo test ::before, test multiple use, test nested  
 
 Generate CSS Modules classname on Svelte components
 
@@ -79,8 +80,7 @@ CSS Modules classname are generated to the html class values prefixed by `$style
 
 ```html
 <style>
-  .blue { color: blue;
-  }
+  .blue { color: blue;}
   .red-2iBDzf { color: red; }
   .text-center { text-align: center; }
 </style>

@@ -65,19 +65,22 @@ button {
 .cancel {
   background-color: #f2f2f2;
 }
+.active {
+  font-weight: 700;
+}
 </style>
 
 <div class="$style.overlay" />
 <div class="$style.modal">
   <section>
-    <header>My Modal title</header>
+    <header class="$style.active">My Modal title</header>
     <div class="$style.body">
       <Time />
       <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt.</p>
       <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt. Lorem ipsum dolor sit amet. </p>
     </div>
     <footer>
-      <button>Ok</button>
+      <button class="$style.active">Ok</button>
       <button class="$style.cancel">Cancel</button>
     </footer>
   </section>
