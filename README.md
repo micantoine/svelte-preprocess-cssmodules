@@ -1,5 +1,4 @@
 # Svelte preprocess CSS Modules
-@todo test ::before, test multiple use, test nested  
 
 Generate CSS Modules classname on Svelte components
 

@@ -1,5 +1,9 @@
 # Svelte preprocess CSS Modules, changelog
 
+# 1.0.0 
+- Ability to use the same class multiple time
+- use with svelte loader Ok
+
 # 0.1.1
 - Fix modules exports
 - Fix `includePaths` check
