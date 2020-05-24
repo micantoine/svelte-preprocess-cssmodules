@@ -2,6 +2,7 @@
   import { onDestroy } from 'svelte';
 
   let date = new Date();
+  const active = true;
   $: time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
   
   const interval = setInterval(() => date = new Date(), 1000);
