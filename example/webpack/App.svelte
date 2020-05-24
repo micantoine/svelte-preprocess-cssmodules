@@ -1,5 +1,5 @@
 <script>
-  import Time from './Time.svelte'
+  import Time from './Time.svelte';
 </script>
 
 <style>
