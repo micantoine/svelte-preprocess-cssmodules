@@ -1,0 +1,20 @@
+{
+  "name": "svelte-preprocess-cssmodules-example",
+  "version": "0.0.0",
+  "description": "Example using cssmodules preprocessor with svelte-loader",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_ENV=development webpack-dev-server --config webpack.config.js --progress --profile",
+    "build": "NODE_ENV=production webpack --config webpack.config.js --profile"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "svelte": "^3.22.3",
+    "svelte-loader": "^2.13.6",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.11.0"
+  }
+}
