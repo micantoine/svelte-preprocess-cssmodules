@@ -8,7 +8,10 @@ const pluginOptions = {
 
 const regex = {
   module: /\$style\.(:?[\w\d-]*)/gm,
-  style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi
+  style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi,
+  class: (className) => {
+    return new RegExp(`\\.(${className})\\b(?![-_])`, 'gm')
+  }
 };
 
 let moduleClasses = {};
@@ -58,9 +61,7 @@ const markup = async ({ content, filename }) => {
   return { code: content.replace(regex.module, (match, className) => {
     let replacement = '';
     if (styles.length) {
-      const classRegex = new RegExp(`\\.(${className})\\b(?![-_])`, 'gm');
-
-      if (classRegex.test(styles[0])) {
+      if (regex.class(className).test(styles[0])) {
         const interpolatedName = generateName(
           filename,
           styles[0],
@@ -83,9 +84,8 @@ const style = async ({ content, filename }) => {
   }
 
   for (const className in classes) {
-    const classRegex = new RegExp(`\\.(${className})\\b(?![-_])`, 'gm');
     code = code.replace(
-      classRegex,
+      regex.class(className),
       () => `:global(.${classes[className]})`
     );
   }
