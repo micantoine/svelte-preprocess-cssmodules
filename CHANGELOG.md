@@ -1,5 +1,8 @@
 # Svelte preprocess CSS Modules, changelog
 
+# 1.0.1
+- Fix style parsing on empty cssModules class
+
 # 1.0.0 
 - Ability to use the same class on multiple elments
 - Use with svelte loader Ok
