@@ -77,6 +77,11 @@ const markup = async ({ content, filename }) => {
 
 const style = async ({ content, filename }) => {
   let code = content;
+
+  if (!moduleClasses.hasOwnProperty(filename)) {
+    return { code };
+  }
+  
   const classes = moduleClasses[filename];
 
   if (Object.keys(classes).length === 0) {
