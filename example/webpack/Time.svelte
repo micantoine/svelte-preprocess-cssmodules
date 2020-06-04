@@ -24,5 +24,5 @@
 </style>
 
 <div
-  class="$style.datetime"
-  class:$style.bold={true}>{time}</div>
+  class="$.datetime"
+  class:$.bold={true}>{time}</div>

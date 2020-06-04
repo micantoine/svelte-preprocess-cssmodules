@@ -7,7 +7,7 @@ const pluginOptions = {
 }
 
 const regex = {
-  module: /\$style\.(:?[\w\d-]*)/gm,
+  module: /\$(style)?\.(:?[\w\d-]*)/gm,
   style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi,
   class: (className) => {
     return new RegExp(`\\.(${className})\\b(?![-_])`, 'gm')
@@ -58,7 +58,7 @@ const markup = async ({ content, filename }) => {
   const styles = content.match(regex.style);
   moduleClasses[filename] = {};
 
-  return { code: content.replace(regex.module, (match, className) => {
+  return { code: content.replace(regex.module, (match, key, className) => {
     let replacement = '';
     if (styles.length) {
       if (regex.class(className).test(styles[0])) {
