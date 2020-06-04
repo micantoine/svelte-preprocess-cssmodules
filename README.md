@@ -67,10 +67,9 @@ Pass an object of the following properties
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 
 
-
 ## Usage on Svelte Component
 
-**On the HTML markup** (not the CSS), Prefix any class name that require CSS Modules by *$style.*  => `$style.My_CLASSNAME`
+**On the HTML markup** (not the CSS), Prefix any class name that require CSS Modules by *$style.*  => `$style.MY_CLASSNAME`
 
 ```html
 <style>
@@ -209,12 +208,51 @@ A class can be naturally used on multiple elements.
 Toggling a class on an element.
 
 ```html
+<script>
+  let isActive = true;
+</script>
+
 <style>
   .bold { font-weight: bold; }
 </style>
 
 <p class:$style.bold={isActive}>My red text</p>
 <p class="{isActive ? '$style.bold' : ''}">My blue text</p>
+```
+
+### Shorthand
+To remove verbosity the shorthand `$.MY_CLASSNAME` can be used instead of the regular `$style.MY_CLASSNAME`.
+
+*before*
+
+```html
+<script>
+  let isActive = true;
+</script>
+
+<style>
+  .red { color: red; }
+  .blue { color: blue; }
+  .bold { font-weight: bold; }
+</style>
+
+<p
+  class:$.bold={isActive}
+  class="$.red">My red text</p>
+<p class="{isActive ? '$.bold' : ''} $.blue">My blue text</p>
+```
+
+*After*
+
+```html
+<style>
+  .red-en-6pb { color: red; }
+  .blue-oVk-n1 { color: blue; }
+  .bold-2jIMhI { font-weight: bold; }
+</style>
+
+<p class="red-en-6pb bold-2jIMhI">My red text</p>
+<p class="bold-2jIMhI blue-oVk-n1">My blue text</p>
 ```
 
 ## Example
