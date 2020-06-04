@@ -70,7 +70,7 @@ button {
 }
 </style>
 
-<div class="$style.overlay" />
+<div class="$.overlay" />
 <div class="$style.modal">
   <section>
     <header class="$style.active">My Modal title</header>
