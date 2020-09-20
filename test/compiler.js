@@ -9,7 +9,7 @@ module.exports = async ({ source, localIdentName }) => {
         localIdentName,
       })
     ],
-    { filename : 'App.svelte' }
+    { filename : 'src/App.svelte' }
   );
 
   return code;
