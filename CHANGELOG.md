@@ -1,5 +1,10 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 1.1.1
+- Fix the use of `[path]` in the `localIdentName` rule.
+- Escape css on the classname
+- Dependencies update
+
 ## 1.1.0
 - Add optional shortand syntax `$.MY_CLASSNAME` to increase development speed and remove verbosity.
 
