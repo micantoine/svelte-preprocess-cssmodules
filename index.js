@@ -10,6 +10,7 @@ const pluginOptions = {
 const regex = {
   module: /\$(style)?\.(:?[\w\d-]*)/gm,
   style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi,
+  pathUnallowed: /[<>:"/\\|?*]/g,
   class: (className) => {
     return new RegExp(`\\.(${className})\\b(?![-_])`, 'gm')
   }
@@ -32,7 +33,7 @@ function generateName(resourcePath, styles, className) {
   );
   
   // replace unwanted characters from [path]
-  if (/[<>:"/\\|?*]/g.test(interpolatedName)) {
+  if (regex.pathUnallowed.test(interpolatedName)) {
     interpolatedName = interpolatedName.replace(regex.pathUnallowed, '_');
   }
 
