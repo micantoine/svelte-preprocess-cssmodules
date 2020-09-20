@@ -1,10 +1,11 @@
-const path = require('path')
-const { interpolateName } = require('loader-utils')
+const path = require('path');
+const cssesc = require('cssesc');
+const { interpolateName } = require('loader-utils');
 
 const pluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]'
-}
+};
 
 const regex = {
   module: /\$(style)?\.(:?[\w\d-]*)/gm,
@@ -17,27 +18,35 @@ const regex = {
 let moduleClasses = {};
 
 function generateName(resourcePath, styles, className) {
-  const filePath = resourcePath
-  const fileName = path.basename(filePath)
+  const filePath = resourcePath;
+  const fileName = path.basename(filePath);
   const localName = pluginOptions.localIdentName.length
     ? pluginOptions.localIdentName.replace(/\[local\]/gi, () => className)
-    : className
+    : className;
 
-  const content = `${styles}-${filePath}-${fileName}-${className}`
+  const content = `${styles}-${filePath}-${fileName}-${className}`;
 
-  let interpolatedName = interpolateName({ resourcePath }, localName, { content })
+  let interpolatedName = cssesc(
+    interpolateName({ resourcePath }, localName, { content })
+    .replace(/\./g, '-')
+  );
+  
+  // replace unwanted characters from [path]
+  if (/[<>:"/\\|?*]/g.test(interpolatedName)) {
+    interpolatedName = interpolatedName.replace(regex.pathUnallowed, '_');
+  }
 
   // prevent class error when the generated classname starts from a non word charater
   if (/^(?![a-zA-Z_])/.test(interpolatedName)) {
-    interpolatedName = `_${interpolatedName}`
+    interpolatedName = `_${interpolatedName}`;
   }
 
   // prevent svelte "Unused CSS selector" warning when the generated classname ends by `-`
   if (interpolatedName.slice(-1) === '-') {
-    interpolatedName = interpolatedName.slice(0, -1)
+    interpolatedName = interpolatedName.slice(0, -1);
   }
 
-  return interpolatedName
+  return interpolatedName;
 }
 
 const markup = async ({ content, filename }) => {
