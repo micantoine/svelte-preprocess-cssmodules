@@ -6,6 +6,7 @@ const sourceReactiveClass = '<style>.red { color: red; }</style>\n<span class:$.
 test('Replace path on regular class', async () => {
   const output = await compiler({
     source,
+  }, {
     localIdentName: '[path][name]__[local]',
   });
 
@@ -15,6 +16,7 @@ test('Replace path on regular class', async () => {
 test('Replace path on reactive class', async () => {
   const output = await compiler({
     source: sourceReactiveClass,
+  }, {
     localIdentName: '[path][name]__[local]',
   });
 

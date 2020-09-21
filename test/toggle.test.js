@@ -23,6 +23,7 @@ const expectedOutput =
 test('Generate CSS Modules className on class binding', async () => {
   const output = await compiler({
     source,
+  }, {
     localIdentName: '[local]-123456',
   });
 
@@ -32,6 +33,7 @@ test('Generate CSS Modules className on class binding', async () => {
 test('[Shorthand] Generate CSS Modules className on class binding', async () => {
   const output = await compiler({
     source: sourceShorthand,
+  }, {
     localIdentName: '[local]-123456',
   });
 
