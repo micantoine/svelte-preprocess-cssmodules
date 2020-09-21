@@ -94,7 +94,7 @@ const markup = async ({ content, filename }) => {
           className,
           {
             markup: code,
-            styles: styles[0],
+            style: styles[0],
           }
         );
 
