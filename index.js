@@ -20,7 +20,7 @@ const regex = {
 let moduleClasses = {};
 
 function getLocalIdentName(context, localIdentName, localName, options) {
-  return localIdentName.interpolated;
+  return localIdentName.interpolatedName;
 }
 
 function generateName(resourcePath, styles, className) {
@@ -85,12 +85,11 @@ const markup = async ({ content, filename }) => {
         const customInterpolatedName = pluginOptions.getLocalIdentName(
           {
             context: path.dirname(filename),
-            filename: path.basename(filename),
             resourcePath :filename,
           },
           {
-            interpolated: interpolatedName,
-            rules: pluginOptions.localIdentName,
+            interpolatedName,
+            template: pluginOptions.localIdentName,
           },
           className,
           {
