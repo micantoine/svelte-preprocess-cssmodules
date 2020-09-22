@@ -116,7 +116,7 @@ SvelteApp
 preprocess: [
   cssModules({
     localIdentName: '[path][name]__[local]',
-    getLocalIdent: ( context, { interpolatedName }) => {
+    getLocalIdent: (context, { interpolatedName }) => {
       return interpolatedName.toLowerCase().replace('src_', '');
       // svelteapp_components_button__red;
     }
