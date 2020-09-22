@@ -1,5 +1,8 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 1.2.0 (Sept 21, 2020) 
+- Add support for `getLocalIdent()` [issue #6](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/6) - [pull request #7](https://github.com/micantoine/svelte-preprocess-cssmodules/pull/7)
+
 ## 1.1.1
 - Fix the use of `[path]` in the `localIdentName` rule.
 - Escape css on the classname
