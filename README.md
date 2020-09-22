@@ -67,7 +67,7 @@ Pass an object of the following properties
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 
-### `getLocalIdent`
+#### `getLocalIdent`
 
 Function to generate the classname instead of the built-in function.
 
@@ -113,26 +113,15 @@ SvelteApp
 ```js
 // Preprocess config
 ...
- preprocess: [
-   cssModules({
-     localIdentName: '[path][name]__[local]',
-     getLocalIdent: (
-        {
-          context, // SvelteApp/src/components
-          resourcePath // SvelteApp/src/components/Button.svelte
-        },
-        {
-          template, // [path][name]__[local]
-          interpolatedName // SvelteApp_src_components_Button__red
-        },
-        className, // red
-        { style } // <style>.red { background-color: red; }</style>
-     ) => {
-       return interpolatedName.toLowerCase().replace('src_', '');
-       // svelteapp_components_button__red;
-     }
-   })
- ],
+preprocess: [
+  cssModules({
+    localIdentName: '[path][name]__[local]',
+    getLocalIdent: ( context, { interpolatedName }) => {
+      return interpolatedName.toLowerCase().replace('src_', '');
+      // svelteapp_components_button__red;
+    }
+  })
+],
 ...
 ```
 
