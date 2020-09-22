@@ -65,7 +65,76 @@ Pass an object of the following properties
 | ------------- | ------------- | ------------- | ------------- |
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token from [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename) |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
+| `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 
+### `getLocalIdent`
+
+Function to generate the classname instead of the built-in function.
+
+```js
+function getLocalIdent(
+  context: {
+    context, // the context path
+    resourcePath, // path + filename
+  },
+  localIdentName: {
+    template, // the template rule
+    interpolatedName, // the built-in generated classname
+  },
+  className, // the classname string
+  content: { 
+    markup, // the markup content
+    style,  // the style content
+  }
+) {
+  return `your_generated_classname`;
+}
+```
+
+*Example of use*
+
+```bash
+# Directory
+SvelteApp
+└─ src
+   ├─ App.svelte
+   └─ components
+      └─ Button.svelte
+```
+```html
+<!-- Button.svelte -->
+<button class="$style.red">Ok</button>
+
+<style>
+  .red { background-color: red; }
+</style>
+```
+
+```js
+// Preprocess config
+...
+ preprocess: [
+   cssModules({
+     localIdentName: '[path][name]__[local]',
+     getLocalIdent: (
+        {
+          context, // SvelteApp/src/components
+          resourcePath // SvelteApp/src/components/Button.svelte
+        },
+        {
+          template, // [path][name]__[local]
+          interpolatedName // SvelteApp_src_components_Button__red
+        },
+        className, // red
+        { style } // <style>.red { background-color: red; }</style>
+     ) => {
+       return interpolatedName.toLowerCase().replace('src_', '');
+       // svelteapp_components_button__red;
+     }
+   })
+ ],
+...
+```
 
 ## Usage on Svelte Component
 
