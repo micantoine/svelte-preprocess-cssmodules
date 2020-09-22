@@ -348,7 +348,6 @@ export default {
     background-color: #fff;
     transform: translateX(-50%) translateY(-50%);
   }
-
   section {
     flex: 0 1 auto;
     flex-direction: column;
@@ -357,30 +356,17 @@ export default {
   }
   header {
     padding: 1rem;
-    font-size: 1.2rem;
-    font-weight: bold;
     border-bottom: 1px solid #d9d9d9;
   }
-
   .body {
     padding: 1rem;
     flex: 1 0 0;
-    min-height: 0;
-    max-height: 100%;
-    overflow: scroll;
-    -webkit-overflow-scrolling: touch;
   }
-
   footer {
     padding: 1rem;
-    text-align: right;
     border-top: 1px solid #d9d9d9;
   }
   button {
-    padding: .5em 1em;
-    min-width: 100px;
-    font-size: .8rem;
-    font-weight: 600;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -418,7 +404,6 @@ export default {
     background-color: #fff;
     transform: translateX(-50%) translateY(-50%);
   }
-
   section {
     flex: 0 1 auto;
     flex-direction: column;
@@ -427,30 +412,17 @@ export default {
   }
   header {
     padding: 1rem;
-    font-size: 1.2rem;
-    font-weight: bold;
     border-bottom: 1px solid #d9d9d9;
   }
-
   ._1HPUBXtzNG {
     padding: 1rem;
     flex: 1 0 0;
-    min-height: 0;
-    max-height: 100%;
-    overflow: scroll;
-    -webkit-overflow-scrolling: touch;
   }
-
   footer {
     padding: 1rem;
-    text-align: right;
     border-top: 1px solid #d9d9d9;
   }
   button {
-    padding: .5em 1em;
-    min-width: 100px;
-    font-size: .8rem;
-    font-weight: 600;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -478,7 +450,7 @@ export default {
 
 ## Why CSS Modules on Svelte
 
-While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full javascript front-end where Svelte is used to enhance pieces of the page, the thought on the class naming is no less different than the one on a regular html page. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` to avoid inheriting styles from other `.body` and `.cancel`.
+While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full Svelte application where it is used to enhance pieces of the page; the thought on the class naming is no less different than the one on a regular html page to avoid conflict and unwilling inheritance. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` to avoid inheriting styles from other `.body` and `.cancel`.
 
 ## License
 
