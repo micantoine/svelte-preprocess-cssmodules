@@ -33,6 +33,7 @@ const expectedOutput =
 test('Target proper className from lookalike classNames', async () => {
   const output = await compiler({
     source,
+  }, {
     localIdentName: '[local]-123',
   });
 
@@ -42,6 +43,7 @@ test('Target proper className from lookalike classNames', async () => {
 test('[Shorthand] Target proper className from lookalike classNames', async () => {
   const output = await compiler({
     source: sourceShorthand,
+  }, {
     localIdentName: '[local]-123',
   });
 

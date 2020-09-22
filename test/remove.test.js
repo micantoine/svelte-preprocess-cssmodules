@@ -7,6 +7,7 @@ const expectedOutput = '<style>.red { color: red; }</style>\n<span class="">Blue
 test('Remove unused CSS Modules from HTML attribute', async () => {
   const output = await compiler({
     source,
+  }, {
     localIdentName: '[local]-123456',
   });
 
@@ -15,6 +16,7 @@ test('Remove unused CSS Modules from HTML attribute', async () => {
 test('[Shorthand] Remove unused CSS Modules from HTML attribute', async () => {
   const output = await compiler({
     source: sourceShorthand,
+  }, {
     localIdentName: '[local]-123456',
   });
 

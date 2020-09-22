@@ -4,7 +4,8 @@ const { interpolateName } = require('loader-utils');
 
 const pluginOptions = {
   includePaths: [],
-  localIdentName: '[local]-[hash:base64:6]'
+  localIdentName: '[local]-[hash:base64:6]',
+  getLocalIdent: getLocalIdent,
 };
 
 const regex = {
@@ -18,14 +19,17 @@ const regex = {
 
 let moduleClasses = {};
 
+function getLocalIdent(context, localIdentName, localName, options) {
+  return localIdentName.interpolatedName;
+}
+
 function generateName(resourcePath, styles, className) {
   const filePath = resourcePath;
-  const fileName = path.basename(filePath);
   const localName = pluginOptions.localIdentName.length
     ? pluginOptions.localIdentName.replace(/\[local\]/gi, () => className)
     : className;
 
-  const content = `${styles}-${filePath}-${fileName}-${className}`;
+  const content = `${styles}-${filePath}-${className}`;
 
   let interpolatedName = cssesc(
     interpolateName({ resourcePath }, localName, { content })
@@ -77,8 +81,25 @@ const markup = async ({ content, filename }) => {
           styles[0],
           className
         );
-        moduleClasses[filename][className] = interpolatedName;
-        replacement = interpolatedName;
+
+        const customInterpolatedName = pluginOptions.getLocalIdent(
+          {
+            context: path.dirname(filename),
+            resourcePath :filename,
+          },
+          {
+            interpolatedName,
+            template: pluginOptions.localIdentName,
+          },
+          className,
+          {
+            markup: code,
+            style: styles[0],
+          }
+        );
+
+        moduleClasses[filename][className] = customInterpolatedName;
+        replacement = customInterpolatedName;
       }
     }
     return replacement;
