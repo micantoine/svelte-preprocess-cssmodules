@@ -5,7 +5,7 @@ const { interpolateName } = require('loader-utils');
 const pluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]',
-  getLocalIdentName: getLocalIdentName,
+  getLocalIdent: getLocalIdent,
 };
 
 const regex = {
@@ -19,7 +19,7 @@ const regex = {
 
 let moduleClasses = {};
 
-function getLocalIdentName(context, localIdentName, localName, options) {
+function getLocalIdent(context, localIdentName, localName, options) {
   return localIdentName.interpolatedName;
 }
 
@@ -82,7 +82,7 @@ const markup = async ({ content, filename }) => {
           className
         );
 
-        const customInterpolatedName = pluginOptions.getLocalIdentName(
+        const customInterpolatedName = pluginOptions.getLocalIdent(
           {
             context: path.dirname(filename),
             resourcePath :filename,
