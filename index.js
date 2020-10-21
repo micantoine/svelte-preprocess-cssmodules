@@ -6,6 +6,7 @@ const pluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]',
   getLocalIdent: getLocalIdent,
+  strict: false,
 };
 
 const regex = {
@@ -13,8 +14,8 @@ const regex = {
   style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi,
   pathUnallowed: /[<>:"/\\|?*]/g,
   class: (className) => {
-    return new RegExp(`\\.(${className})\\b(?![-_])`, 'gm')
-  }
+    return new RegExp(`\\.(${className})\\b(?![-_])`, 'gm');
+  },
 };
 
 let moduleClasses = {};
@@ -35,7 +36,7 @@ function generateName(resourcePath, styles, className) {
     interpolateName({ resourcePath }, localName, { content })
     .replace(/\./g, '-')
   );
-  
+
   // replace unwanted characters from [path]
   if (regex.pathUnallowed.test(interpolatedName)) {
     interpolatedName = interpolatedName.replace(regex.pathUnallowed, '_');
@@ -72,20 +73,38 @@ const markup = async ({ content, filename }) => {
   const styles = content.match(regex.style);
   moduleClasses[filename] = {};
 
-  return { code: content.replace(regex.module, (match, key, className) => {
-    let replacement = '';
-    if (styles.length) {
-      if (regex.class(className).test(styles[0])) {
-        const interpolatedName = generateName(
-          filename,
-          styles[0],
-          className
+  return {
+    code: content.replace(regex.module, (match, key, className) => {
+      let replacement = '';
+      if (!className.length) {
+        throw new Error(
+          `Invalid class name in file ${filename}.\n`+
+          'This usually happens when using dynamic classes with svelte-preprocess-cssmodules.'
         );
+      }
+
+      if (!regex.class(className).test(`.${className}`)) {
+        throw new Error(`Classname "${className}" in file ${filename} is not valid`);
+      }
+
+      if (styles.length) {
+        if (!regex.class(className).test(styles[0])) {
+          if (pluginOptions.strict) {
+            throw new Error(
+              `Classname "${className}" was not found in declared ${filename} <style>`
+            );
+          } else {
+            // In non-strict mode, we just remove $style classes that don't have a definition
+            return '';
+          }
+        }
+
+        const interpolatedName = generateName(filename, styles[0], className);
 
         const customInterpolatedName = pluginOptions.getLocalIdent(
           {
             context: path.dirname(filename),
-            resourcePath :filename,
+            resourcePath: filename,
           },
           {
             interpolatedName,
@@ -101,18 +120,19 @@ const markup = async ({ content, filename }) => {
         moduleClasses[filename][className] = customInterpolatedName;
         replacement = customInterpolatedName;
       }
-    }
-    return replacement;
-  })};
+      return replacement;
+    }),
+  };
 };
 
+const GLOBALIZE_PLACEHOLDER = '__to_globalize__';
 const style = async ({ content, filename }) => {
   let code = content;
 
   if (!moduleClasses.hasOwnProperty(filename)) {
     return { code };
   }
-  
+
   const classes = moduleClasses[filename];
 
   if (Object.keys(classes).length === 0) {
@@ -122,11 +142,35 @@ const style = async ({ content, filename }) => {
   for (const className in classes) {
     code = code.replace(
       regex.class(className),
-      () => `:global(.${classes[className]})`
+      () => `.${GLOBALIZE_PLACEHOLDER}${classes[className]}`
     );
   }
 
-  return { code };
+  let codeOutput = '';
+  let cssRules = code.split('}');
+
+  // Remove last element of the split. It should be the empty string that comes after the last '}'.
+  const lastChunk = cssRules.pop();
+
+  // We wrap all css selector containing a scoped CSS class in :global() svelte css statement
+  for (const cssRule of cssRules) {
+    let [selector, rule] = cssRule.split('{');
+    if (selector.includes(GLOBALIZE_PLACEHOLDER)) {
+      const selectorTrimmed = selector.trim();
+      selector = selector.replace(
+        selectorTrimmed,
+        `:global(${selectorTrimmed.replace(
+          new RegExp(GLOBALIZE_PLACEHOLDER, 'g'),
+          ''
+        )})`
+      );
+    }
+    codeOutput += `${selector}{${rule}}`;
+  }
+
+  codeOutput += lastChunk;
+
+  return { code: codeOutput };
 };
 
 module.exports = (options) => {
@@ -136,5 +180,5 @@ module.exports = (options) => {
   return {
     markup,
     style,
-  }
+  };
 };

@@ -66,6 +66,7 @@ Pass an object of the following properties
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token from [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename) |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
+| `strict`  | `Boolean` | `false` | When true, an exception is raised when a class is used while not being defined in `<style>`
 
 #### `getLocalIdent`
 
