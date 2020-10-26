@@ -16,6 +16,9 @@ const regex = {
   class: (className) => {
     return new RegExp(`\\.(${className})\\b(?![-_])`, 'gm');
   },
+  classSelector: (className) => {
+    return new RegExp(`\\S*\\.(${className})\\b(?![-_])\\S*`, 'gm');
+  },
 };
 
 let moduleClasses = {};
@@ -125,7 +128,6 @@ const markup = async ({ content, filename }) => {
   };
 };
 
-const GLOBALIZE_PLACEHOLDER = '__to_globalize__';
 const style = async ({ content, filename }) => {
   let code = content;
 
@@ -141,36 +143,21 @@ const style = async ({ content, filename }) => {
 
   for (const className in classes) {
     code = code.replace(
-      regex.class(className),
-      () => `.${GLOBALIZE_PLACEHOLDER}${classes[className]}`
+      regex.classSelector(className),
+      (match) => {
+        const generatedClass = match.replace(
+          regex.class(className),
+          () => `.${classes[className]}`
+        );
+
+        return generatedClass.indexOf(':global(') !== -1
+          ? generatedClass
+          : `:global(${generatedClass})`;
+      }
     );
   }
 
-  let codeOutput = '';
-  let cssRules = code.split('}');
-
-  // Remove last element of the split. It should be the empty string that comes after the last '}'.
-  const lastChunk = cssRules.pop();
-
-  // We wrap all css selector containing a scoped CSS class in :global() svelte css statement
-  for (const cssRule of cssRules) {
-    let [selector, rule] = cssRule.split('{');
-    if (selector.includes(GLOBALIZE_PLACEHOLDER)) {
-      const selectorTrimmed = selector.trim();
-      selector = selector.replace(
-        selectorTrimmed,
-        `:global(${selectorTrimmed.replace(
-          new RegExp(GLOBALIZE_PLACEHOLDER, 'g'),
-          ''
-        )})`
-      );
-    }
-    codeOutput += `${selector}{${rule}}`;
-  }
-
-  codeOutput += lastChunk;
-
-  return { code: codeOutput };
+  return { code };
 };
 
 module.exports = (options) => {
