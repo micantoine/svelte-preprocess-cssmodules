@@ -66,11 +66,11 @@ Pass an object of the following properties
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token from [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename) |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
-| `strict`  | `Boolean` | `false` | When true, an exception is raised when a class is used while not being defined in `<style>`
+| `strict`  | `{Boolean}` | `false` | When true, an exception is raised when a class is used while not being defined in `<style>`
 
 #### `getLocalIdent`
 
-Function to generate the classname instead of the built-in function.
+Function to generate the classname instead of relying on the built-in function.
 
 ```js
 function getLocalIdent(
@@ -150,7 +150,7 @@ The component will be transformed to
 
 ### Replace only the required class
 
-CSS Modules classname are generated to the html class values prefixed by `$style.`. The rest is left untouched.
+CSS Modules classname are generated to the html class values prefixed by `$style.`. The rest is left untouched and will use the default svelte scoped class.
 
 *Before*
 
@@ -169,18 +169,18 @@ CSS Modules classname are generated to the html class values prefixed by `$style
 
 ```html
 <style>
-  .blue { color: blue;}
+  .blue.svelte-1s2ez3w { color: blue;}
   .red-2iBDzf { color: red; }
-  .text-center { text-align: center; }
+  .text-center.svelte-1s2ez3w { text-align: center; }
 </style>
 
-<p class="blue text-center">My blue text</p>
-<p class="red-2iBDzf text-center">My red text</p>
+<p class="blue text-center svelte-1s2ez3w">My blue text</p>
+<p class="red-2iBDzf text-center svelte-1s2ez3w">My red text</p>
 ```
 
 ### Remove unspecified class
 
-If a CSS Modules class has no css style attached, it will be removed from the class attribute.
+On non strict mode, if a CSS Modules class has no css style attached, it will be removed from the class attribute.
 
 *Before*
 
@@ -196,10 +196,10 @@ If a CSS Modules class has no css style attached, it will be removed from the cl
 
 ```html
 <style>
-  .text-center { text-align: center; }
+  .text-center.svelte-1s2ez3w { text-align: center; }
 </style>
 
-<p class="text-center">My blue text</p>
+<p class="text-center svelte-1s2ez3w">My blue text</p>
 ```
 
 ### Target any classname format
@@ -405,13 +405,13 @@ export default {
     background-color: #fff;
     transform: translateX(-50%) translateY(-50%);
   }
-  section {
+  section.svelte-1s2ez3w {
     flex: 0 1 auto;
     flex-direction: column;
     display: flex;
     height: 100%;
   }
-  header {
+  header.svelte-1s2ez3w {
     padding: 1rem;
     border-bottom: 1px solid #d9d9d9;
   }
@@ -419,11 +419,11 @@ export default {
     padding: 1rem;
     flex: 1 0 0;
   }
-  footer {
+  footer.svelte-1s2ez3w {
     padding: 1rem;
     border-top: 1px solid #d9d9d9;
   }
-  button {
+  button.svelte-1s2ez3w {
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -447,11 +447,11 @@ export default {
 </div>
 ```
 
-**Note:** The svelte scoped classes are still being applied to the html elements with a style.
+**Note:** The svelte scoped class is still being applied to the html elements with a style.
 
 ## Why CSS Modules on Svelte
 
-While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full Svelte application where it is used to enhance pieces of the page; the thought on the class naming is no less different than the one on a regular html page to avoid conflict and unwilling inheritance. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` to avoid inheriting styles from other `.body` and `.cancel`.
+While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full Svelte application, the thought on the class naming would not be less different than what we would do on a regular html page. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` in order to prevent inheriting styles from other `.body` and `.cancel` classes.
 
 ## License
 

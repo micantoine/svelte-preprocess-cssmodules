@@ -1,6 +1,9 @@
 # Svelte preprocess CSS Modules, changelog
 
-## 1.2.0 (Sept 21, 2020) 
+## 1.2.1 (Oct 31, 2020)
+- Fix class chaining and pseudo selector [pull request #8](https://github.com/micantoine/svelte-preprocess-cssmodules/pull/8)
+
+## 1.2.0 (Sept 21, 2020)
 - Add support for `getLocalIdent()` [issue #6](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/6) - [pull request #7](https://github.com/micantoine/svelte-preprocess-cssmodules/pull/7)
 
 ## 1.1.1
