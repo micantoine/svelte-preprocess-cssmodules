@@ -5,23 +5,19 @@ const { interpolateName } = require('loader-utils');
 const pluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]',
-  getLocalIdent: getLocalIdent,
-  strict: false,
+  getLocalIdent,
+  strict: false
 };
 
 const regex = {
   module: /\$(style)?\.(:?[\w\d-]*)/gm,
   style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi,
   pathUnallowed: /[<>:"/\\|?*]/g,
-  class: (className) => {
-    return new RegExp(`\\.(${className})\\b(?![-_])`, 'gm');
-  },
-  classSelector: (className) => {
-    return new RegExp(`\\S*\\.(${className})\\b(?![-_])\\S*`, 'gm');
-  },
+  class: (className) => new RegExp(`\\.(${className})\\b(?![-_])`, 'gm'),
+  classSelector: (className) => new RegExp(`\\S*\\.(${className})\\b(?![-_])\\S*`, 'gm')
 };
 
-let moduleClasses = {};
+const moduleClasses = {};
 
 function getLocalIdent(context, localIdentName, localName, options) {
   return localIdentName.interpolatedName;
@@ -37,7 +33,7 @@ function generateName(resourcePath, styles, className) {
 
   let interpolatedName = cssesc(
     interpolateName({ resourcePath }, localName, { content })
-    .replace(/\./g, '-')
+      .replace(/\./g, '-')
   );
 
   // replace unwanted characters from [path]
@@ -81,8 +77,8 @@ const markup = async ({ content, filename }) => {
       let replacement = '';
       if (!className.length) {
         throw new Error(
-          `Invalid class name in file ${filename}.\n`+
-          'This usually happens when using dynamic classes with svelte-preprocess-cssmodules.'
+          `Invalid class name in file ${filename}.\n`
+          + 'This usually happens when using dynamic classes with svelte-preprocess-cssmodules.'
         );
       }
 
@@ -107,16 +103,16 @@ const markup = async ({ content, filename }) => {
         const customInterpolatedName = pluginOptions.getLocalIdent(
           {
             context: path.dirname(filename),
-            resourcePath: filename,
+            resourcePath: filename
           },
           {
             interpolatedName,
-            template: pluginOptions.localIdentName,
+            template: pluginOptions.localIdentName
           },
           className,
           {
             markup: code,
-            style: styles[0],
+            style: styles[0]
           }
         );
 
@@ -124,7 +120,7 @@ const markup = async ({ content, filename }) => {
         replacement = customInterpolatedName;
       }
       return replacement;
-    }),
+    })
   };
 };
 
@@ -166,6 +162,6 @@ module.exports = (options) => {
   }
   return {
     markup,
-    style,
+    style
   };
 };
