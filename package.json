@@ -36,6 +36,8 @@
     "loader-utils": "^2.0.0"
   },
   "devDependencies": {
+    "@types/cssesc": "^3.0.0",
+    "@types/loader-utils": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
     "eslint": "^7.10.0",

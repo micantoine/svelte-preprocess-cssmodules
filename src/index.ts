@@ -1,27 +1,23 @@
-const path = require('path');
-const cssesc = require('cssesc');
-const { interpolateName } = require('loader-utils');
+import path from 'path';
+import cssesc from 'cssesc';
+import { interpolateName } from 'loader-utils';
+import { Patterns, getLocalIdent, IGetLocalIdent } from './utils';
 
-const pluginOptions = {
+interface IPluginOptions {
+  includePaths: string[];
+  localIdentName: string;
+  getLocalIdent: IGetLocalIdent;
+  strict: boolean;
+}
+
+const pluginOptions: IPluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]',
   getLocalIdent,
   strict: false
 };
 
-const regex = {
-  module: /\$(style)?\.(:?[\w\d-]*)/gm,
-  style: /<style(\s[^]*?)?>([^]*?)<\/style>/gi,
-  pathUnallowed: /[<>:"/\\|?*]/g,
-  class: (className) => new RegExp(`\\.(${className})\\b(?![-_])`, 'gm'),
-  classSelector: (className) => new RegExp(`\\S*\\.(${className})\\b(?![-_])\\S*`, 'gm')
-};
-
 const moduleClasses = {};
-
-function getLocalIdent(context, localIdentName, localName, options) {
-  return localIdentName.interpolatedName;
-}
 
 function generateName(resourcePath, styles, className) {
   const filePath = resourcePath;
@@ -37,8 +33,8 @@ function generateName(resourcePath, styles, className) {
   );
 
   // replace unwanted characters from [path]
-  if (regex.pathUnallowed.test(interpolatedName)) {
-    interpolatedName = interpolatedName.replace(regex.pathUnallowed, '_');
+  if (Patterns.PATTERN_PATH_UNALLOWED.test(interpolatedName)) {
+    interpolatedName = interpolatedName.replace(Patterns.PATTERN_PATH_UNALLOWED, '_');
   }
 
   // prevent class error when the generated classname starts from a non word charater
@@ -65,15 +61,15 @@ const markup = async ({ content, filename }) => {
     }
   }
 
-  if (!regex.module.test(content)) {
+  if (!Patterns.PATTERN_MODULE.test(content)) {
     return { code };
   }
 
-  const styles = content.match(regex.style);
+  const styles = content.match(Patterns.PATTERN_STYLE);
   moduleClasses[filename] = {};
 
   return {
-    code: content.replace(regex.module, (match, key, className) => {
+    code: content.replace(Patterns.PATTERN_MODULE, (match, key, className) => {
       let replacement = '';
       if (!className.length) {
         throw new Error(
@@ -82,12 +78,12 @@ const markup = async ({ content, filename }) => {
         );
       }
 
-      if (!regex.class(className).test(`.${className}`)) {
+      if (!Patterns.PATTERN_CLASSNAME(className).test(`.${className}`)) {
         throw new Error(`Classname "${className}" in file ${filename} is not valid`);
       }
 
       if (styles.length) {
-        if (!regex.class(className).test(styles[0])) {
+        if (!Patterns.PATTERN_CLASSNAME(className).test(styles[0])) {
           if (pluginOptions.strict) {
             throw new Error(
               `Classname "${className}" was not found in declared ${filename} <style>`
@@ -139,10 +135,10 @@ const style = async ({ content, filename }) => {
 
   for (const className in classes) {
     code = code.replace(
-      regex.classSelector(className),
+      Patterns.PATTERN_CLASS_SELECTOR(className),
       (match) => {
         const generatedClass = match.replace(
-          regex.class(className),
+          Patterns.PATTERN_CLASSNAME(className),
           () => `.${classes[className]}`
         );
 
