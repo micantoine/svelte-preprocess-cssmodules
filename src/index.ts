@@ -1,63 +1,51 @@
 import path from 'path';
-import cssesc from 'cssesc';
-import { interpolateName } from 'loader-utils';
-import { Patterns, getLocalIdent, IGetLocalIdent } from './utils';
+import {
+  generateName,
+  getLocalIdent,
+  GetLocalIdent,
+  Patterns
+} from './utils';
 
-interface IPluginOptions {
+type PluginOptions = {
   includePaths: string[];
   localIdentName: string;
-  getLocalIdent: IGetLocalIdent;
+  getLocalIdent: GetLocalIdent;
   strict: boolean;
 }
 
-const pluginOptions: IPluginOptions = {
+const pluginOptions: PluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]',
   getLocalIdent,
   strict: false
 };
 
-const moduleClasses = {};
+const moduleClasses: Record<string, Record<string, string>> = {};
 
-function generateName(resourcePath, styles, className) {
-  const filePath = resourcePath;
-  const localName = pluginOptions.localIdentName.length
-    ? pluginOptions.localIdentName.replace(/\[local\]/gi, () => className)
-    : className;
-
-  const content = `${styles}-${filePath}-${className}`;
-
-  let interpolatedName = cssesc(
-    interpolateName({ resourcePath }, localName, { content })
-      .replace(/\./g, '-')
-  );
-
-  // replace unwanted characters from [path]
-  if (Patterns.PATTERN_PATH_UNALLOWED.test(interpolatedName)) {
-    interpolatedName = interpolatedName.replace(Patterns.PATTERN_PATH_UNALLOWED, '_');
-  }
-
-  // prevent class error when the generated classname starts from a non word charater
-  if (/^(?![a-zA-Z_])/.test(interpolatedName)) {
-    interpolatedName = `_${interpolatedName}`;
-  }
-
-  // prevent svelte "Unused CSS selector" warning when the generated classname ends by `-`
-  if (interpolatedName.slice(-1) === '-') {
-    interpolatedName = interpolatedName.slice(0, -1);
-  }
-
-  return interpolatedName;
+interface IPreprocessorOptions {
+  content: string;
+  filename: string;
 }
 
-const markup = async ({ content, filename }) => {
+interface IPreprocessorResult {
+  code: string;
+}
+
+const markup = async (
+  { content, filename }: IPreprocessorOptions
+): Promise<IPreprocessorResult> => {
   const code = content;
 
   if (pluginOptions.includePaths.length) {
-    for (const includePath of pluginOptions.includePaths) {
+    let isExcluded = false;
+    pluginOptions.includePaths.forEach((includePath) => {
       if (filename.indexOf(path.resolve(includePath)) === -1) {
-        return { code };
+        isExcluded = true;
       }
+    });
+
+    if (isExcluded) {
+      return { code };
     }
   }
 
@@ -94,7 +82,9 @@ const markup = async ({ content, filename }) => {
           }
         }
 
-        const interpolatedName = generateName(filename, styles[0], className);
+        const interpolatedName = generateName(
+          filename, styles[0], className, pluginOptions.localIdentName
+        );
 
         const customInterpolatedName = pluginOptions.getLocalIdent(
           {
