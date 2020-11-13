@@ -13,7 +13,7 @@ interface IOptions {
   style: string;
 }
 
-export interface IGetLocalIdent {
+export type GetLocalIdent = {
   (
     context: IContext,
     localIdentName: ILocalIdentName,
@@ -23,4 +23,4 @@ export interface IGetLocalIdent {
 }
 
 // eslint-disable-next-line max-len
-export const getLocalIdent: IGetLocalIdent = (_context, localIdentName) => localIdentName.interpolatedName;
+export const getLocalIdent: GetLocalIdent = (_context, localIdentName) => localIdentName.interpolatedName;
