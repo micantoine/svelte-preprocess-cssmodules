@@ -1,5 +1,5 @@
 const path = require('path');
-const cssModules = require('../../index');
+const cssModules = require('../../dist/index');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
