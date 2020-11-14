@@ -1,41 +1,24 @@
 import path from 'path';
+import { PluginOptions, PreprocessorOptions, PreprocessorResult } from './types';
 import {
   generateName,
   getLocalIdent,
-  GetLocalIdent,
   Patterns
 } from './utils';
 
-type PluginOptions = {
-  includePaths: string[];
-  localIdentName: string;
-  getLocalIdent: GetLocalIdent;
-  strict: boolean;
-}
 
-const pluginOptions: PluginOptions = {
+let pluginOptions: PluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]',
   getLocalIdent,
   strict: false
 };
 
-const moduleClasses: Record<string, Record<string, string>> = {};
-
-interface IPreprocessorOptions {
-  content: string;
-  filename: string;
-}
-
-interface IPreprocessorResult {
-  code: string;
-}
+const moduleClasslist: Record<string, Record<string, string>> = {};
 
 const markup = async (
-  { content, filename }: IPreprocessorOptions
-): Promise<IPreprocessorResult> => {
-  const code = content;
-
+  { content, filename }: PreprocessorOptions
+): Promise<PreprocessorResult> => {
   if (pluginOptions.includePaths.length) {
     let isExcluded = false;
     pluginOptions.includePaths.forEach((includePath) => {
@@ -45,16 +28,16 @@ const markup = async (
     });
 
     if (isExcluded) {
-      return { code };
+      return { code: content };
     }
   }
 
   if (!Patterns.PATTERN_MODULE.test(content)) {
-    return { code };
+    return { code: content };
   }
 
   const styles = content.match(Patterns.PATTERN_STYLE);
-  moduleClasses[filename] = {};
+  moduleClasslist[filename] = {};
 
   return {
     code: content.replace(Patterns.PATTERN_MODULE, (match, key, className) => {
@@ -97,12 +80,12 @@ const markup = async (
           },
           className,
           {
-            markup: code,
+            markup: content,
             style: styles[0]
           }
         );
 
-        moduleClasses[filename][className] = customInterpolatedName;
+        moduleClasslist[filename][className] = customInterpolatedName;
         replacement = customInterpolatedName;
       }
       return replacement;
@@ -110,26 +93,28 @@ const markup = async (
   };
 };
 
-const style = async ({ content, filename }) => {
-  let code = content;
-
-  if (!moduleClasses.hasOwnProperty(filename)) {
-    return { code };
+const style = async (
+  { content, filename }: PreprocessorOptions
+): Promise<PreprocessorResult> => {
+  if (!Object.prototype.hasOwnProperty.call(moduleClasslist, filename)) {
+    return { code: content };
   }
 
-  const classes = moduleClasses[filename];
+  const moduleClass = moduleClasslist[filename];
 
-  if (Object.keys(classes).length === 0) {
-    return { code };
+  if (Object.keys(moduleClass).length === 0) {
+    return { code: content };
   }
 
-  for (const className in classes) {
-    code = code.replace(
+  let updatedContent = content;
+
+  Object.keys(moduleClass).forEach((className) => {
+    updatedContent = updatedContent.replace(
       Patterns.PATTERN_CLASS_SELECTOR(className),
       (match) => {
         const generatedClass = match.replace(
           Patterns.PATTERN_CLASSNAME(className),
-          () => `.${classes[className]}`
+          () => `.${moduleClass[className]}`
         );
 
         return generatedClass.indexOf(':global(') !== -1
@@ -137,15 +122,17 @@ const style = async ({ content, filename }) => {
           : `:global(${generatedClass})`;
       }
     );
-  }
+  });
 
-  return { code };
+  return { code: updatedContent };
 };
 
-module.exports = (options) => {
-  for (const option in options) {
-    pluginOptions[option] = options[option];
-  }
+// eslint-disable-next-line no-multi-assign
+export default exports = module.exports = (options: Partial<PluginOptions>) => {
+  pluginOptions = {
+    ...pluginOptions,
+    ...options
+  };
   return {
     markup,
     style

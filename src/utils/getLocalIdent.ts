@@ -1,24 +1,24 @@
-interface IContext {
+interface Context {
   context: string;
   resourcePath: string;
 }
 
-interface ILocalIdentName {
+interface LocalIdentName {
   template: string;
   interpolatedName: string;
 }
 
-interface IOptions {
+interface Options {
   markup: string;
   style: string;
 }
 
 export type GetLocalIdent = {
   (
-    context: IContext,
-    localIdentName: ILocalIdentName,
+    context: Context,
+    localIdentName: LocalIdentName,
     localName: string,
-    options: IOptions
+    options: Options
   ): string
 }
 
