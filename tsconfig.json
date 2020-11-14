@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "paths": {},
     "typeRoots": [
-      "types",
+      "./src/types",
       "./node_modules/@types",
     ],
     "types": [

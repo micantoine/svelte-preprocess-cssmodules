@@ -12,9 +12,7 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module'
   },
-  plugins: [
-    '@typescript-eslint'
-  ],
+  plugins: ['@typescript-eslint'],
   rules: {
     'comma-dangle': ['error', 'never'],
     'import/extensions': [
@@ -30,7 +28,8 @@ module.exports = {
       {
         exceptAfterSingleLine: true
       }
-    ]
+    ],
+    'no-const-assign': 'error'
   },
   settings: {
     'import/resolver': {
