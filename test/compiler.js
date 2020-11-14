@@ -1,5 +1,5 @@
 const svelte = require('svelte/compiler');
-const cssModules = require('../index.js');
+const cssModules = require('../dist/index.js');
 
 module.exports = async ({ source }, options) => {
   const { code } = await svelte.preprocess(
