@@ -1,4 +1,4 @@
-import { GetLocalIdent } from '../utils/getLocalIdent';
+import { GetLocalIdent } from '../lib/getLocalIdent';
 
 export type PluginOptions = {
   includePaths: string[];
@@ -15,3 +15,6 @@ export interface PreprocessorOptions {
 export interface PreprocessorResult {
   code: string;
 }
+
+export type CSSModuleList = Record<string, string>;
+export type CSSModuleDirectory = Record<string, CSSModuleList>;
