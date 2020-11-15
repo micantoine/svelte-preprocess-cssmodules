@@ -19,8 +19,9 @@
     "build": "tsc",
     "dev": "npm run build -- -w",
     "lint": "eslint --ext .ts --fix ./src",
-    "pretty": "prettier --write --loglevel warn ./{src,test}",
-    "test": "jest"
+    "format": "prettier --write --loglevel warn ./{src,test}",
+    "test": "jest",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "license": "MIT",
   "main": "dist/index.js",
