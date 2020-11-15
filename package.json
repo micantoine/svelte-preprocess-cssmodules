@@ -19,6 +19,7 @@
     "build": "tsc",
     "dev": "npm run build -- -w",
     "lint": "eslint --ext .ts --fix ./src",
+    "pretty": "prettier --write --loglevel warn ./{src,test}",
     "test": "jest"
   },
   "license": "MIT",
@@ -37,8 +38,9 @@
     }
   },
   "lint-staged": {
-    "*.ts": [
-      "eslint --fix"
+    "*.{ts, js}": [
+      "eslint --fix",
+      "prettier --write"
     ]
   },
   "dependencies": {
@@ -52,10 +54,12 @@
     "@typescript-eslint/parser": "^4.4.0",
     "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
     "husky": "^4.3.0",
     "jest": "^26.0.1",
     "lint-staged": "^10.5.1",
+    "prettier": "^2.1.2",
     "svelte": "^3.22.3",
     "typescript": "^4.0.3"
   },
