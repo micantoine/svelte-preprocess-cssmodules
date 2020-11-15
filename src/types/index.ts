@@ -1,4 +1,4 @@
-import { GetLocalIdent } from '../lib/getLocalIdent';
+import { GetLocalIdent } from '../lib';
 
 export type PluginOptions = {
   includePaths: string[];

@@ -6,8 +6,7 @@ import {
   CSSModuleDirectory
 } from './types';
 import { parseMarkup, parseStyle } from './processors';
-import { getLocalIdent } from './lib/getLocalIdent';
-import { PATTERN_MODULE } from './lib/patterns';
+import { getLocalIdent, PATTERN_MODULE } from './lib';
 
 let pluginOptions: PluginOptions = {
   includePaths: [],
