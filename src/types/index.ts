@@ -5,7 +5,7 @@ export type PluginOptions = {
   localIdentName: string;
   getLocalIdent: GetLocalIdent;
   strict: boolean;
-}
+};
 
 export interface PreprocessorOptions {
   content: string;

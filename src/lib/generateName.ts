@@ -42,9 +42,8 @@ function interpolateName(resourcePath: string, localName: any, content: any) {
   if (content) {
     url = url.replace(
       /\[(?:([^:\]]+):)?(?:hash|contenthash)(?::([a-z]+\d*))?(?::(\d+))?\]/gi,
-      (all: never, hashType: never, digestType: never, maxLength: never) => getHashDigest(
-        content, hashType, digestType, parseInt(maxLength, 10)
-      )
+      (all: never, hashType: never, digestType: never, maxLength: never) =>
+        getHashDigest(content, hashType, digestType, parseInt(maxLength, 10))
     );
   }
 

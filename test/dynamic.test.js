@@ -41,7 +41,9 @@ describe('using dynamic classes', () => {
       '<span class={`$style.color-${color}`}>Red</span>';
 
     it('throws an exception when resulting class is invalid', async () => {
-      await expect(compiler({ source })).rejects.toThrow('Classname "color-" in file src/App.svelte is not valid');
+      await expect(compiler({ source })).rejects.toThrow(
+        'Classname "color-" in file src/App.svelte is not valid'
+      );
     });
   });
 });
