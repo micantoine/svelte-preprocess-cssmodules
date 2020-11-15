@@ -6,7 +6,7 @@ import {
   CSSModuleDirectory,
 } from './types';
 import { parseMarkup, parseStyle } from './processors';
-import { getLocalIdent, PATTERN_MODULE } from './lib';
+import { getLocalIdent, isFileIncluded, PATTERN_MODULE } from './lib';
 
 let pluginOptions: PluginOptions = {
   includePaths: [],
@@ -18,17 +18,10 @@ let pluginOptions: PluginOptions = {
 const cssModuleDirectory: CSSModuleDirectory = {};
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
-  if (pluginOptions.includePaths.length) {
-    let isExcluded = false;
-    pluginOptions.includePaths.forEach((includePath) => {
-      if (filename.indexOf(path.resolve(includePath)) === -1) {
-        isExcluded = true;
-      }
-    });
+  const isInclude = await isFileIncluded(pluginOptions.includePaths, filename);
 
-    if (isExcluded) {
-      return { code: content };
-    }
+  if (!isInclude) {
+    return { code: content };
   }
 
   if (!PATTERN_MODULE.test(content)) {
