@@ -16,10 +16,7 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   rules: {
-    'comma-dangle': ['error', {
-      "arrays": "only-multiline",
-      "objects": "only-multiline"
-    }],
+    'comma-dangle': ['error', "only-multiline"],
     'import/extensions': [
       'error',
       'never',
