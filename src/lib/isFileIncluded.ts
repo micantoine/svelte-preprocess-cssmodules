@@ -7,7 +7,7 @@ const isFileIncluded = async (includePaths: string[], filename: string): Promise
 
   const isIncluded: boolean = await new Promise((resolve): void => {
     includePaths.forEach((includePath, index): void => {
-      if (filename.indexOf(path.resolve(includePath)) === -1) {
+      if (filename.indexOf(path.resolve(includePath)) !== -1) {
         resolve(true);
       }
       if (index === includePaths.length - 1) {

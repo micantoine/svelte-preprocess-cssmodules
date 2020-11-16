@@ -18,9 +18,9 @@ let pluginOptions: PluginOptions = {
 const cssModuleDirectory: CSSModuleDirectory = {};
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
-  const isInclude = await isFileIncluded(pluginOptions.includePaths, filename);
+  const isIncluded = await isFileIncluded(pluginOptions.includePaths, filename);
 
-  if (!isInclude) {
+  if (!isIncluded) {
     return { code: content };
   }
 
