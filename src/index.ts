@@ -1,12 +1,11 @@
-import path from 'path';
 import {
   PluginOptions,
   PreprocessorOptions,
   PreprocessorResult,
   CSSModuleDirectory,
 } from './types';
-import { parseMarkup, parseStyle } from './processors';
-import { getLocalIdent, isFileIncluded, PATTERN_MODULE } from './lib';
+import { parseMarkup, parseScript, parseStyle } from './processors';
+import { getLocalIdent, isFileIncluded, PATTERN_IMPORT, PATTERN_MODULE } from './lib';
 
 let pluginOptions: PluginOptions = {
   includePaths: [],
@@ -34,6 +33,23 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
   return { code: parsedMarkup.content };
 };
 
+const script = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
+  const isIncluded = await isFileIncluded(pluginOptions.includePaths, filename);
+
+  if (!isIncluded) {
+    return { code: content };
+  }
+
+  if (!PATTERN_IMPORT.test(content)) {
+    return { code: content };
+  }
+
+  const parsedScript = parseScript(content, filename);
+  console.log(parsedScript.content);
+
+  return { code: parsedScript.content };
+};
+
 const style = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
   if (!Object.prototype.hasOwnProperty.call(cssModuleDirectory, filename)) {
     return { code: content };
@@ -52,6 +68,7 @@ export default exports = module.exports = (options: Partial<PluginOptions>) => {
   };
   return {
     markup,
+    script,
     style,
   };
 };
