@@ -1,6 +1,6 @@
 {
   "name": "svelte-preprocess-cssmodules",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Svelte preprocessor to generate CSS Modules classname on Svelte components",
   "keywords": [
     "svelte",
