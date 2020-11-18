@@ -62,13 +62,10 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
   const styleContent = styles && styles.length ? styles[0] : null;
   const importedStyleContent: string[] = [];
 
-  const dependencies: string[] = [];
-
   // go through imports
   if (PATTERN_IMPORT.test(content)) {
     parsedContent = parsedContent.replace(PATTERN_IMPORT, (_match, varName, relativePath) => {
       const absolutePath = path.resolve(path.dirname(filename), relativePath);
-      dependencies.push(absolutePath);
       try {
         const fileContent = fs.readFileSync(absolutePath, 'utf8');
         const classlist = new Map();
