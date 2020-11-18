@@ -4,7 +4,7 @@ import {
   PreprocessorResult,
   CSSModuleDirectory,
 } from './types';
-import { parseMarkup, parseScript, parseStyle } from './processors';
+import { parseMarkup, parseStyle } from './processors';
 import { getLocalIdent, isFileIncluded, PATTERN_IMPORT, PATTERN_MODULE } from './lib';
 
 let pluginOptions: PluginOptions = {
@@ -23,31 +23,16 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
     return { code: content };
   }
 
-  if (!PATTERN_MODULE.test(content)) {
+  if (!PATTERN_MODULE.test(content) && !PATTERN_IMPORT.test(content)) {
     return { code: content };
   }
 
   const parsedMarkup = parseMarkup(content, filename, pluginOptions);
   cssModuleDirectory[filename] = parsedMarkup.cssModuleList;
 
-  return { code: parsedMarkup.content };
-};
-
-const script = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
-  const isIncluded = await isFileIncluded(pluginOptions.includePaths, filename);
-
-  if (!isIncluded) {
-    return { code: content };
-  }
-
-  if (!PATTERN_IMPORT.test(content)) {
-    return { code: content };
-  }
-
-  const parsedScript = parseScript(content, filename);
-  console.log(parsedScript.content);
-
-  return { code: parsedScript.content };
+  return {
+    code: parsedMarkup.content,
+  };
 };
 
 const style = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
@@ -66,9 +51,9 @@ export default exports = module.exports = (options: Partial<PluginOptions>) => {
     ...pluginOptions,
     ...options,
   };
+
   return {
     markup,
-    script,
     style,
   };
 };
