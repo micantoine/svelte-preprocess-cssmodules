@@ -22,7 +22,7 @@ module.exports = {
               preprocess: [
                 cssModules({
                   includePaths: ['./'],
-                })
+                }),
               ],
               emitCss: false
             }
