@@ -10,11 +10,6 @@ import {
 } from '../lib/patterns';
 import generateName from '../lib/generateName';
 
-type Parser = {
-  content: string;
-  cssModuleList: CSSModuleList;
-};
-
 /**
  * Create the interpolated name
  * @param filename tthe resource filename
@@ -48,6 +43,11 @@ const createInterpolatedName = (
   );
 };
 
+type Parser = {
+  content: string;
+  cssModuleList: CSSModuleList;
+};
+
 /**
  * Parse Markup
  * @param content the markup content
@@ -64,7 +64,7 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
   let importedStyleType = 'css';
 
   // go through imports
-  if (PATTERN_IMPORT.test(content)) {
+  if (content.search(PATTERN_IMPORT) !== -1) {
     parsedContent = parsedContent.replace(
       PATTERN_IMPORT,
       (_match, varName, relativePath, extension) => {
@@ -101,7 +101,7 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
   }
 
   // go through module $style syntax
-  if (PATTERN_MODULE.test(content)) {
+  if (content.search(PATTERN_MODULE) !== -1) {
     parsedContent = parsedContent.replace(PATTERN_MODULE, (match, key, className) => {
       let replacement = '';
       if (!className.length) {
@@ -147,9 +147,9 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
       updatedStyle = styleContent.replace(
         PATTERN_STYLE,
         (_match, attributes, stylesheetContent) => {
-          const styleAttributes =
+          const styleAttribute =
             importedStyleType !== 'css' ? ` lang="${importedStyleType}"` : attributes;
-          return `<style${styleAttributes || ''}>\n${importedStyleContent.join(
+          return `<style${styleAttribute || ''}>\n${importedStyleContent.join(
             '\n'
           )}${stylesheetContent}</style>`;
         }
@@ -157,8 +157,8 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
     }
     parsedContent = parsedContent.replace(PATTERN_STYLE, updatedStyle);
   } else if (importedStyleContent.length) {
-    const attributes = importedStyleType !== 'css' ? ` lang="${importedStyleType}"` : '';
-    parsedContent = `${parsedContent}\n<style${attributes}>\n${importedStyleContent.join(
+    const styleAttribute = importedStyleType !== 'css' ? ` lang="${importedStyleType}"` : '';
+    parsedContent = `${parsedContent}\n<style${styleAttribute}>\n${importedStyleContent.join(
       '\n'
     )}\n</style>`;
   }
