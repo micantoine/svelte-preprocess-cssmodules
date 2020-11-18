@@ -61,35 +61,43 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
   const styles = content.match(PATTERN_STYLE);
   const styleContent = styles && styles.length ? styles[0] : null;
   const importedStyleContent: string[] = [];
+  let importedStyleType = 'css';
 
   // go through imports
   if (PATTERN_IMPORT.test(content)) {
-    parsedContent = parsedContent.replace(PATTERN_IMPORT, (_match, varName, relativePath) => {
-      const absolutePath = path.resolve(path.dirname(filename), relativePath);
-      try {
-        const fileContent = fs.readFileSync(absolutePath, 'utf8');
-        const classlist = new Map();
-        Array.from(fileContent.matchAll(PATTERN_CLASS_SELECTOR)).forEach((matchItem) => {
-          if (!classlist.has(matchItem.groups.className)) {
-            const interpolatedName = createInterpolatedName(
-              filename,
-              content,
-              fileContent,
-              matchItem.groups.className,
-              pluginOptions
-            );
-            classlist.set(matchItem.groups.className, interpolatedName);
-            cssModuleList[matchItem.groups.className] = interpolatedName;
+    parsedContent = parsedContent.replace(
+      PATTERN_IMPORT,
+      (_match, varName, relativePath, extension) => {
+        const absolutePath = path.resolve(path.dirname(filename), relativePath);
+        try {
+          const fileContent = fs.readFileSync(absolutePath, 'utf8');
+          const classlist = new Map();
+          Array.from(fileContent.matchAll(PATTERN_CLASS_SELECTOR)).forEach((matchItem) => {
+            if (!classlist.has(matchItem.groups.className)) {
+              const interpolatedName = createInterpolatedName(
+                filename,
+                content,
+                fileContent,
+                matchItem.groups.className,
+                pluginOptions
+              );
+              classlist.set(matchItem.groups.className, interpolatedName);
+              cssModuleList[matchItem.groups.className] = interpolatedName;
+            }
+          });
+
+          importedStyleContent.push(fileContent);
+
+          if (extension !== 'css') {
+            importedStyleType = extension;
           }
-        });
 
-        importedStyleContent.push(fileContent);
-
-        return `const ${varName} = ${JSON.stringify(Object.fromEntries(classlist))};`;
-      } catch (err) {
-        throw new Error(err);
+          return `const ${varName} = ${JSON.stringify(Object.fromEntries(classlist))};`;
+        } catch (err) {
+          throw new Error(err);
+        }
       }
-    });
+    );
   }
 
   // go through module $style syntax
@@ -139,7 +147,9 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
       updatedStyle = styleContent.replace(
         PATTERN_STYLE,
         (_match, attributes, stylesheetContent) => {
-          return `<style${attributes || ''}>\n${importedStyleContent.join(
+          const styleAttributes =
+            importedStyleType !== 'css' ? ` lang="${importedStyleType}"` : attributes;
+          return `<style${styleAttributes || ''}>\n${importedStyleContent.join(
             '\n'
           )}${stylesheetContent}</style>`;
         }
@@ -147,7 +157,10 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
     }
     parsedContent = parsedContent.replace(PATTERN_STYLE, updatedStyle);
   } else if (importedStyleContent.length) {
-    parsedContent = `${parsedContent}\n<style>\n${importedStyleContent.join('\n')}\n</style>`; // @todo consider attribute preprocess
+    const attributes = importedStyleType !== 'css' ? ` lang="${importedStyleType}"` : '';
+    parsedContent = `${parsedContent}\n<style${attributes}>\n${importedStyleContent.join(
+      '\n'
+    )}\n</style>`;
   }
 
   return {
