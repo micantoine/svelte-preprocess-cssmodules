@@ -2,7 +2,7 @@
   "bracketSpacing": true,
   "parser": "typescript",
   "singleQuote": true,
-  "semicolons": true,
+  "semi": true,
   "tabWidth": 2,
   "trailingComma": "es5"
 }
