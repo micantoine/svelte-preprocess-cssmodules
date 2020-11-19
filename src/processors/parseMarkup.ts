@@ -73,7 +73,25 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
           const fileContent = fs.readFileSync(absolutePath, 'utf8');
           const classlist = new Map();
           Array.from(fileContent.matchAll(PATTERN_CLASS_SELECTOR)).forEach((matchItem) => {
-            if (!classlist.has(matchItem.groups.className)) {
+            // set array from exported className
+            const destructuredImportRegex = /\{([\w,\s]+)\}/gm;
+            const isDestructuredImport: boolean = varName.search(destructuredImportRegex) !== -1;
+            let destructuredImportNames: string[] = [];
+            if (isDestructuredImport) {
+              const destructuredImport = Object.values(
+                Object.fromEntries(varName.matchAll(destructuredImportRegex))
+              )[0];
+              if (destructuredImport) {
+                destructuredImportNames = destructuredImport.replace(/\s/g, '').split(',');
+              }
+            }
+
+            if (
+              !classlist.has(matchItem.groups.className) &&
+              (!isDestructuredImport ||
+                (isDestructuredImport &&
+                  destructuredImportNames.includes(matchItem.groups.className)))
+            ) {
               const interpolatedName = createInterpolatedName(
                 filename,
                 content,

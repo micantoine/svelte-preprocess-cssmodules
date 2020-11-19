@@ -393,12 +393,8 @@ p > strong { font-weight: 600; }
 </style>
 
 <section class="svelte-18te3n2">
-  <p class="red-1sPexk svelte-18te3n2">
-    My <strong class="svelte-18te3n2">red</strong> text
-  </p>
-  <p class="svelte-18te3n2">
-    My <strong class="svelte-18te3n2">blue</strong> text
-  </p>
+  <p class="red-1sPexk svelte-18te3n2">My <strong class="svelte-18te3n2">red</strong> text</p>
+  <p class="svelte-18te3n2">My <strong class="svelte-18te3n2">blue</strong> text</p>
 </section>
 ```
 
