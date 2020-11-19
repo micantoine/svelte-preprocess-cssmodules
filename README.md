@@ -6,7 +6,9 @@ Generate CSS Modules classname on Svelte components
 npm install --save-dev svelte-preprocess-cssmodules
 ```
 
-## Rollup Configuration
+## Configuration
+
+### Rollup
 
 To be used with the plugin [`rollup-plugin-svelte`](https://github.com/sveltejs/rollup-plugin-svelte).
 
@@ -27,7 +29,7 @@ export default {
 }
 ```
 
-## Webpack Configuration
+### Webpack
 
 To be used with the loader [`svelte-loader`](https://github.com/sveltejs/svelte-loader).
 
@@ -58,36 +60,52 @@ module.exports = {
 }
 ```
 
-## Options
+### Options
 Pass an object of the following properties
 
 | Name | Type | Default | Description |
 | ------------- | ------------- | ------------- | ------------- |
-| `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token from [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename) |
+| `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 | `strict`  | `{Boolean}` | `false` | When true, an exception is raised when a class is used while not being defined in `<style>`
+   
 
-#### `getLocalIdent`
+**`localIdentName`**
 
-Function to generate the classname instead of relying on the built-in function.
+Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename), here is the list of tokens:
 
-```js
+- `[local]` the targeted classname
+- `[ext]` the extension of the resource
+- `[name]` the basename of the resource
+- `[path]` the path of the resource
+- `[folder]` the folder the resource is in
+- `[contenthash]` or `[hash]` *(they are the same)* the hash of the resource content (by default it's the hex digest of the md4 hash)
+- `[<hashType>:contenthash:<digestType>:<length>]` optionally one can configure
+  - other hashTypes, i. e. `sha1`, `md4`, `md5`, `sha256`, `sha512`
+  - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
+  - and `length` the length in chars
+
+**`getLocalIdent`**
+
+Customize the creation of the classname instead of relying on the built-in function.
+
+```ts
 function getLocalIdent(
   context: {
-    context, // the context path
-    resourcePath, // path + filename
+    context: string, // the context path
+    resourcePath: string, // path + filename
   },
   localIdentName: {
-    template, // the template rule
-    interpolatedName, // the built-in generated classname
+    template: string, // the template rule
+    interpolatedName: string, // the built-in generated classname
   },
-  className, // the classname string
+  className: string, // the classname string
   content: { 
-    markup, // the markup content
-    style,  // the style content
+    markup: string, // the markup content
+    style: string,  // the style content
   }
-) {
+): string {
   return `your_generated_classname`;
 }
 ```
@@ -313,6 +331,79 @@ To remove verbosity the shorthand `$.MY_CLASSNAME` can be used instead of the re
 <p class="red-en-6pb bold-2jIMhI">My red text</p>
 <p class="bold-2jIMhI blue-oVk-n1">My blue text</p>
 ```
+
+## Import external stylesheet
+
+Alternatively, styles can be created into an external file and imported onto the svelte component within the `script` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet. 
+
+```css
+/** style.css **/
+.red { color: red; }
+.blue { color: blue; }
+```
+```html
+<!-- Svelte component -->
+<script>
+  import style from './style.css';
+</script>
+
+<p class={style.red}>My red text</p>
+<p class={style.blue}>My blue text</p>
+```
+Generating your svelte component into
+
+```html
+<style>
+  .red-en-6pb { color: red; }
+  .blue-oVk-n1 { color: blue; }
+</style>
+
+<p class="red-en-6pb">My red text</p>
+<p class="blue-oVk-n1">My blue text</p>
+```
+
+### Svelte scoped system on non class selectors
+All existing rules inside the stylesheet will be applied to the component the way `<style>` would do. All non class selectors will inherit the default svelte scoped system.
+
+```css
+/** style.css **/
+.red { color: red; }
+section { padding: 10px; }
+p > strong { font-weight: 600; }
+```
+```html
+<!-- Svelte component -->
+<script>
+  import style from './style.css';
+</script>
+
+<section>
+  <p class={style.red}>My <strong>red</strong> text</p>
+  <p>My <strong>blue</strong> text</p>
+</section>
+```
+
+*Generated code*
+
+```html
+<style>
+  .red-1sPexk { color: red; }
+  section.svelte-18te3n2 { padding: 10px; }
+  p.svelte-18te3n2 > strong.svelte-18te3n2 { font-weight: 600; }
+</style>
+
+<section class="svelte-18te3n2">
+  <p class="red-1sPexk svelte-18te3n2">
+    My <strong class="svelte-18te3n2">red</strong> text
+  </p>
+  <p class="svelte-18te3n2">
+    My <strong class="svelte-18te3n2">blue</strong> text
+  </p>
+</section>
+```
+
+### Destructuring import
+Only import the classname you want to use as css modules. The rest 
 
 ## Example
 

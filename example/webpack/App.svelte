@@ -10,7 +10,7 @@
     <header class="$style.active">My Modal title</header>
     <div class="$style.body">
       <Time />
-      <p class={css.error}>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt.</p>
+      <p class="{css.error}"><strong>Lorem ipsum dolor sit</strong>, amet consectetur adipisicing elit. Placeat, deserunt.</p>
       <p class={success}>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt. Lorem ipsum dolor sit amet. </p>
     </div>
     <footer>

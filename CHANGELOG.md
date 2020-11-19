@@ -2,7 +2,7 @@
 
 ## 1.3.0 (Nov 18, 2020)
 - Feature: CSS Modules from imports
-- Fix: `global` Regex working with an attached bracket to the selector (missing space) `.myclass{ }`
+- Fix: *global selector* Regex is now working with an attached bracket to the selector (missing space) `.myclass{ }`
 - Dev: use of typescript, set up eslint and prettier
 
 ## 1.2.1 (Oct 31, 2020)
