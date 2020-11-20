@@ -400,6 +400,7 @@ p > strong { font-weight: 600; }
 ```
 
 ### Destructuring import
+
 Only import the classnames you want to use as css modules. The rest of classes will fallback to the default svelte scoped system.
 
 ```css
@@ -435,6 +436,51 @@ section { padding: 10px; }
   <p class="red-1sPexk">My <span class="bold svelte-18te3n2">red</span> text</p>
   <p class="blue-oVkn13 bold svelte-18te3n2">My blue text</p>
 </section>
+```
+
+### kebab-case situation
+
+The kebab-case classnames are being transformed to a camelCase version on imports to faciliate their use on Markup and Javascript.
+
+```css
+/** style.css **/
+.success { color: green; }
+.error-message {
+  color: red;
+  text-decoration: line-through;
+}
+```
+```html
+<script>
+  import css from './style.css';
+</script>
+
+<p class={css.success}>My success text</p>
+<p class="{css.errorMessage}">My error message</p>
+
+<!-- OR -->
+
+<script>
+  import { success, errorMessage } from './style.css';
+</script>
+
+<p class={success}>My success text</p>
+<p class={errorMessage}>My error message</p>
+```
+
+*Generated code*
+
+```html
+<style>
+  .success-3BIYsG { color: green; }
+  .error-message-16LSOn {
+    color: red;
+    text-decoration: line-through;
+  }
+</style>
+
+<p class="success-3BIYsG">My success text</p>
+<p class="error-message-16LSOn">My error message</p>
 ```
 
 ## Example

@@ -5,4 +5,7 @@ section div {
 .error {
   color: red;
 }
+.error-message {
+  text-decoration: line-through;
+}
 p > strong { font-weight: 600; }
