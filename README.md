@@ -363,13 +363,14 @@ Generating your svelte component into
 ```
 
 ### Svelte scoped system on non class selectors
-All existing rules inside the stylesheet will be applied to the component the way `<style>` would do. All non class selectors will inherit the default svelte scoped system.
+
+All existing rules of the imported stylesheet will apply to the component the same way `<style>` would do. All non class selectors will inherit the default svelte scoped system. 
 
 ```css
 /** style.css **/
-.red { color: red; }
 section { padding: 10px; }
 p > strong { font-weight: 600; }
+.red { color: red; }
 ```
 ```html
 <!-- Svelte component -->
@@ -387,9 +388,9 @@ p > strong { font-weight: 600; }
 
 ```html
 <style>
-  .red-1sPexk { color: red; }
   section.svelte-18te3n2 { padding: 10px; }
   p.svelte-18te3n2 > strong.svelte-18te3n2 { font-weight: 600; }
+  .red-1sPexk { color: red; }
 </style>
 
 <section class="svelte-18te3n2">
@@ -399,7 +400,42 @@ p > strong { font-weight: 600; }
 ```
 
 ### Destructuring import
-Only import the classname you want to use as css modules. The rest 
+Only import the classnames you want to use as css modules. The rest of classes will fallback to the default svelte scoped system.
+
+```css
+/** style.css **/
+section { padding: 10px; }
+.red { color: red; }
+.blue { color: blue; }
+.bold { font-weight: bold; }
+```
+```html
+<!-- Svelte component -->
+<script>
+  import { red, blue } from './style.css';
+</script>
+
+<section>
+  <p class={red}>My <span class="bold">red</span> text</p>
+  <p class="{blue} bold">My blue text</p>
+</section>
+```
+
+*Generated code*
+
+```html
+<style>
+  section.svelte-18te3n2 { padding: 10px; }
+  .red-1sPexk { color: red; }
+  .blue-oVkn13 { color: blue; }
+  .bold.svelte-18te3n2 { font-weight: bold; }
+</style>
+
+<section class="svelte-18te3n2">
+  <p class="red-1sPexk">My <span class="bold svelte-18te3n2">red</span> text</p>
+  <p class="blue-oVkn13 bold svelte-18te3n2">My blue text</p>
+</section>
+```
 
 ## Example
 

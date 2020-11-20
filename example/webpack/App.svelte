@@ -86,5 +86,4 @@ button {
 .active {
   font-weight: 700;
 }
-.toberemoved { background: blue }
 </style>
