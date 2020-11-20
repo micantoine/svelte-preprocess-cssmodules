@@ -6,6 +6,24 @@ Generate CSS Modules classname on Svelte components
 npm install --save-dev svelte-preprocess-cssmodules
 ```
 
+- [Configuration](#configuration)
+  - [Rollup](#rollup)
+  - [Webpack](#webpack)
+  - [Options](#options)
+- [Use of the *style* tag](#use-of-the-style-tag)
+  - [Process required class](#process-required-class)
+  - [Remove unspecified class](#remove-unspecified-class)
+  - [Target any classname format](#target-any-classname-format)
+  - [Work with class directives](#work-with-class-directives)
+  - [Shorthand](#shorthand)
+- [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
+  - [Svelte scoped system on non class selectors](#svelte-scoped-system-on-non-class-selectors)
+  - [Destructuring import](#destructuring-import)
+  - [kebab-case situation](#kebab-case-situation)
+  - [Unnamed import](#unnamed-import)
+- [Code example](#code-example)
+- [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
+
 ## Configuration
 
 ### Rollup
@@ -144,9 +162,9 @@ preprocess: [
 ...
 ```
 
-## Usage on Svelte Component
+## Use of the *style* tag
 
-**On the HTML markup** (not the CSS), Prefix any class name that require CSS Modules by *$style.*  => `$style.MY_CLASSNAME`
+Write css rules inside `<style>` and prefix **on the HTML markup** any classname that require CSS Modules by `$style`  => `$style.MY_CLASSNAME` .
 
 ```html
 <style>
@@ -166,9 +184,9 @@ The component will be transformed to
 <p class="red-30_1IC">My red text</p>
 ```
 
-### Replace only the required class
+### Process required class
 
-CSS Modules classname are generated to the html class values prefixed by `$style.`. The rest is left untouched and will use the default svelte scoped class.
+CSS Modules classname are generated to the html class values prefixed by `$style.` The rest is left untouched and will use the default svelte scoped class.
 
 *Before*
 
@@ -252,37 +270,9 @@ kebab-case or camelCase, name the classes the way you're more comfortable with.
 <span class="redMajenta-2wdRa3">Majenta</span>
 ```
 
-### Use class multiple times
-A class can be naturally used on multiple elements.
-
-*Before*
-
-```html
-<style>
-  .red { color: red; }
-  .blue { color: blue; }
-  .bold { font-weight: bold; }
-</style>
-
-<p class="$style.red $style.bold">My red text</p>
-<p class="$style.blue $style.bold">My blue text</p>
-```
-
-*After*
-
-```html
-<style>
-  .red-en-6pb { color: red; }
-  .blue-oVk-n1 { color: blue; }
-  .bold-2jIMhI { font-weight: bold; }
-</style>
-
-<p class="red-en-6pb bold-2jIMhI">My red text</p>
-<p class="blue-oVk-n1 bold-2jIMhI">My blue text</p>
-```
-
 ### Work with class directives
-Toggling a class on an element.
+
+Toggle a class on an element.
 
 ```html
 <script>
@@ -332,7 +322,7 @@ To remove verbosity the shorthand `$.MY_CLASSNAME` can be used instead of the re
 <p class="bold-2jIMhI blue-oVk-n1">My blue text</p>
 ```
 
-## Import external stylesheet
+## Import styles from an external stylesheet
 
 Alternatively, styles can be created into an external file and imported onto the svelte component within the `script` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet. 
 
@@ -514,7 +504,7 @@ p { font-size: 18px; }
 <p class="svelte-vg78j0">My error message</p>
 ```
 
-## Example
+## Code Example
 
 *Rollup Config*
 
