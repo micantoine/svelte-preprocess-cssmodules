@@ -1,4 +1,4 @@
-const compiler = require('./compiler.js');
+const compiler = require('../compiler.js');
 
 describe('combining multiple classes', () => {
   const style = '<style>span.red.large:hover { font-size: 20px; } \n.red { color: red; }</style>';

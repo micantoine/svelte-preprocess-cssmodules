@@ -1,4 +1,4 @@
-const compiler = require('./compiler.js');
+const compiler = require('../compiler.js');
 
 describe('using dynamic classes', () => {
   describe('when matched class is empty', () => {
@@ -8,7 +8,7 @@ describe('using dynamic classes', () => {
 
     test('throws an exception', async () => {
       await expect(compiler({ source })).rejects.toThrow(
-        'Invalid class name in file src/App.svelte.\nThis usually happens when using dynamic classes with svelte-preprocess-cssmodules.'
+        'Invalid class name in file test/App.svelte.\nThis usually happens when using dynamic classes with svelte-preprocess-cssmodules.'
       );
     });
   });
@@ -21,7 +21,7 @@ describe('using dynamic classes', () => {
 
     it('in strict mode, it throw an exception', async () => {
       await expect(compiler({ source }, { strict: true })).rejects.toThrow(
-        'Classname "color" was not found in declared src/App.svelte <style>'
+        'Classname "color" was not found in declared test/App.svelte <style>'
       );
     });
 
@@ -42,7 +42,7 @@ describe('using dynamic classes', () => {
 
     it('throws an exception when resulting class is invalid', async () => {
       await expect(compiler({ source })).rejects.toThrow(
-        'Classname "color-" in file src/App.svelte is not valid'
+        'Classname "color-" in file test/App.svelte is not valid'
       );
     });
   });

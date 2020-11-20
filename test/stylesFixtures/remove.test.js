@@ -1,4 +1,4 @@
-const compiler = require('./compiler.js');
+const compiler = require('../compiler.js');
 
 const source = '<style>.red { color: red; }</style>\n<span class="$style.blue">Blue</span>';
 const sourceShorthand = '<style>.red { color: red; }</style>\n<span class="$.blue">Blue</span>';
@@ -41,6 +41,6 @@ describe('in strict mode', () => {
           strict: true,
         }
       )
-    ).rejects.toThrow('Classname "blue" was not found in declared src/App.svelte <style>');
+    ).rejects.toThrow('Classname "blue" was not found in declared test/App.svelte <style>');
   });
 });

@@ -1,4 +1,4 @@
-const compiler = require('./compiler.js');
+const compiler = require('../compiler.js');
 
 const source = `<style>.red { color: red; }</style>
 <span

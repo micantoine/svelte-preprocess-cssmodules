@@ -1,4 +1,4 @@
-const compiler = require('./compiler.js');
+const compiler = require('../compiler.js');
 
 const source = '<style>.red { color: red; }</style>\n<span class="$style.red">Red</span>';
 const sourceReactiveClass =
@@ -15,7 +15,7 @@ test('Replace path on regular class', async () => {
   );
 
   expect(output).toBe(
-    '<style>:global(.src_App__red) { color: red; }</style>\n<span class="src_App__red">Red</span>'
+    '<style>:global(.test_App__red) { color: red; }</style>\n<span class="test_App__red">Red</span>'
   );
 });
 
@@ -30,6 +30,6 @@ test('Replace path on reactive class', async () => {
   );
 
   expect(output).toBe(
-    '<style>:global(.src_App__red) { color: red; }</style>\n<span class:src_App__red={true}>Red</span>'
+    '<style>:global(.test_App__red) { color: red; }</style>\n<span class:test_App__red={true}>Red</span>'
   );
 });
