@@ -1,10 +1,10 @@
 # Svelte preprocess CSS Modules
 
-Generate CSS Modules classname on Svelte components
-
 ```bash
 npm install --save-dev svelte-preprocess-cssmodules
 ```
+
+Generate CSS Modules classname on Svelte components
 
 - [Configuration](#configuration)
   - [Rollup](#rollup)
@@ -14,13 +14,14 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Process required class](#process-required-class)
   - [Remove unspecified class](#remove-unspecified-class)
   - [Target any classname format](#target-any-classname-format)
-  - [Work with class directives](#work-with-class-directives)
+  - [Work with class directive](#work-with-class-directive)
   - [Shorthand](#shorthand)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Svelte scoped system on non class selectors](#svelte-scoped-system-on-non-class-selectors)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
+  - [Avoid class directive](#avoid-class-directive)
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
@@ -270,7 +271,7 @@ kebab-case or camelCase, name the classes the way you're more comfortable with.
 <span class="redMajenta-2wdRa3">Majenta</span>
 ```
 
-### Work with class directives
+### Work with class directive
 
 Toggle a class on an element.
 
@@ -324,7 +325,7 @@ To remove verbosity the shorthand `$.MY_CLASSNAME` can be used instead of the re
 
 ## Import styles from an external stylesheet
 
-Alternatively, styles can be created into an external file and imported onto the svelte component within the `script` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet. 
+Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet. 
 
 ```css
 /** style.css **/
@@ -474,7 +475,7 @@ The kebab-case classnames are being transformed to a camelCase version on import
 <p class="error-message-16LSOn">My error message</p>
 ```
 
-###  Unnamed import
+### Unnamed import
 
 If a css file is being imported without a name, all rules will use the default svelte scoped system.
 
@@ -502,6 +503,29 @@ p { font-size: 18px; }
 
 <p class="success svelte-vg78j0">My success messge</p>
 <p class="svelte-vg78j0">My error message</p>
+```
+
+### Avoid class directive
+The Svelte's builtin `class:` directive is **not working** with import cssModules. **Use JS syntax instead**
+
+```html
+<script>
+  import { success, error } from './styles';
+
+  let isSuccess = true;
+  $: notice = isSuccess ? success : error;
+</script>
+
+<button on:click={() => isSuccess = !isSuccess}>Toggle</button>
+
+<!-- NOT WORKING -->
+<p class:success={isSuccess} class:error={!isSuccess}>Notice</p>
+
+<!-- OK -->
+<p class={notice}>Notice</p>
+
+<!-- OK -->
+<p class={isSuccess ? success : error}>Notice</p>
 ```
 
 ## Code Example
