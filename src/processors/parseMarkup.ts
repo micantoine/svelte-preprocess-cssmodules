@@ -72,6 +72,12 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
         const absolutePath = path.resolve(path.dirname(filename), relativePath);
         try {
           const fileContent = fs.readFileSync(absolutePath, 'utf8');
+          importedStyleContent.push(fileContent);
+
+          if (!varName) {
+            return '';
+          }
+
           const classlist = new Map();
           Array.from(fileContent.matchAll(PATTERN_CLASS_SELECTOR)).forEach((matchItem) => {
             // set array from exported className
@@ -104,8 +110,6 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
               cssModuleList[matchItem.groups.className] = interpolatedName;
             }
           });
-
-          importedStyleContent.push(fileContent);
 
           if (extension !== 'css') {
             importedStyleType = extension;

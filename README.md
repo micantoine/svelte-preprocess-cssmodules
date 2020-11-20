@@ -506,7 +506,7 @@ p { font-size: 18px; }
 ```
 
 ### Avoid class directive
-The Svelte's builtin `class:` directive is **not working** with import cssModules. **Use JS syntax instead**
+The Svelte's builtin `class:` directive is **not working** with import cssModules because they are dynamics. **Use JS syntax instead**
 
 ```html
 <script>
