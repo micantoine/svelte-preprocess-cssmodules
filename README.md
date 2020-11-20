@@ -350,7 +350,8 @@ Alternatively, styles can be created into an external file and imported onto the
 <p class={style.red}>My red text</p>
 <p class={style.blue}>My blue text</p>
 ```
-Generating your svelte component into
+
+*Generated code*
 
 ```html
 <style>
@@ -440,7 +441,7 @@ section { padding: 10px; }
 
 ### kebab-case situation
 
-The kebab-case classnames are being transformed to a camelCase version on imports to faciliate their use on Markup and Javascript.
+The kebab-case classnames are being transformed to a camelCase version on imports to facilitate their use on Markup and Javascript.
 
 ```css
 /** style.css **/
@@ -464,7 +465,7 @@ The kebab-case classnames are being transformed to a camelCase version on import
   import { success, errorMessage } from './style.css';
 </script>
 
-<p class={success}>My success text</p>
+<p class={success}>My success message</p>
 <p class={errorMessage}>My error message</p>
 ```
 
@@ -479,8 +480,38 @@ The kebab-case classnames are being transformed to a camelCase version on import
   }
 </style>
 
-<p class="success-3BIYsG">My success text</p>
+<p class="success-3BIYsG">My success messge</p>
 <p class="error-message-16LSOn">My error message</p>
+```
+
+###  Unnamed import
+
+If a css file is being imported without a name, all rules will use the default svelte scoped system.
+
+```css
+/** style.css **/
+p { font-size: 18px; }
+.success { color: green; }
+```
+```html
+<script>
+  import './style.css'
+</script>
+
+<p class="success">My success message</p>
+<p>My another message</p>
+```
+
+*Generated code*
+
+```html
+<style>
+  p.svelte-vg78j0 { font-size: 18px; }
+  .success.svelte-vg78j0 { color: green; }
+</style>
+
+<p class="success svelte-vg78j0">My success messge</p>
+<p class="svelte-vg78j0">My error message</p>
 ```
 
 ## Example
@@ -504,7 +535,7 @@ export default {
 }
 ```
 
-*Svelte Component*
+*Svelte Component using `<style>`*
 
 ```html
 <style>
@@ -555,6 +586,42 @@ export default {
     <footer>
       <button>Ok</button>
       <button class="$style.cancel">Cancel</button>
+    </footer>
+  </section>
+</div>
+```
+
+***OR** Svelte Component using `import`*
+
+```css
+/** style.css */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 10;
+  width: 400px;
+  height: 80%;
+  background-color: #fff;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+[...]
+```
+```html
+<script>
+  import style from './style.css';
+</script>
+
+<div class={style.modal}>
+  <section>
+    <header>My Modal Title</header>
+    <div class={style.body}>
+      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
+    </div>
+    <footer>
+      <button>Ok</button>
+      <button class={style.cancel}>Cancel</button>
     </footer>
   </section>
 </div>
