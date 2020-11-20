@@ -1,4 +1,7 @@
 .success {
   color: lime;
 }
+.success-small {
+  font-size: 14px;
+}
 .large { font-size: 18px; }

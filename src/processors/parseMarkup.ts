@@ -8,7 +8,7 @@ import {
   PATTERN_MODULE,
   PATTERN_STYLE,
 } from '../lib/patterns';
-import generateName from '../lib/generateName';
+import { camelCase, generateName } from '../lib';
 
 /**
  * Create the interpolated name
@@ -17,6 +17,7 @@ import generateName from '../lib/generateName';
  * @param style Stylesheet content
  * @param className the className
  * @param pluginOptions preprocess-cssmodules options
+ * @return the interpolated name
  */
 const createInterpolatedName = (
   filename: string,
@@ -87,10 +88,10 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
             }
 
             if (
-              !classlist.has(matchItem.groups.className) &&
+              !classlist.has(camelCase(matchItem.groups.className)) &&
               (!isDestructuredImport ||
                 (isDestructuredImport &&
-                  destructuredImportNames.includes(matchItem.groups.className)))
+                  destructuredImportNames.includes(camelCase(matchItem.groups.className))))
             ) {
               const interpolatedName = createInterpolatedName(
                 filename,
@@ -99,7 +100,7 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
                 matchItem.groups.className,
                 pluginOptions
               );
-              classlist.set(matchItem.groups.className, interpolatedName);
+              classlist.set(camelCase(matchItem.groups.className), interpolatedName);
               cssModuleList[matchItem.groups.className] = interpolatedName;
             }
           });

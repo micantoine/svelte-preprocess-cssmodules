@@ -1,7 +1,8 @@
 <script>
   import Time from './components/Time.svelte';
   import css from './app.css';
-  import { success } from './app2.css';
+  import { success, successSmall } from './app2.css';
+  import './app3.css';
 </script>
 
 <div class="$.overlay" />
@@ -11,7 +12,7 @@
     <div class="$style.body">
       <Time />
       <p class="{css.error} large"><strong>Lorem ipsum dolor sit</strong>, amet consectetur adipisicing elit. Placeat, deserunt.</p>
-      <p class={success}>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt. Lorem ipsum dolor sit amet. </p>
+      <p class="{success} {successSmall}">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt. Lorem ipsum dolor sit amet. </p>
     </div>
     <footer>
       <button class="$style.active">Ok</button>
