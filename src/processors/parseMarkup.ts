@@ -3,6 +3,7 @@ import fs from 'fs';
 import { PluginOptions, CSSModuleList } from '../types';
 import {
   PATTERN_CLASSNAME,
+  PATTERN_CLASS_DIRECTIVE,
   PATTERN_CLASS_SELECTOR,
   PATTERN_IMPORT,
   PATTERN_MODULE,
@@ -55,7 +56,11 @@ type Parser = {
  * @param filename the resource filename
  * @param pluginOptions preprocess-cssmodules options
  */
-const parseMarkup = (content: string, filename: string, pluginOptions: PluginOptions): Parser => {
+const parseMarkup = async (
+  content: string,
+  filename: string,
+  pluginOptions: PluginOptions
+): Promise<Parser> => {
   let parsedContent: string = content;
   const cssModuleList: CSSModuleList = {};
 
@@ -66,6 +71,8 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
 
   // go through imports
   if (content.search(PATTERN_IMPORT) !== -1) {
+    const directives = new Map();
+
     parsedContent = parsedContent.replace(
       PATTERN_IMPORT,
       (_match, varName, relativePath, extension) => {
@@ -93,11 +100,12 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
               }
             }
 
+            const camelCaseClassName = camelCase(matchItem.groups.className);
+
             if (
-              !classlist.has(camelCase(matchItem.groups.className)) &&
+              !classlist.has(camelCaseClassName) &&
               (!isDestructuredImport ||
-                (isDestructuredImport &&
-                  destructuredImportNames.includes(camelCase(matchItem.groups.className))))
+                (isDestructuredImport && destructuredImportNames.includes(camelCaseClassName)))
             ) {
               const interpolatedName = createInterpolatedName(
                 filename,
@@ -106,8 +114,16 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
                 matchItem.groups.className,
                 pluginOptions
               );
-              classlist.set(camelCase(matchItem.groups.className), interpolatedName);
+              classlist.set(camelCaseClassName, interpolatedName);
               cssModuleList[matchItem.groups.className] = interpolatedName;
+
+              // consider use with class directive
+              const directiveClass = isDestructuredImport
+                ? camelCaseClassName
+                : `${varName}.${camelCaseClassName}`;
+              if (PATTERN_CLASS_DIRECTIVE(directiveClass).test(parsedContent)) {
+                directives.set(directiveClass, interpolatedName);
+              }
             }
           });
 
@@ -121,6 +137,21 @@ const parseMarkup = (content: string, filename: string, pluginOptions: PluginOpt
         }
       }
     );
+
+    // directives replacement (as dynamic values cannot be used)
+    await new Promise((resolve) => {
+      let count = 0;
+      directives.forEach((value, key) => {
+        parsedContent = parsedContent.replace(PATTERN_CLASS_DIRECTIVE(key), (directiveMatch) =>
+          directiveMatch.replace(key, value)
+        );
+        count += 1;
+        if (count === directives.size) {
+          resolve(true);
+        }
+      });
+    });
+    console.log(parsedContent);
   }
 
   // go through module $style syntax

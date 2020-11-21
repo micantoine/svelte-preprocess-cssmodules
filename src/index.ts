@@ -27,7 +27,7 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
     return { code: content };
   }
 
-  const parsedMarkup = parseMarkup(content, filename, pluginOptions);
+  const parsedMarkup = await parseMarkup(content, filename, pluginOptions);
   cssModuleDirectory[filename] = parsedMarkup.cssModuleList;
 
   return {
