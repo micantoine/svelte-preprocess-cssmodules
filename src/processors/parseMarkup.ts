@@ -9,40 +9,47 @@ import {
   PATTERN_MODULE,
   PATTERN_STYLE,
 } from '../lib/patterns';
-import { camelCase, generateName } from '../lib';
+import { camelCase, createClassName } from '../lib';
 
 /**
- * Create the interpolated name
- * @param filename tthe resource filename
- * @param markup Markup content
- * @param style Stylesheet content
- * @param className the className
- * @param pluginOptions preprocess-cssmodules options
- * @return the interpolated name
+ * Append imported stylesheet content to the component
+ * @param markupContent the component markup content
+ * @param styleContent the component style content
+ * @param importedStylesheets the list of imported stylesheet content
+ * @param fileType fileType being imported
+ * @return the updated markup of the component
  */
-const createInterpolatedName = (
-  filename: string,
-  markup: string,
-  style: string,
-  className: string,
-  pluginOptions: PluginOptions
+const appendStylesheetToMarkup = (
+  markupContent: string,
+  styleContent: string,
+  importedStylesheets: string[],
+  fileType: string
 ): string => {
-  const interpolatedName = generateName(filename, style, className, pluginOptions.localIdentName);
-  return pluginOptions.getLocalIdent(
-    {
-      context: path.dirname(filename),
-      resourcePath: filename,
-    },
-    {
-      interpolatedName,
-      template: pluginOptions.localIdentName,
-    },
-    className,
-    {
-      markup,
-      style,
+  if (styleContent) {
+    let updatedStyle = styleContent;
+    // update style with imports stylesheets
+    if (importedStylesheets.length) {
+      updatedStyle = styleContent.replace(
+        PATTERN_STYLE,
+        (_match, attributes, stylesheetContent) => {
+          const styleAttribute = fileType !== 'css' ? ` lang="${fileType}"` : attributes;
+          return `<style${styleAttribute || ''}>\n${importedStylesheets.join(
+            '\n'
+          )}${stylesheetContent}</style>`;
+        }
+      );
     }
-  );
+    return markupContent.replace(PATTERN_STYLE, updatedStyle);
+  }
+
+  if (importedStylesheets.length) {
+    const styleAttribute = fileType !== 'css' ? ` lang="${fileType}"` : '';
+    return `${markupContent}\n<style${styleAttribute}>\n${importedStylesheets.join(
+      '\n'
+    )}\n</style>`;
+  }
+
+  return markupContent;
 };
 
 type Parser = {
@@ -107,7 +114,7 @@ const parseMarkup = async (
               (!isDestructuredImport ||
                 (isDestructuredImport && destructuredImportNames.includes(camelCaseClassName)))
             ) {
-              const interpolatedName = createInterpolatedName(
+              const interpolatedName = createClassName(
                 filename,
                 content,
                 fileContent,
@@ -139,19 +146,20 @@ const parseMarkup = async (
     );
 
     // directives replacement (as dynamic values cannot be used)
-    await new Promise((resolve) => {
-      let count = 0;
-      directives.forEach((value, key) => {
-        parsedContent = parsedContent.replace(PATTERN_CLASS_DIRECTIVE(key), (directiveMatch) =>
-          directiveMatch.replace(key, value)
-        );
-        count += 1;
-        if (count === directives.size) {
-          resolve(true);
-        }
+    if (directives.size) {
+      await new Promise((resolve) => {
+        let count = 0;
+        directives.forEach((value, key) => {
+          parsedContent = parsedContent.replace(PATTERN_CLASS_DIRECTIVE(key), (directiveMatch) =>
+            directiveMatch.replace(key, value)
+          );
+          count += 1;
+          if (count === directives.size) {
+            resolve(true);
+          }
+        });
       });
-    });
-    console.log(parsedContent);
+    }
   }
 
   // go through module $style syntax
@@ -178,7 +186,7 @@ const parseMarkup = async (
       }
 
       if (styleContent) {
-        const interpolatedName = createInterpolatedName(
+        const interpolatedName = createClassName(
           filename,
           content,
           styleContent,
@@ -194,28 +202,13 @@ const parseMarkup = async (
     });
   }
 
-  if (styleContent) {
-    let updatedStyle = styleContent;
-    // update style with imports stylesheets
-    if (importedStyleContent.length) {
-      updatedStyle = styleContent.replace(
-        PATTERN_STYLE,
-        (_match, attributes, stylesheetContent) => {
-          const styleAttribute =
-            importedStyleType !== 'css' ? ` lang="${importedStyleType}"` : attributes;
-          return `<style${styleAttribute || ''}>\n${importedStyleContent.join(
-            '\n'
-          )}${stylesheetContent}</style>`;
-        }
-      );
-    }
-    parsedContent = parsedContent.replace(PATTERN_STYLE, updatedStyle);
-  } else if (importedStyleContent.length) {
-    const styleAttribute = importedStyleType !== 'css' ? ` lang="${importedStyleType}"` : '';
-    parsedContent = `${parsedContent}\n<style${styleAttribute}>\n${importedStyleContent.join(
-      '\n'
-    )}\n</style>`;
-  }
+  // Append imported stylesheet to markup
+  parsedContent = appendStylesheetToMarkup(
+    parsedContent,
+    styleContent,
+    importedStyleContent,
+    importedStyleType
+  );
 
   return {
     content: parsedContent,

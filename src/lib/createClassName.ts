@@ -1,6 +1,7 @@
 import path from 'path';
 import cssesc from 'cssesc';
 import { getHashDigest } from 'loader-utils';
+import { PluginOptions } from '../types';
 import { PATTERN_PATH_UNALLOWED } from './patterns';
 
 /**
@@ -96,4 +97,38 @@ function generateName(
   return interpolatedName;
 }
 
-export default generateName;
+/**
+ * Create the interpolated name
+ * @param filename tthe resource filename
+ * @param markup Markup content
+ * @param style Stylesheet content
+ * @param className the className
+ * @param pluginOptions preprocess-cssmodules options
+ * @return the interpolated name
+ */
+function createCssModulesClassName(
+  filename: string,
+  markup: string,
+  style: string,
+  className: string,
+  pluginOptions: PluginOptions
+): string {
+  const interpolatedName = generateName(filename, style, className, pluginOptions.localIdentName);
+  return pluginOptions.getLocalIdent(
+    {
+      context: path.dirname(filename),
+      resourcePath: filename,
+    },
+    {
+      interpolatedName,
+      template: pluginOptions.localIdentName,
+    },
+    className,
+    {
+      markup,
+      style,
+    }
+  );
+}
+
+export default createCssModulesClassName;
