@@ -1,9 +1,18 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 1.3.1 (Nov 22, 2020)
+Add support for old version of nodes (node 8 & node 10 tested)
+
 ## 1.3.0 (Nov 22, 2020)
-- Feature: CSS Modules from imports
-- Fix: *global selector* Regex is now working with an attached bracket to the selector (missing space was throwing an error) `.myclass{ }`
-- Dev: use of typescript, set up eslint and prettier
+
+### Feature
+Apply CSS Modules from imported stylesheets
+
+### Fixes
+*global selector* Regex is now working with an attached bracket to the selector (missing space was throwing an error) `.myclass{ }`
+
+### Plugin Development
+Set up typescript, eslint and prettier
 
 ## 1.2.1 (Oct 31, 2020)
 - Fix class chaining and pseudo selector [pull request #8](https://github.com/micantoine/svelte-preprocess-cssmodules/pull/8)
