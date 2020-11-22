@@ -1,5 +1,7 @@
 import path from 'path';
 import fs from 'fs';
+import matchAll from 'string.prototype.matchall';
+import fromEntries from 'object.fromentries';
 import { PluginOptions, CSSModuleList } from '../types';
 import {
   PATTERN_CLASSNAME,
@@ -93,15 +95,15 @@ const parseMarkup = async (
           }
 
           const classlist = new Map();
-          Array.from(fileContent.matchAll(PATTERN_CLASS_SELECTOR)).forEach((matchItem) => {
+          Array.from(matchAll(fileContent, PATTERN_CLASS_SELECTOR)).forEach((matchItem) => {
             // set array from exported className
             const destructuredImportRegex = /\{([\w,\s]+)\}/gm;
             const isDestructuredImport: boolean = varName.search(destructuredImportRegex) !== -1;
             let destructuredImportNames: string[] = [];
             if (isDestructuredImport) {
-              const destructuredImport = Object.values(
-                Object.fromEntries(varName.matchAll(destructuredImportRegex))
-              )[0];
+              const destructuredImport: string = Object.values(
+                fromEntries(matchAll(varName, destructuredImportRegex))
+              )[0].toString();
               if (destructuredImport) {
                 destructuredImportNames = destructuredImport.replace(/\s/g, '').split(',');
               }
@@ -138,7 +140,7 @@ const parseMarkup = async (
             importedStyleType = extension;
           }
 
-          return `const ${varName} = ${JSON.stringify(Object.fromEntries(classlist))};`;
+          return `const ${varName} = ${JSON.stringify(fromEntries(classlist))};`;
         } catch (err) {
           throw new Error(err);
         }

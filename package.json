@@ -45,11 +45,14 @@
     ]
   },
   "dependencies": {
-    "loader-utils": "^2.0.0"
+    "@types/object.fromentries": "^2.0.0",
+    "loader-utils": "^2.0.0",
+    "object.fromentries": "^2.0.2",
+    "string.prototype.matchall": "^4.0.3"
   },
   "devDependencies": {
-    "@types/cssesc": "^3.0.0",
     "@types/loader-utils": "^2.0.1",
+    "@types/string.prototype.matchall": "^4.0.0",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
     "eslint": "^7.10.0",
@@ -64,7 +67,7 @@
     "typescript": "^4.0.3"
   },
   "peerDependencies": {
-    "svelte": "3.20.0",
+    "svelte": "^3.20.0",
     "typescript": "^4.0.0"
   },
   "files": [
