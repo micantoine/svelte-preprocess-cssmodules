@@ -1,5 +1,4 @@
 import path from 'path';
-import cssesc from 'cssesc';
 import { getHashDigest } from 'loader-utils';
 import { PluginOptions } from '../types';
 import { PATTERN_PATH_UNALLOWED } from './patterns';
@@ -75,9 +74,7 @@ function generateName(
 
   const content = `${styles}-${filePath}-${className}`;
 
-  let interpolatedName = cssesc(
-    interpolateName(resourcePath, localName, content).replace(/\./g, '-')
-  );
+  let interpolatedName = interpolateName(resourcePath, localName, content).replace(/\./g, '-');
 
   // replace unwanted characters from [path]
   if (PATTERN_PATH_UNALLOWED.test(interpolatedName)) {
