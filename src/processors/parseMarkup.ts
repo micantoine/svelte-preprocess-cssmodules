@@ -96,6 +96,7 @@ const parseMarkup = async (
 
           const classlist = new Map();
           Array.from(matchAll(fileContent, PATTERN_CLASS_SELECTOR)).forEach((matchItem) => {
+            const className = matchItem[1];
             // set array from exported className
             const destructuredImportRegex = /\{([\w,\s]+)\}/gm;
             const isDestructuredImport: boolean = varName.search(destructuredImportRegex) !== -1;
@@ -109,7 +110,7 @@ const parseMarkup = async (
               }
             }
 
-            const camelCaseClassName = camelCase(matchItem.groups.className);
+            const camelCaseClassName = camelCase(className);
 
             if (
               !classlist.has(camelCaseClassName) &&
@@ -120,11 +121,11 @@ const parseMarkup = async (
                 filename,
                 content,
                 fileContent,
-                matchItem.groups.className,
+                className,
                 pluginOptions
               );
               classlist.set(camelCaseClassName, interpolatedName);
-              cssModuleList[matchItem.groups.className] = interpolatedName;
+              cssModuleList[className] = interpolatedName;
 
               // consider use with class directive
               const directiveClass = isDestructuredImport
