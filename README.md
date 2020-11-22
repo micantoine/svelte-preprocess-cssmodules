@@ -21,7 +21,7 @@ Generate CSS Modules classname on Svelte components
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
-  - [Directive and dynamic classes](#directive-and-dynamic-classes)
+  - [Directive and dynamic class](#directive-and-dynamic-class)
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
@@ -505,7 +505,7 @@ p { font-size: 18px; }
 <p class="svelte-vg78j0">My error message</p>
 ```
 
-### Directive and Dynamic classes
+### Directive and Dynamic class
 
 Use the Svelte's builtin `class:` directive or javascript template to display a class dynamically.   
 **Note**: the *shorthand directive* is **NOT working** with CSS Modules.
