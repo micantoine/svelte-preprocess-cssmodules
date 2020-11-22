@@ -1,5 +1,5 @@
 const path = require('path');
-const cssModules = require('../../index');
+const cssModules = require('../../dist/index');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -22,7 +22,7 @@ module.exports = {
               preprocess: [
                 cssModules({
                   includePaths: ['./'],
-                })
+                }),
               ],
               emitCss: false
             }
@@ -33,6 +33,6 @@ module.exports = {
   },
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
-    port: 9000
+    port: 9090
   }
 };

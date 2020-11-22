@@ -1,6 +1,25 @@
 <script>
   import Time from './components/Time.svelte';
+  import css from './app.css';
+  import { success, successSmall } from './app2.css';
+  import './app3.css';
 </script>
+
+<div class="$.overlay" />
+<div class="$style.modal">
+  <section>
+    <header class="$style.active">My Modal title</header>
+    <div class="$style.body">
+      <Time />
+      <p class="{css.error} {css.errorMessage} large"><strong>Lorem ipsum dolor sit</strong>, amet consectetur adipisicing elit. Placeat, deserunt.</p>
+      <p class="{success} {successSmall}">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt. Lorem ipsum dolor sit amet. </p>
+    </div>
+    <footer>
+      <button class="$style.active">Ok</button>
+      <button class="$style.cancel">Cancel</button>
+    </footer>
+  </section>
+</div>
 
 <style>
 .overlay {
@@ -69,19 +88,3 @@ button {
   font-weight: 700;
 }
 </style>
-
-<div class="$.overlay" />
-<div class="$style.modal">
-  <section>
-    <header class="$style.active">My Modal title</header>
-    <div class="$style.body">
-      <Time />
-      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt.</p>
-      <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt. Lorem ipsum dolor sit amet. </p>
-    </div>
-    <footer>
-      <button class="$style.active">Ok</button>
-      <button class="$style.cancel">Cancel</button>
-    </footer>
-  </section>
-</div>

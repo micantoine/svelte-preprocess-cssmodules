@@ -1,7 +1,6 @@
-const compiler = require('./compiler.js');
+const compiler = require('../compiler.js');
 
-const source =
-`<style>
+const source = `<style>
   .red { color: red; }
   .red-crimson { color: crimson; }
   .redMajenta { color: magenta; }
@@ -10,8 +9,7 @@ const source =
 <span class="$style.red-crimson">Crimson</span>
 <span class="$style.redMajenta">Majenta</span>`;
 
-const sourceShorthand =
-`<style>
+const sourceShorthand = `<style>
   .red { color: red; }
   .red-crimson { color: crimson; }
   .redMajenta { color: magenta; }
@@ -20,8 +18,7 @@ const sourceShorthand =
 <span class="$.red-crimson">Crimson</span>
 <span class="$.redMajenta">Majenta</span>`;
 
-const expectedOutput = 
-`<style>
+const expectedOutput = `<style>
   :global(.red-123) { color: red; }
   :global(.red-crimson-123) { color: crimson; }
   :global(.redMajenta-123) { color: magenta; }
@@ -31,21 +28,27 @@ const expectedOutput =
 <span class="redMajenta-123">Majenta</span>`;
 
 test('Target proper className from lookalike classNames', async () => {
-  const output = await compiler({
-    source,
-  }, {
-    localIdentName: '[local]-123',
-  });
+  const output = await compiler(
+    {
+      source,
+    },
+    {
+      localIdentName: '[local]-123',
+    }
+  );
 
   expect(output).toBe(expectedOutput);
 });
 
 test('[Shorthand] Target proper className from lookalike classNames', async () => {
-  const output = await compiler({
-    source: sourceShorthand,
-  }, {
-    localIdentName: '[local]-123',
-  });
+  const output = await compiler(
+    {
+      source: sourceShorthand,
+    },
+    {
+      localIdentName: '[local]-123',
+    }
+  );
 
   expect(output).toBe(expectedOutput);
 });

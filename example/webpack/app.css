@@ -1,0 +1,11 @@
+section div {
+  color: #ffff;
+  background-color: #000;
+}
+.error {
+  color: red;
+}
+.error-message {
+  text-decoration: line-through;
+}
+p > strong { font-weight: 600; }

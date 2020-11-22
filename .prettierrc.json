@@ -1,0 +1,8 @@
+{
+  "bracketSpacing": true,
+  "parser": "typescript",
+  "singleQuote": true,
+  "semi": true,
+  "tabWidth": 2,
+  "trailingComma": "es5"
+}
