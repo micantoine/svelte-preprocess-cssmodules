@@ -1,8 +1,8 @@
 # Svelte preprocess CSS Modules, changelog
 
-## 1.3.0 (Nov 20, 2020)
+## 1.3.0 (Nov 22, 2020)
 - Feature: CSS Modules from imports
-- Fix: *global selector* Regex is now working with an attached bracket to the selector (missing space) `.myclass{ }`
+- Fix: *global selector* Regex is now working with an attached bracket to the selector (missing space was throwing an error) `.myclass{ }`
 - Dev: use of typescript, set up eslint and prettier
 
 ## 1.2.1 (Oct 31, 2020)

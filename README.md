@@ -21,7 +21,7 @@ Generate CSS Modules classname on Svelte components
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
-  - [Avoid class directive](#avoid-class-directive)
+  - [Directive and dynamic classes](#directive-and-dynamic-classes)
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
@@ -505,8 +505,10 @@ p { font-size: 18px; }
 <p class="svelte-vg78j0">My error message</p>
 ```
 
-### Avoid class directive
-The Svelte's builtin `class:` directive is **not working** with import cssModules because they are dynamics. **Use JS syntax instead**
+### Directive and Dynamic classes
+
+Use the Svelte's builtin `class:` directive or javascript template to display a class dynamically.   
+**Note**: the *shorthand directive* is **NOT working** with CSS Modules.
 
 ```html
 <script>
@@ -518,13 +520,15 @@ The Svelte's builtin `class:` directive is **not working** with import cssModule
 
 <button on:click={() => isSuccess = !isSuccess}>Toggle</button>
 
-<!-- NOT WORKING -->
-<p class:success={isSuccess} class:error={!isSuccess}>Notice</p>
+<!-- Error -->
+<p class:success>Success</p>
 
-<!-- OK -->
+<!-- Ok -->
+<p 
+  class:success={isSuccess}
+  class:error={!isSuccess}>Notice</p>
+
 <p class={notice}>Notice</p>
-
-<!-- OK -->
 <p class={isSuccess ? success : error}>Notice</p>
 ```
 
