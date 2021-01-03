@@ -11,10 +11,15 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "css-loader": "^5.0.1",
+    "style-loader": "^2.0.0",
     "svelte": "^3.22.3",
     "svelte-loader": "^2.13.6",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "swiper": "^6.4.5"
   }
 }
