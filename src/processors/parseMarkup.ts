@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import fs, { constants } from 'fs';
 import matchAll from 'string.prototype.matchall';
 import fromEntries from 'object.fromentries';
 import { PluginOptions, CSSModuleList } from '../types';
@@ -84,8 +84,9 @@ const parseMarkup = async (
 
     parsedContent = parsedContent.replace(
       PATTERN_IMPORT,
-      (_match, varName, relativePath, extension) => {
+      (match, varName, relativePath, extension) => {
         const absolutePath = path.resolve(path.dirname(filename), relativePath);
+        const nodeModulesPath = path.resolve(`${path.resolve()}/node_modules`, relativePath);
         try {
           const fileContent = fs.readFileSync(absolutePath, 'utf8');
           importedStyleContent.push(fileContent);
@@ -143,7 +144,12 @@ const parseMarkup = async (
 
           return `const ${varName} = ${JSON.stringify(fromEntries(classlist))};`;
         } catch (err) {
-          throw new Error(err);
+          fs.access(nodeModulesPath, constants.F_OK, (error) => {
+            if (error) {
+              throw new Error(err); // not found in node_modules packages either, throw orignal error
+            }
+          });
+          return match;
         }
       }
     );
