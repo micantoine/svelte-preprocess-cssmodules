@@ -1,4 +1,5 @@
 <script>
+  import 'swiper/swiper.min.css';
   import Time from './components/Time.svelte';
   import css from './app.css';
   import { success, successSmall } from './app2.css';
