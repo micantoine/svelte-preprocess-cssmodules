@@ -6,10 +6,6 @@ npm install --save-dev svelte-preprocess-cssmodules
 
 Generate CSS Modules classname on Svelte components
 
-- [Configuration](#configuration)
-  - [Rollup](#rollup)
-  - [Webpack](#webpack)
-  - [Options](#options)
 - [Use of the *style* tag](#use-of-the-style-tag)
   - [Process required class](#process-required-class)
   - [Remove unspecified class](#remove-unspecified-class)
@@ -22,146 +18,12 @@ Generate CSS Modules classname on Svelte components
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
   - [Directive and dynamic class](#directive-and-dynamic-class)
+- [Configuration](#configuration)
+  - [Rollup](#rollup)
+  - [Webpack](#webpack)
+  - [Options](#options)
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
-
-## Configuration
-
-### Rollup
-
-To be used with the plugin [`rollup-plugin-svelte`](https://github.com/sveltejs/rollup-plugin-svelte).
-
-```js
-import svelte from 'rollup-plugin-svelte';
-import cssModules from 'svelte-preprocess-cssmodules';
-
-export default {
-  ...
-  plugins: [
-    svelte({
-      preprocess: [
-        cssModules(),
-      ]
-    }),
-  ]
-  ...
-}
-```
-
-### Webpack
-
-To be used with the loader [`svelte-loader`](https://github.com/sveltejs/svelte-loader).
-
-```js
-const cssModules = require('svelte-preprocess-cssmodules');
-
-module.exports = {
-  ...
-  module: {
-    rules: [
-      {
-        test: /\.svelte$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'svelte-loader',
-            options: {
-              preprocess: [
-                cssModules(),
-              ]
-            }
-          }
-        ]
-      }
-    ]
-  }
-  ...
-}
-```
-
-### Options
-Pass an object of the following properties
-
-| Name | Type | Default | Description |
-| ------------- | ------------- | ------------- | ------------- |
-| `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
-| `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
-| `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
-| `strict`  | `{Boolean}` | `false` | When true, an exception is raised when a class is used while not being defined in `<style>`
-   
-
-**`localIdentName`**
-
-Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename), here is the list of tokens:
-
-- `[local]` the targeted classname
-- `[ext]` the extension of the resource
-- `[name]` the basename of the resource
-- `[path]` the path of the resource
-- `[folder]` the folder the resource is in
-- `[contenthash]` or `[hash]` *(they are the same)* the hash of the resource content (by default it's the hex digest of the md4 hash)
-- `[<hashType>:contenthash:<digestType>:<length>]` optionally one can configure
-  - other hashTypes, i. e. `sha1`, `md4`, `md5`, `sha256`, `sha512`
-  - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
-  - and `length` the length in chars
-
-**`getLocalIdent`**
-
-Customize the creation of the classname instead of relying on the built-in function.
-
-```ts
-function getLocalIdent(
-  context: {
-    context: string, // the context path
-    resourcePath: string, // path + filename
-  },
-  localIdentName: {
-    template: string, // the template rule
-    interpolatedName: string, // the built-in generated classname
-  },
-  className: string, // the classname string
-  content: { 
-    markup: string, // the markup content
-    style: string,  // the style content
-  }
-): string {
-  return `your_generated_classname`;
-}
-```
-
-*Example of use*
-
-```bash
-# Directory
-SvelteApp
-└─ src
-   ├─ App.svelte
-   └─ components
-      └─ Button.svelte
-```
-```html
-<!-- Button.svelte -->
-<button class="$style.red">Ok</button>
-
-<style>
-  .red { background-color: red; }
-</style>
-```
-
-```js
-// Preprocess config
-...
-preprocess: [
-  cssModules({
-    localIdentName: '[path][name]__[local]',
-    getLocalIdent: (context, { interpolatedName }) => {
-      return interpolatedName.toLowerCase().replace('src_', '');
-      // svelteapp_components_button__red;
-    }
-  })
-],
-...
-```
 
 ## Use of the *style* tag
 
@@ -325,7 +187,9 @@ To remove verbosity the shorthand `$.MY_CLASSNAME` can be used instead of the re
 
 ## Import styles from an external stylesheet
 
-Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet. 
+Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet.
+
+**Note:** *The import option is only meant for stylesheets relative to the component. You will have to set your own bundler in order to import *node_modules* packages css files.*
 
 ```css
 /** style.css **/
@@ -530,6 +394,144 @@ Use the Svelte's builtin `class:` directive or javascript template to display a 
 
 <p class={notice}>Notice</p>
 <p class={isSuccess ? success : error}>Notice</p>
+```
+
+## Configuration
+
+### Rollup
+
+To be used with the plugin [`rollup-plugin-svelte`](https://github.com/sveltejs/rollup-plugin-svelte).
+
+```js
+import svelte from 'rollup-plugin-svelte';
+import cssModules from 'svelte-preprocess-cssmodules';
+
+export default {
+  ...
+  plugins: [
+    svelte({
+      preprocess: [
+        cssModules(),
+      ]
+    }),
+  ]
+  ...
+}
+```
+
+### Webpack
+
+To be used with the loader [`svelte-loader`](https://github.com/sveltejs/svelte-loader).
+
+```js
+const cssModules = require('svelte-preprocess-cssmodules');
+
+module.exports = {
+  ...
+  module: {
+    rules: [
+      {
+        test: /\.svelte$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'svelte-loader',
+            options: {
+              preprocess: [
+                cssModules(),
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+  ...
+}
+```
+
+### Options
+Pass an object of the following properties
+
+| Name | Type | Default | Description |
+| ------------- | ------------- | ------------- | ------------- |
+| `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
+| `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
+| `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
+| `strict`  | `{Boolean}` | `false` | When true, an exception is raised when a class is used while not being defined in `<style>`
+   
+
+**`localIdentName`**
+
+Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename), here is the list of tokens:
+
+- `[local]` the targeted classname
+- `[ext]` the extension of the resource
+- `[name]` the basename of the resource
+- `[path]` the path of the resource
+- `[folder]` the folder the resource is in
+- `[contenthash]` or `[hash]` *(they are the same)* the hash of the resource content (by default it's the hex digest of the md4 hash)
+- `[<hashType>:contenthash:<digestType>:<length>]` optionally one can configure
+  - other hashTypes, i. e. `sha1`, `md4`, `md5`, `sha256`, `sha512`
+  - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
+  - and `length` the length in chars
+
+**`getLocalIdent`**
+
+Customize the creation of the classname instead of relying on the built-in function.
+
+```ts
+function getLocalIdent(
+  context: {
+    context: string, // the context path
+    resourcePath: string, // path + filename
+  },
+  localIdentName: {
+    template: string, // the template rule
+    interpolatedName: string, // the built-in generated classname
+  },
+  className: string, // the classname string
+  content: { 
+    markup: string, // the markup content
+    style: string,  // the style content
+  }
+): string {
+  return `your_generated_classname`;
+}
+```
+
+*Example of use*
+
+```bash
+# Directory
+SvelteApp
+└─ src
+   ├─ App.svelte
+   └─ components
+      └─ Button.svelte
+```
+```html
+<!-- Button.svelte -->
+<button class="$style.red">Ok</button>
+
+<style>
+  .red { background-color: red; }
+</style>
+```
+
+```js
+// Preprocess config
+...
+preprocess: [
+  cssModules({
+    localIdentName: '[path][name]__[local]',
+    getLocalIdent: (context, { interpolatedName }) => {
+      return interpolatedName.toLowerCase().replace('src_', '');
+      // svelteapp_components_button__red;
+    }
+  })
+],
+...
 ```
 
 ## Code Example
