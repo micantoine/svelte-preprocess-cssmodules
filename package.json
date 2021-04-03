@@ -50,6 +50,7 @@
     "string.prototype.matchall": "^4.0.3"
   },
   "devDependencies": {
+    "@types/estree": "0.0.47",
     "@types/loader-utils": "^2.0.1",
     "@types/object.fromentries": "^2.0.0",
     "@types/string.prototype.matchall": "^4.0.0",
@@ -59,9 +60,11 @@
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
+    "estree-walker": "^3.0.0",
     "husky": "^4.3.0",
     "jest": "^26.0.1",
     "lint-staged": "^10.5.1",
+    "magic-string": "^0.25.7",
     "prettier": "^2.1.2",
     "svelte": "^3.22.3",
     "typescript": "^4.0.3"
