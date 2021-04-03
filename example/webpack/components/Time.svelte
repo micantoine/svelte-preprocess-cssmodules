@@ -12,17 +12,32 @@
   })
 </script>
 
-<style>
+<style module="scoped">
   div {
     text-align: right;
     font-size: 1.2rem;
     font-family: monospace;
   }
+
+  .bolder {
+    font-weight: 900;
+  }
+
+  .bolder:last-child + p:not(:first-child) {
+    color: blue;
+  }
+  :global(.bolder:last-child + p:not(:first-child)) p {
+    font-weight: bolder;
+  }
+   
   .bold {
     font-weight: bold;
+  }
+  .bold .light {
+    font-weight: light;
   }
 </style>
 
 <div
-  class="$.datetime"
-  class:$.bold={true}>{time}</div>
+  class="bolder"
+  class:bold={true}>{time}</div>

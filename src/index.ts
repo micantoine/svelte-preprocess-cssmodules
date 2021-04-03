@@ -39,9 +39,7 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
   }
 
   if (!['native', 'mixed', 'scoped'].includes(mode)) {
-    throw new Error(
-      `Module only accepts 'native', 'mixed' or 'scoped': ` + `'${mode}' was passed.`
-    );
+    throw new Error(`Module only accepts 'native', 'mixed' or 'scoped': '${mode}' was passed.`);
   }
 
   let parsedContent: string;
