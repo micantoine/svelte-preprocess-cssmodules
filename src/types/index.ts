@@ -1,6 +1,7 @@
 import { GetLocalIdent } from '../lib';
 
 export type PluginOptions = {
+  mode: 'native' | 'mixed' | 'scoped';
   includePaths: string[];
   localIdentName: string;
   getLocalIdent: GetLocalIdent;
