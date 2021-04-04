@@ -33,11 +33,24 @@
   .bold {
     font-weight: bold;
   }
+  .lighter {
+    font-weight: 100;
+  }
+  .red {
+    color: red;
+  }
+  .light {
+    font: 1em sans-serif;
+  }
   .bold .light {
     font-weight: light;
+  }
+
+  p {
+    text-align: center;
   }
 </style>
 
 <div
-  class="bolder"
+  class=" bolder light { true ? 'lighter red' : ''}"
   class:bold={true}>{time}</div>
