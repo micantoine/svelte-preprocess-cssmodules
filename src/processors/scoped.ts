@@ -45,7 +45,7 @@ const parseStyle = (ast: Ast, magicContent: MagicString, imported = false): Magi
   return magicContent;
 };
 
-const parseImport = async (ast: Ast, magicContent: MagicString): Promise<MagicString> => {
+const parseImport = (ast: Ast, magicContent: MagicString): MagicString => {
   let importedContent = '';
   walk(ast, {
     enter(node: TemplateNode) {
@@ -87,19 +87,16 @@ const parseImport = async (ast: Ast, magicContent: MagicString): Promise<MagicSt
             )}`;
             magicContent.overwrite(node.start, node.end, specifiers);
           }
+
+          const content = `\n${fileMagicContent
+            .toString()
+            .replace(style.openTag, '')
+            .replace(style.closeTag, '')}`;
+
           if (style.ast) {
-            magicContent.appendLeft(
-              style.ast.content.start,
-              `\n${fileMagicContent
-                .toString()
-                .replace(style.openTag, '')
-                .replace(style.closeTag, '')}`
-            );
+            magicContent.appendLeft(style.ast.content.start, content);
           } else {
-            importedContent += `\n${fileMagicContent
-              .toString()
-              .replace(style.openTag, '')
-              .replace(style.closeTag, '')}`;
+            importedContent += content;
           }
         } catch (err) {
           fs.access(nodeModulesPath, constants.F_OK, (error) => {
@@ -139,7 +136,7 @@ const processor = async (
       style.ast = ast.css;
       style.openTag = unParsedContent.substring(style.ast.start, style.ast.content.start);
     }
-    magicContent = await parseImport(ast, magicContent);
+    magicContent = parseImport(ast, magicContent);
   }
 
   if (Object.keys(cssModuleList).length > 0) {
