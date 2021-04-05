@@ -87,7 +87,6 @@ const parseTemplate = (
                 content = parseExpression(alternate, content, cssModuleList);
               }
             });
-            this.skip();
           }
           if (item.type === 'Class' && item.name in cssModuleList) {
             const start = item.start + directiveLength;
