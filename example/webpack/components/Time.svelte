@@ -42,13 +42,6 @@
   .light {
     font: 1em sans-serif;
   }
-  .bold .light {
-    font-weight: light;
-  }
-
-  p {
-    text-align: center;
-  }
 </style>
 
 <div
