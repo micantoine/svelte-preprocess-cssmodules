@@ -3,12 +3,13 @@ import fs, { constants } from 'fs';
 // @ts-expect-error walk is not in d.ts
 import { parse, walk } from 'svelte/compiler';
 import MagicString from 'magic-string';
-import type { Ast, TemplateNode, Style } from 'svelte/types/compiler/interfaces.d';
+import type { Ast, TemplateNode, Visitor, Style } from 'svelte/types/compiler/interfaces.d';
 import type { PluginOptions, CSSModuleList } from '../types';
-import { camelCase, createClassName } from '../lib';
+import { camelCase, createClassName, PATTERN_IMPORT } from '../lib';
 import parseTemplate from './parseTemplate';
 
 const cssModuleList: CSSModuleList = {};
+let importedCssModuleList: CSSModuleList = {};
 const style: { ast: Style; openTag: string; closeTag: string } = {
   ast: null,
   openTag: '<style module>',
@@ -18,7 +19,7 @@ let processedFilename: string;
 let pluginOptions: PluginOptions;
 let unParsedContent: string;
 
-const parseStyle = (ast: Ast, magicContent: MagicString): MagicString => {
+const parseStyle = (ast: Ast, magicContent: MagicString, imported = false): MagicString => {
   walk(ast, {
     enter(node: TemplateNode) {
       if (node.type === 'Script' || node.type === 'Fragment') {
@@ -32,6 +33,9 @@ const parseStyle = (ast: Ast, magicContent: MagicString): MagicString => {
           node.name,
           pluginOptions
         );
+        if (imported) {
+          importedCssModuleList[camelCase(node.name)] = generatedClassName;
+        }
         cssModuleList[node.name] = generatedClassName;
         magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
       }
@@ -42,6 +46,7 @@ const parseStyle = (ast: Ast, magicContent: MagicString): MagicString => {
 };
 
 const parseImport = async (ast: Ast, magicContent: MagicString): Promise<MagicString> => {
+  let importedContent = '';
   walk(ast, {
     enter(node: TemplateNode) {
       if (node.type === 'Style' || node.type === 'Fragment') {
@@ -51,26 +56,50 @@ const parseImport = async (ast: Ast, magicContent: MagicString): Promise<MagicSt
         node.type === 'ImportDeclaration' &&
         node.source.value.search(/\.module\.s?css$/) !== -1
       ) {
-        console.log(node);
         const absolutePath = path.resolve(path.dirname(processedFilename), node.source.value);
         const nodeModulesPath = path.resolve(`${path.resolve()}/node_modules`, node.source.value);
 
         try {
+          importedCssModuleList = {};
           const fileContent = fs.readFileSync(absolutePath, 'utf8');
           const fileStyle = `${style.openTag}${fileContent}${style.closeTag}`;
+
+          let fileMagicContent = new MagicString(fileStyle);
+          fileMagicContent = parseStyle(
+            parse(fileStyle, { filename: absolutePath }),
+            fileMagicContent,
+            true
+          );
+
           if (node.specifiers.length === 0) {
-            let fileMagicContent = new MagicString(fileStyle);
-            fileMagicContent = parseStyle(
-              parse(fileStyle, { filename: absolutePath }),
-              fileMagicContent
-            );
             magicContent.remove(node.start, node.end);
-            magicContent.prependLeft(
+          } else if (node.specifiers[0].type === 'ImportDefaultSpecifier') {
+            const specifiers = `const ${node.specifiers[0].local.name} = ${JSON.stringify(
+              importedCssModuleList
+            )}`;
+            magicContent.overwrite(node.start, node.end, specifiers);
+          } else {
+            const specifierNames = node.specifiers.map((item: TemplateNode) => {
+              return item.local.name;
+            });
+            const specifiers = `const { ${specifierNames.join(', ')} } = ${JSON.stringify(
+              importedCssModuleList
+            )}`;
+            magicContent.overwrite(node.start, node.end, specifiers);
+          }
+          if (style.ast) {
+            magicContent.appendLeft(
               style.ast.content.start,
-              fileMagicContent.toString().replace(style.openTag, '').replace(style.closeTag, '')
+              `\n${fileMagicContent
+                .toString()
+                .replace(style.openTag, '')
+                .replace(style.closeTag, '')}`
             );
           } else {
-            console.log('todo');
+            importedContent += `\n${fileMagicContent
+              .toString()
+              .replace(style.openTag, '')
+              .replace(style.closeTag, '')}`;
           }
         } catch (err) {
           fs.access(nodeModulesPath, constants.F_OK, (error) => {
@@ -82,6 +111,10 @@ const parseImport = async (ast: Ast, magicContent: MagicString): Promise<MagicSt
       }
     },
   });
+
+  if (importedContent) {
+    magicContent.append(`\n${style.openTag}${importedContent}${style.closeTag}`);
+  }
   return magicContent;
 };
 
@@ -107,7 +140,6 @@ const processor = async (
       style.openTag = unParsedContent.substring(style.ast.start, style.ast.content.start);
     }
     magicContent = await parseImport(ast, magicContent);
-    console.log(magicContent.toString());
   }
 
   if (Object.keys(cssModuleList).length > 0) {

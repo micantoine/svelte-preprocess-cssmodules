@@ -19,14 +19,14 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
     return { code: content };
   }
 
-  const HAS_IMPORT = PATTERN_IMPORT.test(content);
+  const HAS_IMPORT = content.search(PATTERN_IMPORT) !== -1;
   const ast: Ast = parse(content, { filename });
 
   if (!ast.css && !HAS_IMPORT) {
     return { code: content };
   }
 
-  const moduleAttribute = ast.css.attributes.filter((item) => item.name === 'module')[0];
+  const moduleAttribute = ast.css?.attributes.filter((item) => item.name === 'module')[0];
 
   if (!moduleAttribute && !HAS_IMPORT) {
     return { code: content };
