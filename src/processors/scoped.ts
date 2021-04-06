@@ -3,9 +3,9 @@ import fs, { constants } from 'fs';
 // @ts-expect-error walk is not in d.ts
 import { parse, walk } from 'svelte/compiler';
 import MagicString from 'magic-string';
-import type { Ast, TemplateNode, Visitor, Style } from 'svelte/types/compiler/interfaces.d';
+import type { Ast, TemplateNode, Style } from 'svelte/types/compiler/interfaces.d';
 import type { PluginOptions, CSSModuleList } from '../types';
-import { camelCase, createClassName, PATTERN_IMPORT } from '../lib';
+import { camelCase, createClassName, hasModuleAttribute, hasModuleImports } from '../lib';
 import parseTemplate from './parseTemplate';
 
 const cssModuleList: CSSModuleList = {};
@@ -127,11 +127,11 @@ const processor = async (
   pluginOptions = options;
   unParsedContent = content;
 
-  if (ast.css) {
+  if (hasModuleAttribute(ast)) {
     magicContent = parseStyle(ast, magicContent);
   }
 
-  if (ast.instance) {
+  if (hasModuleImports(content)) {
     if (ast.css) {
       style.ast = ast.css;
       style.openTag = unParsedContent.substring(style.ast.start, style.ast.content.start);

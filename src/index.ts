@@ -2,7 +2,7 @@ import { parse } from 'svelte/compiler';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
 import type { PluginOptions, PreprocessorOptions, PreprocessorResult } from './types';
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
-import { getLocalIdent, isFileIncluded, PATTERN_IMPORT } from './lib';
+import { getLocalIdent, isFileIncluded, hasModuleImports, hasModuleAttribute } from './lib';
 
 let pluginOptions: PluginOptions = {
   mode: 'native',
@@ -19,23 +19,17 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
     return { code: content };
   }
 
-  const HAS_IMPORT = content.search(PATTERN_IMPORT) !== -1;
   const ast: Ast = parse(content, { filename });
 
-  if (!ast.css && !HAS_IMPORT) {
-    return { code: content };
-  }
-
-  const moduleAttribute = ast.css?.attributes.filter((item) => item.name === 'module')[0];
-
-  if (!moduleAttribute && !HAS_IMPORT) {
+  if (!hasModuleAttribute(ast) && !hasModuleImports(content)) {
     return { code: content };
   }
 
   let { mode } = pluginOptions;
 
-  if (moduleAttribute && moduleAttribute.value !== true) {
-    mode = moduleAttribute.value[0].data;
+  if (hasModuleAttribute(ast)) {
+    const moduleAttribute = ast.css.attributes.find((item) => item.name === 'module');
+    mode = moduleAttribute.value !== true ? moduleAttribute.value[0].data : mode;
   }
 
   if (!['native', 'mixed', 'scoped'].includes(mode)) {

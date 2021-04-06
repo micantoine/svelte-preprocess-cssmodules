@@ -22,7 +22,7 @@
   </section>
 </div>
 
-<style>
+<style module>
 .overlay {
   position: fixed;
   top: 0;
