@@ -9,7 +9,6 @@ let pluginOptions: PluginOptions = {
   includePaths: [],
   localIdentName: '[local]-[hash:base64:6]',
   getLocalIdent,
-  strict: false,
 };
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {

@@ -5,7 +5,6 @@ export type PluginOptions = {
   includePaths: string[];
   localIdentName: string;
   getLocalIdent: GetLocalIdent;
-  strict: boolean;
 };
 
 export interface PreprocessorOptions {

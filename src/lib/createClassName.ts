@@ -1,7 +1,8 @@
 import path from 'path';
 import { getHashDigest } from 'loader-utils';
 import { PluginOptions } from '../types';
-import { PATTERN_PATH_UNALLOWED } from './patterns';
+
+const PATTERN_PATH_UNALLOWED = /[<>:"/\\|?*]/g;
 
 /**
  * interpolateName, adjusted version of loader-utils/interpolateName
