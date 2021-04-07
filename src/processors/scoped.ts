@@ -12,9 +12,6 @@ const parser = (processor: Processor) => {
       }
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);
-        if (processor.isParsingImports) {
-          processor.addImportedModule(node.name, generatedClassName);
-        }
         processor.addModule(node.name, generatedClassName);
         processor.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
       }

@@ -64,6 +64,9 @@ export default class Processor {
    * @param value The generated module classname
    */
   public addModule = (name: string, value: string): void => {
+    if (this.isParsingImports) {
+      this.addImportedModule(name, value);
+    }
     this.cssModuleList[name] = value;
   };
 
