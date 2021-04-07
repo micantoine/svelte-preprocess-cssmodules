@@ -49,13 +49,17 @@ export default class Processor {
    * @returns The generated module classname
    */
   public createModuleClassname = (name: string): string => {
-    return createClassName(
+    const generatedClassName = createClassName(
       this.filename,
       this.rawContent,
       this.ast.css.content.styles,
       name,
       this.options
     );
+
+    this.addModule(name, generatedClassName);
+
+    return generatedClassName;
   };
 
   /**

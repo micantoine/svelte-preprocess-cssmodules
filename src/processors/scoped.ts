@@ -12,7 +12,6 @@ const parser = (processor: Processor) => {
       }
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);
-        processor.addModule(node.name, generatedClassName);
         processor.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
       }
     },
