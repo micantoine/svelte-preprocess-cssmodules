@@ -17,6 +17,7 @@ export default (processor: Processor): void => {
   };
 
   let importedContent = '';
+
   walk(processor.ast, {
     enter(node: TemplateNode) {
       if (node.type === 'Style' || node.type === 'Fragment') {

@@ -1,21 +1,20 @@
 // @ts-expect-error walk is not in d.ts
 import { walk } from 'svelte/compiler';
-import type MagicString from 'magic-string';
-import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces.d';
-import type { CSSModuleList } from '../types';
+import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import Processor from './processor';
 
 /**
  * Update a string of multiple Classes
+ * @param processor The CSS Module Processor
  * @param classNames The attribute value containing one or multiple classes
- * @param cssModuleList List of available CSS Modules classNames
- * @returns the CSS Modules version
+ * @returns the CSS Modules classnames
  */
-const updateMultipleClasses = (classNames: string, cssModuleList: CSSModuleList): string => {
+const updateMultipleClasses = (processor: Processor, classNames: string): string => {
   const classes: string[] = classNames.split(' ');
   const generatedClassNames: string = classes.reduce((accumulator, currentValue, currentIndex) => {
     let value: string = currentValue;
-    if (currentValue in cssModuleList) {
-      value = cssModuleList[currentValue.trim()];
+    if (currentValue in processor.cssModuleList) {
+      value = processor.cssModuleList[currentValue.trim()];
     }
     if (currentIndex < classes.length - 1) {
       value += ' ';
@@ -28,40 +27,24 @@ const updateMultipleClasses = (classNames: string, cssModuleList: CSSModuleList)
 
 /**
  * Parse and update classes of a js expression element
+ * @param processor: The CSS Module Processor
  * @param expression The expression node (consequent, alternate)
- * @param magicContent The component content handled with MagicString
- * @param cssModuleList List of available CSS Modules classNames
- * @return The updated magic content
  */
-const parseExpression = (
-  expression: TemplateNode,
-  magicContent: MagicString,
-  cssModuleList: CSSModuleList
-): MagicString => {
+const parseExpression = (processor: Processor, expression: TemplateNode): void => {
   if (expression.type === 'Literal') {
-    const generatedClassNames = updateMultipleClasses(expression.value, cssModuleList);
-    magicContent.overwrite(expression.start, expression.end, `'${generatedClassNames}'`);
+    const generatedClassNames = updateMultipleClasses(processor, expression.value);
+    processor.magicContent.overwrite(expression.start, expression.end, `'${generatedClassNames}'`);
   }
-
-  return magicContent;
 };
 
 /**
  * Parse the template markup to update the class attributes with CSS modules
- * @param ast The component AST Tree
- * @param magicContent The component content handled with MagicString
- * @param cssModuleList List of available CSS Modules classNames
- * @return The updated magic content
+ * @param processor: The CSS Module Processor
  */
-const parseTemplate = (
-  ast: Ast,
-  magicContent: MagicString,
-  cssModuleList: CSSModuleList
-): MagicString => {
+const parseTemplate = (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;
-  let content: MagicString = magicContent;
 
-  walk(ast, {
+  walk(processor.ast, {
     enter(node: TemplateNode) {
       if (node.type === 'Script' || node.type === 'Style') {
         this.skip();
@@ -72,8 +55,8 @@ const parseTemplate = (
           if (item.type === 'Attribute') {
             item.value.forEach((classItem: TemplateNode) => {
               if (classItem.type === 'Text') {
-                const generatedClassNames = updateMultipleClasses(classItem.data, cssModuleList);
-                content.overwrite(
+                const generatedClassNames = updateMultipleClasses(processor, classItem.data);
+                processor.magicContent.overwrite(
                   classItem.start,
                   classItem.start + classItem.data.length,
                   generatedClassNames
@@ -83,22 +66,20 @@ const parseTemplate = (
                 classItem?.expression?.type === 'ConditionalExpression'
               ) {
                 const { consequent, alternate } = classItem.expression;
-                content = parseExpression(consequent, content, cssModuleList);
-                content = parseExpression(alternate, content, cssModuleList);
+                parseExpression(processor, consequent);
+                parseExpression(processor, alternate);
               }
             });
           }
-          if (item.type === 'Class' && item.name in cssModuleList) {
+          if (item.type === 'Class' && item.name in processor.cssModuleList) {
             const start = item.start + directiveLength;
             const end = start + item.name.length;
-            content.overwrite(start, end, cssModuleList[item.name]);
+            processor.magicContent.overwrite(start, end, processor.cssModuleList[item.name]);
           }
         });
       }
     },
   });
-
-  return content;
 };
 
 export default parseTemplate;

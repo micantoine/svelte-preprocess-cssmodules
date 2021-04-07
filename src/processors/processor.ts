@@ -2,7 +2,8 @@ import MagicString from 'magic-string';
 import type { Ast, Style } from 'svelte/types/compiler/interfaces.d';
 import { CSSModuleList, PluginOptions } from '../types';
 import { camelCase, createClassName, hasModuleAttribute, hasModuleImports } from '../lib';
-import parseImports from './parseImports';
+import parseImportDeclaration from './parseImportDeclaration';
+import parseTemplate from './parseTemplate';
 
 export default class Processor {
   public filename: string;
@@ -65,18 +66,9 @@ export default class Processor {
    */
   public addModule = (name: string, value: string): void => {
     if (this.isParsingImports) {
-      this.addImportedModule(name, value);
+      this.importedCssModuleList[camelCase(name)] = value;
     }
     this.cssModuleList[name] = value;
-  };
-
-  /**
-   * Add CssModule data to imports list
-   * @param name The raw classname
-   * @param value The generated module classname
-   */
-  public addImportedModule = (name: string, value: string): void => {
-    this.importedCssModuleList[camelCase(name)] = value;
   };
 
   /**
@@ -91,12 +83,12 @@ export default class Processor {
 
     if (hasModuleImports(this.rawContent)) {
       this.isParsingImports = true;
-      parseImports(this);
+      parseImportDeclaration(this);
     }
 
-    // if (Object.keys(this.cssModuleList).length > 0) {
-    //   // magicContent = parseTemplate(ast, magicContent, cssModuleList);
-    // }
+    if (Object.keys(this.cssModuleList).length > 0) {
+      parseTemplate(this);
+    }
 
     return this.magicContent.toString();
   };
