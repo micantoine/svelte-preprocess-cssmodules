@@ -1,7 +1,7 @@
 // @ts-expect-error walk is not in d.ts
 import { walk } from 'svelte/compiler';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
-import Processor from './processor';
+import Processor from '../processors/processor';
 
 /**
  * Update a string of multiple Classes
@@ -41,7 +41,7 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
  * Parse the template markup to update the class attributes with CSS modules
  * @param processor: The CSS Module Processor
  */
-const parseTemplate = (processor: Processor): void => {
+export default (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;
 
   walk(processor.ast, {
@@ -81,5 +81,3 @@ const parseTemplate = (processor: Processor): void => {
     },
   });
 };
-
-export default parseTemplate;

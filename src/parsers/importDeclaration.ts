@@ -5,7 +5,7 @@ import path from 'path';
 import fs, { constants } from 'fs';
 import MagicString from 'magic-string';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
-import Processor from './processor';
+import Processor from '../processors/processor';
 
 /**
  * Parse CssModules Imports
