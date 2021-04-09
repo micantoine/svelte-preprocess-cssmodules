@@ -71,10 +71,14 @@ export default (processor: Processor): void => {
               }
             });
           }
-          if (item.type === 'Class' && item.name in processor.cssModuleList) {
-            const start = item.start + directiveLength;
-            const end = start + item.name.length;
-            processor.magicContent.overwrite(start, end, processor.cssModuleList[item.name]);
+          if (item.type === 'Class') {
+            const classNames = item.name.split('.');
+            const name = classNames.length > 1 ? classNames[1] : classNames[0];
+            if (name in processor.cssModuleList) {
+              const start = item.start + directiveLength;
+              const end = start + item.name.length;
+              processor.magicContent.overwrite(start, end, processor.cssModuleList[name]);
+            }
           }
         });
       }

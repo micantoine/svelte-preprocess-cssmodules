@@ -50,7 +50,7 @@ export default (processor: Processor): void => {
           } else if (node.specifiers[0].type === 'ImportDefaultSpecifier') {
             const specifiers = `const ${node.specifiers[0].local.name} = ${JSON.stringify(
               processor.importedCssModuleList
-            )}`;
+            )};`;
             processor.magicContent.overwrite(node.start, node.end, specifiers);
           } else {
             const specifierNames = node.specifiers.map((item: TemplateNode) => {
@@ -58,7 +58,7 @@ export default (processor: Processor): void => {
             });
             const specifiers = `const { ${specifierNames.join(', ')} } = ${JSON.stringify(
               processor.importedCssModuleList
-            )}`;
+            )};`;
             processor.magicContent.overwrite(node.start, node.end, specifiers);
           }
 
@@ -85,7 +85,7 @@ export default (processor: Processor): void => {
 
   if (importedContent) {
     processor.magicContent.append(
-      `\n${processor.style.openTag}${importedContent}${processor.style.closeTag}`
+      `${processor.style.openTag}${importedContent}${processor.style.closeTag}`
     );
   }
 };
