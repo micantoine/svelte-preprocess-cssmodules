@@ -1,5 +1,7 @@
 <script>
   import { onDestroy } from 'svelte';
+  import style from '../app.module.css';
+  import { success } from '../app2.module.css';
 
   let date = new Date();
   const active = true;
@@ -43,7 +45,12 @@
     font: 1em sans-serif;
   }
 </style>
-
+<div
+  class={style.errorMessage}
+  class:style.error={true}
+>test</div>
 <div
   class=" bolder light { true ? 'lighter red' : ''}"
-  class:bold={true}>{time}</div>
+  class:bold={true}
+  class:success={true}
+>{time}</div>
