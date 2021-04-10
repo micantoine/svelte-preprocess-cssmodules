@@ -57,8 +57,6 @@ export default class Processor {
       this.options
     );
 
-    this.addModule(name, generatedClassName);
-
     return generatedClassName;
   };
 

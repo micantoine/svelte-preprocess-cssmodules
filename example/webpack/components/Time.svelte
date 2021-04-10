@@ -28,7 +28,7 @@
   .bolder:last-child + p:not(:first-child) {
     color: blue;
   }
-  :global(.bolder:last-child + p:not(:first-child)) p {
+  :global(.bolder:last-child + p:not(:first-child)) p.bold {
     font-weight: bolder;
   }
    
@@ -38,10 +38,10 @@
   .lighter {
     font-weight: 100;
   }
-  .red {
+  .bold.red:last-child div span.light span.light:first-child {
     color: red;
   }
-  .light {
+  div.light {
     font: 1em sans-serif;
   }
 </style>
