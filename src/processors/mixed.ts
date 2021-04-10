@@ -28,12 +28,10 @@ const updateSelectorBoundaries = (
 };
 
 /**
- * The mixed Style parser
- * @param processor
- * @name magicContent to update/manipulate the content using MagicString
- * @name createModuleClassname function to generated and return the css module classname
+ * The mixed style parser
+ * @param processor The CSS Module Processor
  */
-const parser = (processor: Processor) => {
+const parser = (processor: Processor): void => {
   walk(processor.ast, {
     enter(node: TemplateNode) {
       if (node.type === 'Script' || node.type === 'Fragment') {

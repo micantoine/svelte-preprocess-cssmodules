@@ -1,7 +1,5 @@
 <script>
   import { onDestroy } from 'svelte';
-  import style from '../app.module.css';
-  import { success } from '../app2.module.css';
 
   let date = new Date();
   const active = true;
@@ -28,6 +26,9 @@
   .bolder:last-child + p:not(:first-child) {
     color: blue;
   }
+  @media (min-width: 20rem) {
+
+  }
   :global(.bolder:last-child + p:not(:first-child)) p.bold {
     font-weight: bolder;
   }
@@ -44,13 +45,12 @@
   div.light {
     font: 1em sans-serif;
   }
+  p + span > strong { font-weight: 600; }
+  :global(div) p > strong { font-weight: 600; }
+
+  div *.bold { font-size: 12px;}
 </style>
-<div
-  class={style.errorMessage}
-  class:style.error={true}
->test</div>
 <div
   class=" bolder light { true ? 'lighter red' : ''}"
   class:bold={true}
-  class:success={true}
 >{time}</div>

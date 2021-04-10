@@ -39,7 +39,7 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
 
 /**
  * Parse the template markup to update the class attributes with CSS modules
- * @param processor: The CSS Module Processor
+ * @param processor The CSS Module Processor
  */
 export default (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;

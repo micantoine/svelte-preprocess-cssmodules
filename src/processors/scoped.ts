@@ -4,7 +4,11 @@ import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
 
-const parser = (processor: Processor) => {
+/**
+ * The scoped style parser
+ * @param processor The CSS Module Processor
+ */
+const parser = (processor: Processor): void => {
   walk(processor.ast, {
     enter(node: TemplateNode) {
       if (node.type === 'Script' || node.type === 'Fragment') {
