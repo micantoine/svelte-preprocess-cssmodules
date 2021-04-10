@@ -1,5 +1,16 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.0.0-rc.1 (April 11, 2021)
+
+New main release of the preprocessor including
+
+- Drop of the prefixes `$style.` & `$.` [issue #13](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/13)
+- Introduction of three mode `native`, `mixed`, `scoped` (default being `native` following cssModules philosophy)
+- Requirement of the `module` attribute on the `<style>` tag to preprocess the component
+- Option to locally change the preprocessing mode per component by setting a value to the `module` attribute
+- External stylesheets' imports following the convention `.module.css`
+- No more IDE unused CSS selector warning [issue #5](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/5)
+
 ## 1.3.2 (Jan 4, 2021)
 Fix attempting import from `node_modules` packages [issue #10](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/10) - [pull request #11](https://github.com/micantoine/svelte-preprocess-cssmodules/pull/11)
 
