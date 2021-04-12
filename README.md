@@ -6,12 +6,10 @@ npm install --save-dev svelte-preprocess-cssmodules
 
 Generate CSS Modules classname on Svelte components
 
-- [Use of the *style* tag](#use-of-the-style-tag)
-  - [Process required class](#process-required-class)
-  - [Remove unspecified class](#remove-unspecified-class)
+- [The module Attribute](#the-module-attribute)
+  - [Global/Local mode](#global/local-mode)
   - [Target any classname format](#target-any-classname-format)
   - [Work with class directive](#work-with-class-directive)
-  - [Shorthand](#shorthand)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Svelte scoped system on non class selectors](#svelte-scoped-system-on-non-class-selectors)
   - [Destructuring import](#destructuring-import)
@@ -25,80 +23,76 @@ Generate CSS Modules classname on Svelte components
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
-## Use of the *style* tag
+## The module attribute
 
-Write css rules inside `<style>` and prefix **on the HTML markup** any classname that require CSS Modules by `$style`  => `$style.MY_CLASSNAME` .
+Add the attribute `module` to the `<style>` tag to enable cssModules to the component.
 
 ```html
-<style>
+<style module>
+  p { font-size: 14px; }
   .red { color: red; }
 </style>
 
-<p class="$style.red">My red text</p>
+<p class="red">My red text</p>
 ```
 
 The component will be transformed to
 
 ```html
 <style>
+  p { font-size: 14px; }
   .red-30_1IC { color: red; }
 </style>
 
 <p class="red-30_1IC">My red text</p>
 ```
 
-### Process required class
+### Global/Local Mode
 
-CSS Modules classname are generated to the html class values prefixed by `$style.` The rest is left untouched and will use the default svelte scoped class.
+The component will use the `native` mode by default (following the philosophy of cssModules). Other mode `mixed` (same as the preprocessor `v1` ) or `scoped` (generating a unique class while using the svelte scoped system) can also be used depending of your preferences.
 
-*Before*
+The mode can be set globally from the preprocessor options or locally to override the global settings per component.
 
+*Mixed mode*
 ```html
-<style>
-  .blue { color: blue; }
+<style module="mixed">
+  p { font-size: 14px; }
   .red { color: red; }
-  .text-center { text-align: center; }
 </style>
 
-<p class="blue text-center">My blue text</p>
-<p class="$style.red text-center">My red text</p>
+<p class="red">My red text</p>
 ```
 
-*After*
+*generating*
 
 ```html
 <style>
-  .blue.svelte-1s2ez3w { color: blue;}
-  .red-2iBDzf { color: red; }
-  .text-center.svelte-1s2ez3w { text-align: center; }
+  p.svelte-teyu13r { font-size: 14px; }
+  .red-30_1IC { color: red; }
 </style>
 
-<p class="blue text-center svelte-1s2ez3w">My blue text</p>
-<p class="red-2iBDzf text-center svelte-1s2ez3w">My red text</p>
+<p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
-### Remove unspecified class
+*Scoped mode*
+```html
+<style module="scoped">
+  p { font-size: 14px; }
+  .red { color: red; }
+</style>
 
-On non strict mode, if a CSS Modules class has no css style attached, it will be removed from the class attribute.
+<p class="red">My red text</p>
+```
 
-*Before*
+*generating*
 
 ```html
 <style>
-  .text-center { text-align: center; }
+  p.svelte-teyu13r { font-size: 14px; }
+  .red-30_1IC.svelte-teyu13r { color: red; }
 </style>
 
-<p class="$style.blue text-center">My blue text</p>
-```
-
-*After*
-
-```html
-<style>
-  .text-center.svelte-1s2ez3w { text-align: center; }
-</style>
-
-<p class="text-center svelte-1s2ez3w">My blue text</p>
+<p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
 ### Target any classname format
@@ -108,15 +102,15 @@ kebab-case or camelCase, name the classes the way you're more comfortable with.
 *Before*
 
 ```html
-<style>
+<style module>
   .red { color: red; }
   .red-crimson { color: crimson; }
   .redMajenta { color: magenta; }
 </style>
 
-<span class="$style.red">Red</span>
-<span class="$style.red-crimson">Crimson</span>
-<span class="$style.redMajenta">Majenta</span>
+<span class="red">Red</span>
+<span class="red-crimson">Crimson</span>
+<span class="redMajenta">Majenta</span>
 ```
 
 *After*
@@ -138,7 +132,7 @@ kebab-case or camelCase, name the classes the way you're more comfortable with.
 Toggle a class on an element.
 
 ```html
-<script>
+<script module>
   let isActive = true;
 </script>
 
@@ -146,60 +140,38 @@ Toggle a class on an element.
   .bold { font-weight: bold; }
 </style>
 
-<p class:$style.bold={isActive}>My red text</p>
-<p class="{isActive ? '$style.bold' : ''}">My blue text</p>
-```
-
-### Shorthand
-To remove verbosity the shorthand `$.MY_CLASSNAME` can be used instead of the regular `$style.MY_CLASSNAME`.
-
-*before*
-
-```html
-<script>
-  let isActive = true;
-</script>
-
-<style>
-  .red { color: red; }
-  .blue { color: blue; }
-  .bold { font-weight: bold; }
-</style>
-
-<p
-  class:$.bold={isActive}
-  class="$.red">My red text</p>
-<p class="{isActive ? '$.bold' : ''} $.blue">My blue text</p>
+<p class:bold={isActive}>My red text</p>
+<p class="{isActive ? 'bold' : ''}">My blue text</p>
 ```
 
 *After*
 
 ```html
 <style>
-  .red-en-6pb { color: red; }
-  .blue-oVk-n1 { color: blue; }
   .bold-2jIMhI { font-weight: bold; }
 </style>
 
-<p class="red-en-6pb bold-2jIMhI">My red text</p>
-<p class="bold-2jIMhI blue-oVk-n1">My blue text</p>
+<p class="bold-2jIMhI">My red text</p>
+<p class="bold-2jIMhI">My blue text</p>
 ```
 
 ## Import styles from an external stylesheet
 
 Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet.
 
+The css file must follow the convention `FILENAME.module.css` in order to be processed.
+
 **Note:** *The import option is only meant for stylesheets relative to the component. You will have to set your own bundler in order to import *node_modules* packages css files.*
 
 ```css
-/** style.css **/
+/** style.module.css **/
 .red { color: red; }
 .blue { color: blue; }
 ```
 ```html
 <!-- Svelte component -->
 <script>
-  import style from './style.css';
+  import style from './style.module.css';
 </script>
 
 <p class={style.red}>My red text</p>
@@ -218,49 +190,10 @@ Alternatively, styles can be created into an external file and imported onto a s
 <p class="blue-oVk-n1">My blue text</p>
 ```
 
-### Svelte scoped system on non class selectors
-
-All existing rules of the imported stylesheet will apply to the component the same way `<style>` would do. All non class selectors will inherit the default svelte scoped system. 
-
-```css
-/** style.css **/
-section { padding: 10px; }
-p > strong { font-weight: 600; }
-.red { color: red; }
-```
-```html
-<!-- Svelte component -->
-<script>
-  import style from './style.css';
-</script>
-
-<section>
-  <p class={style.red}>My <strong>red</strong> text</p>
-  <p>My <strong>blue</strong> text</p>
-</section>
-```
-
-*Generated code*
-
-```html
-<style>
-  section.svelte-18te3n2 { padding: 10px; }
-  p.svelte-18te3n2 > strong.svelte-18te3n2 { font-weight: 600; }
-  .red-1sPexk { color: red; }
-</style>
-
-<section class="svelte-18te3n2">
-  <p class="red-1sPexk svelte-18te3n2">My <strong class="svelte-18te3n2">red</strong> text</p>
-  <p class="svelte-18te3n2">My <strong class="svelte-18te3n2">blue</strong> text</p>
-</section>
-```
-
 ### Destructuring import
 
-Only import the classnames you want to use as css modules. The rest of classes will fallback to the default svelte scoped system.
-
 ```css
-/** style.css **/
+/** style.module.css **/
 section { padding: 10px; }
 .red { color: red; }
 .blue { color: blue; }
@@ -282,15 +215,15 @@ section { padding: 10px; }
 
 ```html
 <style>
-  section.svelte-18te3n2 { padding: 10px; }
+  section { padding: 10px; }
   .red-1sPexk { color: red; }
   .blue-oVkn13 { color: blue; }
-  .bold.svelte-18te3n2 { font-weight: bold; }
+  .bold-18te3n { font-weight: bold; }
 </style>
 
-<section class="svelte-18te3n2">
-  <p class="red-1sPexk">My <span class="bold svelte-18te3n2">red</span> text</p>
-  <p class="blue-oVkn13 bold svelte-18te3n2">My blue text</p>
+<section>
+  <p class="red-1sPexk">My <span class="bold-18te3n">red</span> text</p>
+  <p class="blue-oVkn13 bold-18te3n">My blue text</p>
 </section>
 ```
 
@@ -299,7 +232,7 @@ section { padding: 10px; }
 The kebab-case classnames are being transformed to a camelCase version on imports to facilitate their use on Markup and Javascript.
 
 ```css
-/** style.css **/
+/** style.module.css **/
 .success { color: green; }
 .error-message {
   color: red;
@@ -308,7 +241,7 @@ The kebab-case classnames are being transformed to a camelCase version on import
 ```
 ```html
 <script>
-  import css from './style.css';
+  import css from './style.module.css';
 </script>
 
 <p class={css.success}>My success text</p>
@@ -317,7 +250,7 @@ The kebab-case classnames are being transformed to a camelCase version on import
 <!-- OR -->
 
 <script>
-  import { success, errorMessage } from './style.css';
+  import { success, errorMessage } from './style.module.css';
 </script>
 
 <p class={success}>My success message</p>
@@ -341,10 +274,10 @@ The kebab-case classnames are being transformed to a camelCase version on import
 
 ### Unnamed import
 
-If a css file is being imported without a name, all rules will use the default svelte scoped system.
+If a css file is being imported without a name, the cssModules will still be applied to the classes of the stylesheet.
 
 ```css
-/** style.css **/
+/** style.module.css **/
 p { font-size: 18px; }
 .success { color: green; }
 ```
@@ -361,12 +294,12 @@ p { font-size: 18px; }
 
 ```html
 <style>
-  p.svelte-vg78j0 { font-size: 18px; }
-  .success.svelte-vg78j0 { color: green; }
+  p { font-size: 18px; }
+  .success-vg78j0 { color: green; }
 </style>
 
-<p class="success svelte-vg78j0">My success messge</p>
-<p class="svelte-vg78j0">My error message</p>
+<p class="success-vg78j0">My success messge</p>
+<p>My error message</p>
 ```
 
 ### Directive and Dynamic class
@@ -376,7 +309,7 @@ Use the Svelte's builtin `class:` directive or javascript template to display a 
 
 ```html
 <script>
-  import { success, error } from './styles';
+  import { success, error } from './styles/module.css';
 
   let isSuccess = true;
   $: notice = isSuccess ? success : error;
@@ -458,7 +391,7 @@ Pass an object of the following properties
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
-| `strict`  | `{Boolean}` | `false` | When true, an exception is raised when a class is used while not being defined in `<style>`
+| `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
    
 
 **`localIdentName`**
@@ -558,7 +491,7 @@ export default {
 *Svelte Component using `<style>`*
 
 ```html
-<style>
+<style module>
   .modal {
     position: fixed;
     top: 50%;
@@ -597,15 +530,15 @@ export default {
   }
 </style>
 
-<div class="$style.modal">
+<div class="modal">
   <section>
     <header>My Modal Title</header>
-    <div class="$style.body">
+    <div class="body">
       <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
     </div>
     <footer>
       <button>Ok</button>
-      <button class="$style.cancel">Cancel</button>
+      <button class="cancel">Cancel</button>
     </footer>
   </section>
 </div>
@@ -630,7 +563,7 @@ export default {
 ```
 ```html
 <script>
-  import style from './style.css';
+  import style from './style.module.css';
 </script>
 
 <div class={style.modal}>
@@ -661,13 +594,13 @@ export default {
     background-color: #fff;
     transform: translateX(-50%) translateY(-50%);
   }
-  section.svelte-1s2ez3w {
+  section {
     flex: 0 1 auto;
     flex-direction: column;
     display: flex;
     height: 100%;
   }
-  header.svelte-1s2ez3w {
+  header {
     padding: 1rem;
     border-bottom: 1px solid #d9d9d9;
   }
@@ -675,11 +608,11 @@ export default {
     padding: 1rem;
     flex: 1 0 0;
   }
-  footer.svelte-1s2ez3w {
+  footer {
     padding: 1rem;
     border-top: 1px solid #d9d9d9;
   }
-  button.svelte-1s2ez3w {
+  button {
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -690,20 +623,18 @@ export default {
 </style>
 
 <div class="_329TyLUs9c">
-  <section class="svelte-1s2ez3w">
-    <header class="svelte-1s2ez3w">My Modal Title</header>
+  <section>
+    <header>My Modal Title</header>
     <div class="_1HPUBXtzNG">
       <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
     </div>
-    <footer class="svelte-1s2ez3w">
-      <button class="svelte-1s2ez3w">Ok</button>
-      <button class="_1xhJxRwWs7 svelte-1s2ez3w">Cancel</button>
+    <footer>
+      <button>Ok</button>
+      <button class="_1xhJxRwWs7">Cancel</button>
     </footer>
   </section>
 </div>
 ```
-
-**Note:** The svelte scoped class is still being applied to the html elements with a style.
 
 ## Why CSS Modules on Svelte
 
