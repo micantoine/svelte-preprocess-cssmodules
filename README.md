@@ -3,7 +3,7 @@
 Generate CSS Modules classname on Svelte components
 
 ```bash
-npm install --save-dev svelte-preprocess-cssmodules
+npm install --save-dev svelte-preprocess-cssmodules@next
 ```
 
 - [Usage](#usage)
