@@ -445,7 +445,7 @@ SvelteApp
 ```
 ```html
 <!-- Button.svelte -->
-<button class="$style.red">Ok</button>
+<button class="red">Ok</button>
 
 <style>
   .red { background-color: red; }
