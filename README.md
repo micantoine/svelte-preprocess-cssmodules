@@ -386,6 +386,27 @@ module.exports = {
 }
 ```
 
+### Svelte Preprocess
+
+```bash
+npm install --save-dev svelte-as-markup-preprocessor
+```
+
+```js
+const asMarkupPreprocessor = require('svelte-as-markup-preprocessor');
+
+...
+              preprocess: [
+                asMarkupPreprocessor([
+                  sveltePreprocess()
+                ]),
+                cssModules()
+              ],
+...
+```
+
+Explanation on why svelte-as-markup-preprocessor is needed: [read here](https://github.com/firefish5000/svelte-as-markup-preprocessor#motivation):
+
 ### Options
 Pass an object of the following properties
 
