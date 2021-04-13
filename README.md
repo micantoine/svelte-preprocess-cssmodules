@@ -1,17 +1,16 @@
 # Svelte preprocess CSS Modules
 
+Generate CSS Modules classname on Svelte components
+
 ```bash
 npm install --save-dev svelte-preprocess-cssmodules
 ```
 
-Generate CSS Modules classname on Svelte components
-
-- [The module Attribute](#the-module-attribute)
-  - [Global/Local mode](#global/local-mode)
+- [Usage](#usage)
+  - [Modes](#modes)
   - [Target any classname format](#target-any-classname-format)
   - [Work with class directive](#work-with-class-directive)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
-  - [Svelte scoped system on non class selectors](#svelte-scoped-system-on-non-class-selectors)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
@@ -23,9 +22,9 @@ Generate CSS Modules classname on Svelte components
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
-## The module attribute
+## Usage
 
-Add the attribute `module` to the `<style>` tag to enable cssModules to the component.
+Add `module` attribute to the `<style>` tag to enable cssModules in the component.
 
 ```html
 <style module>
@@ -47,9 +46,13 @@ The component will be transformed to
 <p class="red-30_1IC">My red text</p>
 ```
 
-### Global/Local Mode
+### Modes
 
-The component will use the `native` mode by default (following the philosophy of cssModules). Other mode `mixed` (same as the preprocessor `v1` ) or `scoped` (generating a unique class while using the svelte scoped system) can also be used depending of your preferences.
+Preprocessor can operate in the following modes:
+
+- `native` (default) - scopes classes with cssModules, anything else is unscoped
+- `mixed` - scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
+- `scoped` - scopes classes with svelte scoping in addition to `mixed`
 
 The mode can be set globally from the preprocessor options or locally to override the global settings per component.
 
@@ -202,7 +205,7 @@ section { padding: 10px; }
 ```html
 <!-- Svelte component -->
 <script>
-  import { red, blue } from './style.css';
+  import { red, blue } from './style.module.css';
 </script>
 
 <section>
@@ -283,7 +286,7 @@ p { font-size: 18px; }
 ```
 ```html
 <script>
-  import './style.css'
+  import './style.module.css'
 </script>
 
 <p class="success">My success message</p>
@@ -304,12 +307,12 @@ p { font-size: 18px; }
 
 ### Directive and Dynamic class
 
-Use the Svelte's builtin `class:` directive or javascript template to display a class dynamically.   
+Use the Svelte's builtin `class:` directive or javascript template to display a class dynamically.  
 **Note**: the *shorthand directive* is **NOT working** with CSS Modules.
 
 ```html
 <script>
-  import { success, error } from './styles/module.css';
+  import { success, error } from './style.module.css';
 
   let isSuccess = true;
   $: notice = isSuccess ? success : error;
@@ -383,6 +386,27 @@ module.exports = {
 }
 ```
 
+### Svelte Preprocess
+
+```bash
+npm install --save-dev svelte-as-markup-preprocessor
+```
+
+```js
+const asMarkupPreprocessor = require('svelte-as-markup-preprocessor');
+
+...
+              preprocess: [
+                asMarkupPreprocessor([
+                  sveltePreprocess()
+                ]),
+                cssModules()
+              ],
+...
+```
+
+Explanation on why svelte-as-markup-preprocessor is needed: [read here](https://github.com/firefish5000/svelte-as-markup-preprocessor#motivation):
+
 ### Options
 Pass an object of the following properties
 
@@ -392,7 +416,6 @@ Pass an object of the following properties
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 | `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
-   
 
 **`localIdentName`**
 
@@ -445,7 +468,7 @@ SvelteApp
 ```
 ```html
 <!-- Button.svelte -->
-<button class="$style.red">Ok</button>
+<button class="red">Ok</button>
 
 <style>
   .red { background-color: red; }
@@ -547,7 +570,7 @@ export default {
 ***OR** Svelte Component using `import`*
 
 ```css
-/** style.css */
+/** style.module.css */
 .modal {
   position: fixed;
   top: 50%;
