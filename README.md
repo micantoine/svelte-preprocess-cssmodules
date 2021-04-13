@@ -1,13 +1,13 @@
 # Svelte preprocess CSS Modules
 
+Generate CSS Modules classname on Svelte components
+
 ```bash
 npm install --save-dev svelte-preprocess-cssmodules
 ```
 
-Generate CSS Modules classname on Svelte components
-
-- [The module Attribute](#the-module-attribute)
-  - [Global/Local mode](#global/local-mode)
+- [Usage](#usage)
+  - [Modes](#modes)
   - [Target any classname format](#target-any-classname-format)
   - [Work with class directive](#work-with-class-directive)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
@@ -23,9 +23,9 @@ Generate CSS Modules classname on Svelte components
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
-## The module attribute
+## Usage
 
-Add the attribute `module` to the `<style>` tag to enable cssModules to the component.
+Add `module` attribute to the `<style>` tag to enable cssModules in the component.
 
 ```html
 <style module>
@@ -47,9 +47,13 @@ The component will be transformed to
 <p class="red-30_1IC">My red text</p>
 ```
 
-### Global/Local Mode
+### Modes
 
-The component will use the `native` mode by default (following the philosophy of cssModules). Other mode `mixed` (same as the preprocessor `v1` ) or `scoped` (generating a unique class while using the svelte scoped system) can also be used depending of your preferences.
+Preprocessor can operate in the following modes:
+
+- `native` (default) - scopes classes with cssModules, anything else is unscoped
+- `mixed` - scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
+- `scoped` - scopes classes with svelte scoping in addition to `mixed`
 
 The mode can be set globally from the preprocessor options or locally to override the global settings per component.
 
