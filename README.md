@@ -11,7 +11,6 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Target any classname format](#target-any-classname-format)
   - [Work with class directive](#work-with-class-directive)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
-  - [Svelte scoped system on non class selectors](#svelte-scoped-system-on-non-class-selectors)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
