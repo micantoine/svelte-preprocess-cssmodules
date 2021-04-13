@@ -304,7 +304,7 @@ p { font-size: 18px; }
 
 ### Directive and Dynamic class
 
-Use the Svelte's builtin `class:` directive or javascript template to display a class dynamically.   
+Use the Svelte's builtin `class:` directive or javascript template to display a class dynamically.  
 **Note**: the *shorthand directive* is **NOT working** with CSS Modules.
 
 ```html
@@ -392,7 +392,6 @@ Pass an object of the following properties
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 | `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
-   
 
 **`localIdentName`**
 
