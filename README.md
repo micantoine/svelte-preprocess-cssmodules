@@ -202,7 +202,7 @@ section { padding: 10px; }
 ```html
 <!-- Svelte component -->
 <script>
-  import { red, blue } from './style.css';
+  import { red, blue } from './style.module.css';
 </script>
 
 <section>
@@ -283,7 +283,7 @@ p { font-size: 18px; }
 ```
 ```html
 <script>
-  import './style.css'
+  import './style.module.css'
 </script>
 
 <p class="success">My success message</p>
@@ -309,7 +309,7 @@ Use the Svelte's builtin `class:` directive or javascript template to display a 
 
 ```html
 <script>
-  import { success, error } from './styles/module.css';
+  import { success, error } from './style.module.css';
 
   let isSuccess = true;
   $: notice = isSuccess ? success : error;
@@ -547,7 +547,7 @@ export default {
 ***OR** Svelte Component using `import`*
 
 ```css
-/** style.css */
+/** style.module.css */
 .modal {
   position: fixed;
   top: 50%;
