@@ -416,7 +416,8 @@ Pass an object of the following properties
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
-| `hashSeeder` | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on | 
+| `hashSeeder` | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on |
+| `allowedAttributes` | `{Array}` | `[]` | An array of attributes to parse along with `class` |
 
 **`localIdentName`**
 
