@@ -67,6 +67,15 @@ describe('Scoped Mode', () => {
     expect(output).toBe(`<style module="scoped">.red-123 { color: red; } .bold-123 { font-weight: bold }</style><span class="red-123 {true ? 'bold-123' : 'red-123'} bold-123">Red</span>`);
   });
 
+  test('Replace Clasnames on component', async () => {
+    const output = await compiler({
+      source: `<script>import Button from './Button.svelte';</script><style module="scoped">.red { color: red; }</style><Button class="red" />`
+    }, {
+      localIdentName: '[local]-123',
+    });
+    expect(output).toBe(`<script>import Button from './Button.svelte';</script><style module="scoped">.red-123 { color: red; }</style><Button class="red-123" />`);
+  });
+
   test('Replace classname listed in <style> only', async () => {
     const output = await compiler({
       source: `<style module="scoped">.red { color: red; }</style><span class="red bold">Red</span>`

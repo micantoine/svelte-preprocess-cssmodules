@@ -50,7 +50,7 @@ export default (processor: Processor): void => {
         this.skip();
       }
 
-      if (node.type === 'Element' && node.attributes.length > 0) {
+      if (['Element', 'InlineComponent'].includes(node.type) && node.attributes.length > 0) {
         node.attributes.forEach((item: TemplateNode) => {
           if (item.type === 'Attribute') {
             item.value.forEach((classItem: TemplateNode) => {
