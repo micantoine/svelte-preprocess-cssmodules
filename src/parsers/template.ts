@@ -52,7 +52,7 @@ export default (processor: Processor): void => {
 
       if (['Element', 'InlineComponent'].includes(node.type) && node.attributes.length > 0) {
         node.attributes.forEach((item: TemplateNode) => {
-          if (item.type === 'Attribute') {
+          if (item.type === 'Attribute' && item.name === 'class') {
             item.value.forEach((classItem: TemplateNode) => {
               if (classItem.type === 'Text') {
                 const generatedClassNames = updateMultipleClasses(processor, classItem.data);

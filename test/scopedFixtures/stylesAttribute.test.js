@@ -84,4 +84,14 @@ describe('Scoped Mode', () => {
     });
     expect(output).toBe(`<style module="scoped">.red-123 { color: red; }</style><span class="red-123 bold">Red</span>`);
   });
+
+  test('Replace class attribute only', async () => {
+    const output = await compiler({
+      source: `<style module="scoped">.red { color: red; }</style><span class="red" data-color="red">Red</span>`
+    }, {
+      localIdentName: '[local]-123',
+    });
+    expect(output).toBe(`<style module="scoped">.red-123 { color: red; }</style><span class="red-123" data-color="red">Red</span>`);
+  });
+
 });
