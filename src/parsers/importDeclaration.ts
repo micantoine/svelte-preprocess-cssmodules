@@ -68,7 +68,7 @@ export default (processor: Processor): void => {
             .replace(processor.style.closeTag, '')}`;
 
           if (processor.style.ast) {
-            processor.magicContent.appendLeft(processor.style.ast.content.start, content);
+            processor.magicContent.prependLeft(processor.style.ast.content.start, content);
           } else {
             importedContent += content;
           }
