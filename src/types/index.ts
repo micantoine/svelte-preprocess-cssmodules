@@ -5,6 +5,7 @@ export type PluginOptions = {
   includePaths: string[];
   localIdentName: string;
   getLocalIdent: GetLocalIdent;
+  hashSeeder: Array<'style' | 'filepath' | 'classname'>;
 };
 
 export interface PreprocessorOptions {
