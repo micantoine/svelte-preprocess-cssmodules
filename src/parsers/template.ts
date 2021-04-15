@@ -43,6 +43,7 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
  */
 export default (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;
+  const allowedAttributes = ['class', ...processor.options.allowedAttributes];
 
   walk(processor.ast, {
     enter(node: TemplateNode) {
@@ -52,7 +53,7 @@ export default (processor: Processor): void => {
 
       if (['Element', 'InlineComponent'].includes(node.type) && node.attributes.length > 0) {
         node.attributes.forEach((item: TemplateNode) => {
-          if (item.type === 'Attribute' && item.name === 'class') {
+          if (item.type === 'Attribute' && allowedAttributes.includes(item.name)) {
             item.value.forEach((classItem: TemplateNode) => {
               if (classItem.type === 'Text') {
                 const generatedClassNames = updateMultipleClasses(processor, classItem.data);

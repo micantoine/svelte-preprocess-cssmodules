@@ -94,4 +94,14 @@ describe('Scoped Mode', () => {
     expect(output).toBe(`<style module="scoped">.red-123 { color: red; }</style><span class="red-123" data-color="red">Red</span>`);
   });
 
+  test('Parse extra attributes as well', async () => {
+    const output = await compiler({
+      source: `<style module="scoped">.red { color: red; }</style><span class="red" data-color="red">Red</span>`
+    }, {
+      localIdentName: '[local]-123',
+      extraAttributes: ['data-color'],
+    });
+    expect(output).toBe(`<style module="scoped">.red-123 { color: red; }</style><span class="red-123" data-color="red-123">Red</span>`);
+  });
+
 });

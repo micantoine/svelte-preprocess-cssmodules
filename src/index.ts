@@ -10,6 +10,7 @@ let pluginOptions: PluginOptions = {
   localIdentName: '[local]-[hash:base64:6]',
   getLocalIdent,
   hashSeeder: ['style', 'filepath', 'classname'],
+  allowedAttributes: [],
 };
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
