@@ -412,10 +412,11 @@ Pass an object of the following properties
 
 | Name | Type | Default | Description |
 | ------------- | ------------- | ------------- | ------------- |
+| `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
-| `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
+| `hashSeeder` | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on | 
 
 **`localIdentName`**
 
@@ -489,6 +490,13 @@ preprocess: [
 ],
 ...
 ```
+
+**`hashSeeder`**
+The list of available keys are:
+
+- `style` the content of the style tag (or the imported stylesheet)
+- `filepath` the path of the component 
+- `classname` the local className
 
 ## Code Example
 
