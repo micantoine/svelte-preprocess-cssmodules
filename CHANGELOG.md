@@ -1,5 +1,15 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.0.0-rc.2 (April 16, 2021)
+
+### Features
+- Add option `hashSeeder` to customize the source of the hashing method
+- Add option `allowedAttributes` to parse other attributes than `class`
+### Fixes
+- Replace `class` attribute on HTML elements and inline components
+- Fix external import on `native` & `mixed` mode when `<style>` already exists
+- Shorthand directive
+
 ## 2.0.0-rc.1 (April 11, 2021)
 
 New main release of the preprocessor including
