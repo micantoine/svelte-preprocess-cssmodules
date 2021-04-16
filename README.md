@@ -158,6 +158,30 @@ Toggle a class on an element.
 <p class="bold-2jIMhI">My blue text</p>
 ```
 
+Use of shorthand 
+
+```html
+<script module>
+  let bold = true;
+</script>
+
+<style>
+  .bold { font-weight: bold; }
+</style>
+
+<p class:bold>My bold text</p>
+```
+
+*After*
+
+```html
+<style>
+  .bold-2jIMhI { font-weight: bold; }
+</style>
+
+<p class="bold-2jIMhI">My bold text</p>
+```
+
 ## Import styles from an external stylesheet
 
 Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet.
@@ -308,7 +332,7 @@ p { font-size: 18px; }
 ### Directive and Dynamic class
 
 Use the Svelte's builtin `class:` directive or javascript template to display a class dynamically.  
-**Note**: the *shorthand directive* is **NOT working** with CSS Modules.
+**Note**: the *shorthand directive* is **NOT working** with imported CSS Module identifiers.
 
 ```html
 <script>
@@ -396,12 +420,12 @@ npm install --save-dev svelte-as-markup-preprocessor
 const asMarkupPreprocessor = require('svelte-as-markup-preprocessor');
 
 ...
-              preprocess: [
-                asMarkupPreprocessor([
-                  sveltePreprocess()
-                ]),
-                cssModules()
-              ],
+  preprocess: [
+    asMarkupPreprocessor([
+      sveltePreprocess()
+    ]),
+    cssModules()
+  ],
 ...
 ```
 
