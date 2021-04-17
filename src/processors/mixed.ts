@@ -77,6 +77,8 @@ const parser = (processor: Processor): void => {
             }
           });
         }
+
+        processor.parsePseudoLocalSelectors(node);
       }
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);

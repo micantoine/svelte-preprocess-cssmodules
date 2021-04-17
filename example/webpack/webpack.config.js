@@ -21,7 +21,7 @@ module.exports = {
             options: {
               preprocess: [
                 cssModules({
-                  mode: 'mixed',
+                  mode: 'native',
                   includePaths: ['./'],
                 }),
               ],

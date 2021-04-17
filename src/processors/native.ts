@@ -54,7 +54,10 @@ const parser = (processor: Processor): void => {
 
         node.children.forEach((item, index) => {
           let hasPushed = false;
-          if (item.name === 'global' && item.type === 'PseudoClassSelector') {
+          if (
+            (item.name === 'global' || item.name === 'local') &&
+            item.type === 'PseudoClassSelector'
+          ) {
             if (start > 0) {
               selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
               hasPushed = true;
@@ -72,6 +75,8 @@ const parser = (processor: Processor): void => {
             selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
           }
         });
+
+        processor.parsePseudoLocalSelectors(node);
       }
 
       if (node.type === 'ClassSelector') {
@@ -101,6 +106,7 @@ const nativeProcessor = async (
 ): Promise<string> => {
   const processor = new Processor(ast, content, filename, options, parser);
   const processedContent = processor.parse();
+  console.log(processedContent);
   return processedContent;
 };
 

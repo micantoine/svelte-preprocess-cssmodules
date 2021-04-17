@@ -19,11 +19,11 @@
     font-family: monospace;
   }
 
-  .bolder {
+  :local(.bolder) {
     font-weight: 900;
   }
 
-  .bolder:last-child + p:not(:first-child) {
+  :local(.bolder:last-child) + p:not(:first-child) {
     color: blue;
   }
   @media (min-width: 20rem) {
@@ -46,9 +46,9 @@
     font: 1em sans-serif;
   }
   p + span > strong { font-weight: 600; }
-  :global(div) p > strong { font-weight: 600; }
+  :global(div) :local(p > strong) { font-weight: 600; }
 
-  div *.bold { font-size: 12px;}
+  :local(div) *.bold { font-size: 12px;}
 </style>
 <div
   class=" bolder light { true ? 'lighter red' : ''}"

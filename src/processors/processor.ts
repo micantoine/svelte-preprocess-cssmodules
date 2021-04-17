@@ -1,5 +1,5 @@
 import MagicString from 'magic-string';
-import type { Ast, Style } from 'svelte/types/compiler/interfaces.d';
+import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import { CSSModuleList, PluginOptions } from '../types';
 import { camelCase, createClassName, hasModuleAttribute, hasModuleImports } from '../lib';
 import { parseImportDeclaration, parseTemplate } from '../parsers';
@@ -70,6 +70,23 @@ export default class Processor {
       this.importedCssModuleList[camelCase(name)] = value;
     }
     this.cssModuleList[name] = value;
+  };
+
+  /**
+   * Parse pseudo selector :local()
+   * @param node The ast "Selector" node to parse
+   */
+  public parsePseudoLocalSelectors = (node: TemplateNode): void => {
+    const pseudoLocalSelectors = node.children.filter(
+      (item) => item.type === 'PseudoClassSelector' && item.name === 'local'
+    );
+
+    if (pseudoLocalSelectors.length > 0) {
+      pseudoLocalSelectors.forEach((item) => {
+        this.magicContent.remove(item.start, item.start + `:local(`.length);
+        this.magicContent.remove(item.end - 1, item.end);
+      });
+    }
   };
 
   /**

@@ -45,14 +45,14 @@
   -webkit-font-smoothing: antialiased;
 }
 
-section {
+:local(section) {
   flex: 0 1 auto;
   flex-direction: column;
   display: flex;
   height: 100%;
 }
 
-header {
+:local(header) {
   padding: 1rem;
   font-size: 1.2rem;
   font-weight: bold;
@@ -68,7 +68,7 @@ header {
   -webkit-overflow-scrolling: touch;
 }
 
-footer {
+:local(footer) {
   padding: 1rem;
   text-align: right;
   border-top: 1px solid #d9d9d9;
