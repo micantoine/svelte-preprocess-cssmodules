@@ -57,4 +57,35 @@ describe('Native Mode', () => {
     expect(output).toBe(expectedOutput);
   });
 
+  test('Scoped local selector', async () => {
+    const source =
+    '<style module>'+
+    ':local(div) { text-align: right }'+
+    '.bold.red:last-child :global(div) span.light span.light:first-child { color: red; }'+
+    ':global(div) :local(p > strong) { font-weight: 600; }'+
+    ':local(.bolder:last-child + p:not(:first-child)) p.bold { color: blue; }'+
+    '.boldest:last-child + :local(p:not(:first-child)) { color: blue; }'+
+    '</style>'+
+    '<span class="red bold center">Red</span>';
+
+    const expectedOutput =
+    '<style module>'+
+    'div { text-align: right }'+
+    ':global(.bold-123.red-123:last-child) :global(div) :global(span.light-123 span.light-123:first-child) { color: red; }'+
+    ':global(div) p > strong { font-weight: 600; }'+
+    '.bolder:last-child + p:not(:first-child) :global(p.bold-123) { color: blue; }'+
+    ':global(.boldest-123:last-child +) p:not(:first-child) { color: blue; }'+
+    '</style>'+
+    '<span class="red-123 bold-123 center">Red</span>';
+
+    const output = await compiler({
+      source,
+    },{
+      mode: 'native',
+      localIdentName: '[local]-123',
+    });
+
+    expect(output).toBe(expectedOutput);
+  });
+
 });

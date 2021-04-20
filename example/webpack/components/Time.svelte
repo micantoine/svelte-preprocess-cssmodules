@@ -13,7 +13,7 @@
 </script>
 
 <style module>
-  div {
+  :local(div) {
     text-align: right;
     font-size: 1.2rem;
     font-family: monospace;
@@ -26,9 +26,7 @@
   :local(.bolder:last-child) + p:not(:first-child) {
     color: blue;
   }
-  @media (min-width: 20rem) {
 
-  }
   :global(.bolder:last-child + p:not(:first-child)) p.bold {
     font-weight: bolder;
   }
