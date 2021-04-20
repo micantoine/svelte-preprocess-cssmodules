@@ -1,5 +1,12 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.0.0-rc.3 (April 20, 2021)
+
+### Features
+- Add `:local()` selector
+### Fixes
+- Fix native parsing
+
 ## 2.0.0-rc.2 (April 16, 2021)
 
 ### Features
