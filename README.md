@@ -10,6 +10,7 @@ npm install --save-dev svelte-preprocess-cssmodules@next
   - [Modes](#modes)
   - [Target any classname format](#target-any-classname-format)
   - [Work with class directive](#work-with-class-directive)
+  - [Local selector](#local-selector)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
@@ -172,7 +173,7 @@ Use of shorthand
 <p class:bold>My bold text</p>
 ```
 
-*After*
+*Generating*
 
 ```html
 <style>
@@ -180,6 +181,58 @@ Use of shorthand
 </style>
 
 <p class="bold-2jIMhI">My bold text</p>
+```
+
+### Local selector
+
+Force a selector to be scoped within the component to prevent style inheritance in child components.
+
+```html
+<!-- Parent Component-->
+<style module>
+  .main em { color: grey; }
+  .main :local(strong) { font-weight: 900; }
+</style>
+
+<div class="main">
+  <p>My <em>main</em> lorem <strong>ipsum tuye</strong></p>
+  <ChildComponent />
+</div>
+
+<!-- Child Component-->
+<style module>
+  /** Rule to override parent style **/
+  .child em { color: black; }
+
+  /** 
+   * Not needed rule
+   .secondary strong { font-weight: 700 }
+   */
+</style>
+
+<p class="child">My <em>secondary</em> lorem <strong>ipsum tuye</strong></p>
+```
+
+*Generating*
+
+```html
+<!-- Parent Component-->
+<style>
+  .main-Yu78Wr em { color: grey; }
+  .main-Yu78Wr strong.svelte-ery8ts { font-weight: 900; }
+</style>
+
+<div class="main-Yu78Wr">
+  <p>My <em>main</em> lorem <strong class="svelte-ery8ts">ipsum tuye</strong></p>
+  <ChildComponent />
+</div>
+
+<!-- Child Component-->
+<style module>
+  .child-uhRt2j em { color: black; }
+</style>
+
+<p class="child-uhRt2j">My <em>secondary</em> lorem <strong>ipsum tuye</strong></p>
 ```
 
 ## Import styles from an external stylesheet
