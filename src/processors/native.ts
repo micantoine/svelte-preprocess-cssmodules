@@ -34,7 +34,6 @@ const updateSelectorBoundaries = (
  */
 const parser = (processor: Processor): void => {
   let selectorBoundaries: Array<Boundaries> = [];
-  let globalSelectors: Array<TemplateNode> = [];
 
   walk(processor.ast, {
     enter(node: TemplateNode) {
@@ -42,13 +41,6 @@ const parser = (processor: Processor): void => {
         this.skip();
       }
       if (node.type === 'Selector') {
-        globalSelectors = [
-          ...globalSelectors,
-          ...node.children.filter(
-            (item) => item.name === 'global' && item.type === 'PseudoClassSelector'
-          ),
-        ];
-
         let start = 0;
         let end = 0;
 
@@ -58,20 +50,20 @@ const parser = (processor: Processor): void => {
             (item.name === 'global' || item.name === 'local') &&
             item.type === 'PseudoClassSelector'
           ) {
-            if (start > 0) {
+            if (start > 0 && end > 0) {
               selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
               hasPushed = true;
             }
             start = item.end + 1;
             end = 0;
-          } else {
+          } else if (item.start && item.end) {
             if (start === 0) {
               start = item.start;
             }
             end = item.end;
           }
 
-          if (!hasPushed && index === node.children.length - 1) {
+          if (!hasPushed && index === node.children.length - 1 && end > 0) {
             selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
           }
         });
@@ -88,13 +80,8 @@ const parser = (processor: Processor): void => {
   });
 
   selectorBoundaries.forEach((boundary) => {
-    const hasClassSelector = globalSelectors.filter(
-      (item) => boundary.start <= item.start && boundary.end >= item.end
-    );
-    if (hasClassSelector.length < 1) {
-      processor.magicContent.appendLeft(boundary.start, ':global(');
-      processor.magicContent.appendRight(boundary.end, ')');
-    }
+    processor.magicContent.appendLeft(boundary.start, ':global(');
+    processor.magicContent.appendRight(boundary.end, ')');
   });
 };
 
@@ -106,7 +93,6 @@ const nativeProcessor = async (
 ): Promise<string> => {
   const processor = new Processor(ast, content, filename, options, parser);
   const processedContent = processor.parse();
-  console.log(processedContent);
   return processedContent;
 };
 
