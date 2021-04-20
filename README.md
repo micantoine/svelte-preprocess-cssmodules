@@ -189,6 +189,7 @@ Force a selector to be scoped within the component to prevent style inheritance 
 
 ```html
 <!-- Parent Component-->
+
 <style module>
   .main em { color: grey; }
   .main :local(strong) { font-weight: 900; }
@@ -198,8 +199,10 @@ Force a selector to be scoped within the component to prevent style inheritance 
   <p>My <em>main</em> lorem <strong>ipsum tuye</strong></p>
   <ChildComponent />
 </div>
-
+```
+```html
 <!-- Child Component-->
+
 <style module>
   /** Rule to override parent style **/
   .child em { color: black; }
@@ -217,6 +220,7 @@ Force a selector to be scoped within the component to prevent style inheritance 
 
 ```html
 <!-- Parent Component-->
+
 <style>
   .main-Yu78Wr em { color: grey; }
   .main-Yu78Wr strong.svelte-ery8ts { font-weight: 900; }
@@ -226,8 +230,10 @@ Force a selector to be scoped within the component to prevent style inheritance 
   <p>My <em>main</em> lorem <strong class="svelte-ery8ts">ipsum tuye</strong></p>
   <ChildComponent />
 </div>
-
+```
+```html
 <!-- Child Component-->
+
 <style module>
   .child-uhRt2j em { color: black; }
 </style>
