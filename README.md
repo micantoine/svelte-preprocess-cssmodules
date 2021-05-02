@@ -8,9 +8,8 @@ npm install --save-dev svelte-preprocess-cssmodules@next
 
 - [Usage](#usage)
   - [Modes](#modes)
-  - [Target any classname format](#target-any-classname-format)
   - [Work with class directive](#work-with-class-directive)
-  - [Local selector](#local-selector)
+- [Local selector](#local-selector)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
@@ -20,6 +19,7 @@ npm install --save-dev svelte-preprocess-cssmodules@next
   - [Rollup](#rollup)
   - [Webpack](#webpack)
   - [Options](#options)
+- [Migration from v1](#migration-from-v1)
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
@@ -57,7 +57,7 @@ Preprocessor can operate in the following modes:
 
 The mode can be set globally from the preprocessor options or locally to override the global settings per component.
 
-*Mixed mode*
+**Mixed mode**
 ```html
 <style module="mixed">
   p { font-size: 14px; }
@@ -78,7 +78,7 @@ The mode can be set globally from the preprocessor options or locally to overrid
 <p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
-*Scoped mode*
+**Scoped mode**
 ```html
 <style module="scoped">
   p { font-size: 14px; }
@@ -99,38 +99,6 @@ The mode can be set globally from the preprocessor options or locally to overrid
 <p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
-### Target any classname format
-
-kebab-case or camelCase, name the classes the way you're more comfortable with.
-
-*Before*
-
-```html
-<style module>
-  .red { color: red; }
-  .red-crimson { color: crimson; }
-  .redMajenta { color: magenta; }
-</style>
-
-<span class="red">Red</span>
-<span class="red-crimson">Crimson</span>
-<span class="redMajenta">Majenta</span>
-```
-
-*After*
-
-```html
-<style>
-  .red-2xTdmA { color: red; }
-  .red-crimson-1lu8Sg { color: crimson; }
-  .redMajenta-2wdRa3 { color: magenta; }
-</style>
-
-<span class="red-2xTdmA">Red</span>
-<span class="red-crimson-1lu8Sg">Crimson</span>
-<span class="redMajenta-2wdRa3">Majenta</span>
-```
-
 ### Work with class directive
 
 Toggle a class on an element.
@@ -148,7 +116,7 @@ Toggle a class on an element.
 <p class="{isActive ? 'bold' : ''}">My blue text</p>
 ```
 
-*After*
+*Generating*
 
 ```html
 <style>
@@ -159,33 +127,35 @@ Toggle a class on an element.
 <p class="bold-2jIMhI">My blue text</p>
 ```
 
-Use of shorthand 
+**Use of shorthand**
 
 ```html
 <script module>
-  let bold = true;
+  let active = true;
 </script>
 
 <style>
-  .bold { font-weight: bold; }
+  .active { font-weight: bold; }
 </style>
 
-<p class:bold>My bold text</p>
+<p class:active>My active text</p>
 ```
 
 *Generating*
 
 ```html
 <style>
-  .bold-2jIMhI { font-weight: bold; }
+  .active-2jIMhI { font-weight: bold; }
 </style>
 
-<p class="bold-2jIMhI">My bold text</p>
+<p class="active-2jIMhI">My active text</p>
 ```
 
-### Local selector
+## Local selector
 
-Force a selector to be scoped within the component to prevent style inheritance in child components.
+Force a selector to be scoped within a component to prevent style inheritance on child components.
+
+`:local()` is doing the opposite of `:global()` and can only be used with the `native` and `mixed` mode.
 
 ```html
 <!-- Parent Component-->
@@ -208,7 +178,7 @@ Force a selector to be scoped within the component to prevent style inheritance 
   .child em { color: black; }
 
   /** 
-   * Not needed rule
+   * Not needed rule because of the use of :local()
    .secondary strong { font-weight: 700 }
    */
 </style>
@@ -497,10 +467,10 @@ Pass an object of the following properties
 | ------------- | ------------- | ------------- | ------------- |
 | `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
 | `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
-| `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
-| `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 | `hashSeeder` | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on |
 | `allowedAttributes` | `{Array}` | `[]` | An array of attributes to parse along with `class` |
+| `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
+| `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 
 **`localIdentName`**
 
@@ -516,6 +486,16 @@ Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#in
   - other hashTypes, i. e. `sha1`, `md4`, `md5`, `sha256`, `sha512`
   - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
   - and `length` the length in chars
+
+**`hashSeeder`**
+
+Set the resource content of `[hash]` and `[contenthash]`.
+
+The list of available keys are:
+
+- `style` the content of the style tag (or the imported stylesheet)
+- `filepath` the path of the component 
+- `classname` the local className
 
 **`getLocalIdent`**
 
@@ -575,12 +555,28 @@ preprocess: [
 ...
 ```
 
-**`hashSeeder`**
-The list of available keys are:
+## Migrating from v1
+If you want to migrate an existing project to `v2` keeping the approach of the 1st version, follow the steps below:
 
-- `style` the content of the style tag (or the imported stylesheet)
-- `filepath` the path of the component 
-- `classname` the local className
+- Set the `mixed` mode from the global settings.
+   ```js
+   // Preprocess config
+   ...
+
+   preprocess: [
+    cssModules([
+      mode: 'mixed',
+    ]),
+   ],
+   ```
+- Remove all `$style.` prefix from the html markup
+- Add the attribute `module` to `<style>` for all your components.
+   ```html
+   <style module>
+   ...
+   </style>
+   ```
+
 
 ## Code Example
 
