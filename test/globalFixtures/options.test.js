@@ -1,0 +1,82 @@
+const compiler = require('../compiler.js');
+
+test('Customize generated classname from getLocalIdent', async () => {
+  const output = await compiler({
+    source: '<style module="scoped">.red { color: red; }</style><span class="red">Red</span>',
+  }, {
+    localIdentName: '[local]-123456MC',
+    getLocalIdent: (context, { interpolatedName }) => {
+      return interpolatedName.toLowerCase();
+    },
+  });
+
+  expect(output).toBe(
+    '<style module="scoped">.red-123456mc { color: red; }</style><span class="red-123456mc">Red</span>'
+  );
+});
+
+test('Do not process style without the module attribute', async () => {
+  const output = await compiler({
+    source: '<style>.red { color: red; }</style><span class="red">Red</span>',
+  }, {
+    localIdentName: '[local]-123',
+  });
+
+  expect(output).toBe(
+    '<style>.red { color: red; }</style><span class="red">Red</span>'
+  );
+});
+
+describe('When the mode option has an invalid value', () => {
+  const source = '<style module>.red { color: red; }</style>';
+
+  it('throws an exception', async () => {
+    await expect(compiler(
+      { source },
+      { mode: 'svelte' }
+    )).rejects.toThrow(
+      `Module only accepts 'native', 'mixed' or 'scoped': 'svelte' was passed.`
+    );
+  });
+});
+
+describe('When the module attribute has an invalid value', () => {
+  const source = '<style module="svelte">.red { color: red; }</style>';
+
+  it('throws an exception', async () => {
+    await expect(compiler({ source })).rejects.toThrow(
+      `Module only accepts 'native', 'mixed' or 'scoped': 'svelte' was passed.`
+    );
+  });
+});
+
+test('Use the filepath only as hash seeder', async () => {
+  const output = await compiler({
+    source: '<style module>.red { color: red; } .bold { color: bold; }</style><span class="red bold">Red</span>',
+  }, {
+    mode: 'native',
+    localIdentName: '[local]-[hash:6]',
+    hashSeeder: ['filepath'],
+  });
+
+  expect(output).toBe(
+    '<style module>:global(.red-027d15) { color: red; } :global(.bold-027d15) { color: bold; }</style><span class="red-027d15 bold-027d15">Red</span>'
+  );
+});
+
+describe('When the hashSeeder has a wrong key', () => {
+  const source = '<style module>.red { color: red; }</style>';
+
+  it('throws an exception', async () => {
+    await expect(compiler({
+      source
+    }, {
+      hashSeeder: ['filepath', 'content'],
+    })).rejects.toThrow(
+      `The hash seeder only accepts the keys 'style', 'filepath' and 'classname': 'content' was passed.`
+    );
+  });
+});
+
+
+

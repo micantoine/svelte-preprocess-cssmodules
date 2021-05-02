@@ -12,17 +12,43 @@
   })
 </script>
 
-<style>
-  div {
+<style module>
+  :local(div) {
     text-align: right;
     font-size: 1.2rem;
     font-family: monospace;
   }
+
+  :local(.bolder) {
+    font-weight: 900;
+  }
+
+  :local(.bolder:last-child) + p:not(:first-child) {
+    color: blue;
+  }
+
+  :global(.bolder:last-child + p:not(:first-child)) p.bold {
+    font-weight: bolder;
+  }
+   
   .bold {
     font-weight: bold;
   }
-</style>
+  .lighter {
+    font-weight: 100;
+  }
+  .bold.red:last-child div span.light span.light:first-child {
+    color: red;
+  }
+  div.light {
+    font: 1em sans-serif;
+  }
+  p + span > strong { font-weight: 600; }
+  :global(div) :local(p > strong) { font-weight: 600; }
 
+  :local(div) *.bold { font-size: 12px;}
+</style>
 <div
-  class="$.datetime"
-  class:$.bold={true}>{time}</div>
+  class=" bolder light { true ? 'lighter red' : ''}"
+  class:bold={true}
+>{time}</div>

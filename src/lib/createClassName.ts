@@ -1,13 +1,14 @@
 import path from 'path';
 import { getHashDigest } from 'loader-utils';
 import { PluginOptions } from '../types';
-import { PATTERN_PATH_UNALLOWED } from './patterns';
+
+const PATTERN_PATH_UNALLOWED = /[<>:"/\\|?*]/g;
 
 /**
  * interpolateName, adjusted version of loader-utils/interpolateName
  * @param resourcePath The file resourcePath
  * @param localName The local name/rules to replace
- * @param content The content to use base the hash on
+ * @param content The content to base the hash on
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function interpolateName(resourcePath: string, localName: any, content: any) {
@@ -57,24 +58,28 @@ function interpolateName(resourcePath: string, localName: any, content: any) {
 /**
  * generateName
  * @param resourcePath The file resourcePath
- * @param styles The style content
+ * @param style The style content
  * @param className The cssModules className
  * @param localIdentName The localIdentName rule
  */
 function generateName(
   resourcePath: string,
-  styles: string,
+  style: string,
   className: string,
-  localIdentName: string
+  pluginOptions: PluginOptions
 ): string {
   const filePath = resourcePath;
-  const localName = localIdentName.length
-    ? localIdentName.replace(/\[local\]/gi, () => className)
+  const localName = pluginOptions.localIdentName.length
+    ? pluginOptions.localIdentName.replace(/\[local\]/gi, () => className)
     : className;
 
-  const content = `${styles}-${filePath}-${className}`;
+  const hashSeeder = pluginOptions.hashSeeder
+    .join('-')
+    .replace(/style/gi, () => style)
+    .replace(/filepath/gi, () => filePath)
+    .replace(/classname/gi, () => className);
 
-  let interpolatedName = interpolateName(resourcePath, localName, content).replace(/\./g, '-');
+  let interpolatedName = interpolateName(resourcePath, localName, hashSeeder).replace(/\./g, '-');
 
   // replace unwanted characters from [path]
   if (PATTERN_PATH_UNALLOWED.test(interpolatedName)) {
@@ -110,7 +115,7 @@ function createCssModulesClassName(
   className: string,
   pluginOptions: PluginOptions
 ): string {
-  const interpolatedName = generateName(filename, style, className, pluginOptions.localIdentName);
+  const interpolatedName = generateName(filename, style, className, pluginOptions);
   return pluginOptions.getLocalIdent(
     {
       context: path.dirname(filename),
