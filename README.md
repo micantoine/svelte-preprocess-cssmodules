@@ -3,7 +3,7 @@
 Generate CSS Modules classname on Svelte components
 
 ```bash
-npm install --save-dev svelte-preprocess-cssmodules@next
+npm install --save-dev svelte-preprocess-cssmodules
 ```
 
 - [Usage](#usage)
@@ -155,7 +155,7 @@ Toggle a class on an element.
 
 Force a selector to be scoped within a component to prevent style inheritance on child components.
 
-`:local()` is doing the opposite of `:global()` and can only be used with the `native` and `mixed` mode.
+`:local()` is doing the opposite of `:global()` and can only be used with the `native` and `mixed` mode on.
 
 ```html
 <!-- Parent Component-->
@@ -204,7 +204,7 @@ Force a selector to be scoped within a component to prevent style inheritance on
 ```html
 <!-- Child Component-->
 
-<style module>
+<style>
   .child-uhRt2j em { color: black; }
 </style>
 
@@ -497,6 +497,71 @@ The list of available keys are:
 - `filepath` the path of the component 
 - `classname` the local className
 
+*Example of use*
+```js
+// Preprocess config
+...
+preprocess: [
+  cssModules({
+    hashSeeder: ['filepath'],
+  })
+],
+...
+```
+```html
+<button class="success">Ok</button>
+<button class="cancel">Cancel</button>
+<style module>
+  .success { background-color: green; }
+  .cancel { background-color: gray; }
+</style>
+```
+
+*Generating*
+
+```html
+<button class="success-yr6RT">Ok</button>
+<button class="cancel-yr6RT">Cancel</button>
+<style>
+  .success-yr6RT { background-color: green; }
+  .cancel-yr6RT { background-color: gray; }
+</style>
+```
+
+**`allowedAttributes`**
+
+Add other attributes than `class` to be parsed by the preprocesser
+
+```js
+// Preprocess config
+...
+preprocess: [
+  cssModules({
+    allowedAttributes: ['data-color', 'classname'],
+  })
+],
+...
+```
+```html
+<button class="red" data-color="red">Red</button>
+<button class="red" classname="blue">Red or Blue</button>
+<style module>
+  .red { background-color: red; }
+  .blue { background-color: blue; }
+</style>
+```
+
+*Generating*
+
+```html
+<button class="red-yr6RT" data-color="red-yr6RT">Red</button>
+<button class="red-yr6RT" classname="blue-aE4qW">Red or Blue</button>
+<style>
+  .red-yr6RT { background-color: red; }
+  .blue-aE4qW { background-color: blue; }
+</style>
+```
+
 **`getLocalIdent`**
 
 Customize the creation of the classname instead of relying on the built-in function.
@@ -562,15 +627,15 @@ If you want to migrate an existing project to `v2` keeping the approach of the 1
    ```js
    // Preprocess config
    ...
-
    preprocess: [
     cssModules([
       mode: 'mixed',
     ]),
    ],
+   ...
    ```
 - Remove all `$style.` prefix from the html markup
-- Add the attribute `module` to `<style>` for all your components.
+- Add the attribute `module` to `<style>` within your components.
    ```html
    <style module>
    ...
