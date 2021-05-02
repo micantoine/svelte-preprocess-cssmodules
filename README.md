@@ -19,7 +19,7 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Rollup](#rollup)
   - [Webpack](#webpack)
   - [Options](#options)
-- [Migration from v1](#migration-from-v1)
+- [Migrating from v1](#migrating-from-v1)
 - [Code example](#code-example)
 - [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
 
