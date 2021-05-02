@@ -57,7 +57,11 @@ export default (processor: Processor): void => {
               return item.local.name;
             });
             const specifiers = `const { ${specifierNames.join(', ')} } = ${JSON.stringify(
-              processor.importedCssModuleList
+              Object.fromEntries(
+                Object.entries(processor.importedCssModuleList).filter(([key]) =>
+                  specifierNames.includes(key)
+                )
+              )
             )};`;
             processor.magicContent.overwrite(node.start, node.end, specifiers);
           }
