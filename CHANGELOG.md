@@ -1,5 +1,8 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.0.0 (May 1, 2021)
+New public release
+
 ## 2.0.0-rc.3 (April 20, 2021)
 
 ### Features
