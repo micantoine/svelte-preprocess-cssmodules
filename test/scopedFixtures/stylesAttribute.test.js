@@ -51,11 +51,11 @@ describe('Scoped Mode', () => {
 
   test('Replace short hand directive', async () => {
     const output = await compiler({
-      source: '<script>const red = true;</script><style module="scoped">.red { color: red; }</style><span class:red>Red</span>'
+      source: '<script>const red = true;</script><style module="scoped">.red { color: red; } .blue { color: blue; }</style><span class:red class:blue={red}>Red</span>'
     }, {
       localIdentName: '[local]-123',
     });
-    expect(output).toBe('<script>const red = true;</script><style module="scoped">.red-123 { color: red; }</style><span class:red-123={red}>Red</span>');
+    expect(output).toBe('<script>const red = true;</script><style module="scoped">.red-123 { color: red; } .blue-123 { color: blue; }</style><span class:red-123={red} class:blue-123={red}>Red</span>');
   });
 
   test('Replace Multiple Clasnames on attribute', async () => {

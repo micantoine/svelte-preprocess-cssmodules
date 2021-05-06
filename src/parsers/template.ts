@@ -78,7 +78,7 @@ export default (processor: Processor): void => {
             if (name in processor.cssModuleList) {
               const start = item.start + directiveLength;
               const end = start + item.name.length;
-              if (item.expression.type === 'Identifier') {
+              if (item.expression.type === 'Identifier' && item.name === item.expression.name) {
                 processor.magicContent.overwrite(
                   start,
                   end,

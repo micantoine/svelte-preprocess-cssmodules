@@ -8,6 +8,7 @@
     ],
     "noImplicitAny": true,
     "moduleResolution": "node",
+    "removeComments": true,
     "sourceMap": false,
     "declaration": true,
     "outDir": "dist",
