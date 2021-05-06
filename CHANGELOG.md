@@ -1,5 +1,8 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.0.1 (May 6, 2021)
+- Fix shorthand directive breaking regular directive
+
 ## 2.0.0 (May 1, 2021)
 New public release
 

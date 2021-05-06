@@ -8,7 +8,7 @@ npm install --save-dev svelte-preprocess-cssmodules
 
 - [Usage](#usage)
   - [Modes](#modes)
-  - [Work with class directive](#work-with-class-directive)
+  - [Class directive](#class-directive)
 - [Local selector](#local-selector)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Destructuring import](#destructuring-import)
@@ -99,7 +99,7 @@ The mode can be set globally from the preprocessor options or locally to overrid
 <p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
-### Work with class directive
+### Class directive
 
 Toggle a class on an element.
 
