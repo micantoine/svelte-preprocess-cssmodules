@@ -18,6 +18,7 @@ npm install --save-dev svelte-preprocess-cssmodules
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
+  - [Svelte Preprocess](#svelte-preprocess)
   - [Options](#options)
 - [Migrating from v1](#migrating-from-v1)
 - [Code example](#code-example)
@@ -441,24 +442,34 @@ module.exports = {
 
 ### Svelte Preprocess
 
+Chaining multiple preprocessors which are using the svelte parser and walker may throw errors because of the way svelte runs its preprocessor in two phases. [Read more here](https://github.com/firefish5000/svelte-as-markup-preprocessor#motivation)
+
+
+In that situation the use of the package `svelte-as-markup-preprocessor` becomes necessary.
+
 ```bash
 npm install --save-dev svelte-as-markup-preprocessor
 ```
 
+**Example with typescript**
+
 ```js
-const asMarkupPreprocessor = require('svelte-as-markup-preprocessor');
+// import packages
+const { typescript } = require('svelte-preprocess');
+const { asMarkupPreprocessor } = require('svelte-as-markup-preprocessor');
+const cssModules = require('svelte-preprocess-cssmodules');
 
 ...
+
+// svelte config
   preprocess: [
     asMarkupPreprocessor([
-      sveltePreprocess()
+      typescript()
     ]),
     cssModules()
   ],
 ...
 ```
-
-Explanation on why svelte-as-markup-preprocessor is needed: [read here](https://github.com/firefish5000/svelte-as-markup-preprocessor#motivation):
 
 ### Options
 Pass an object of the following properties
