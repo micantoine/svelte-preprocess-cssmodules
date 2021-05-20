@@ -20,6 +20,6 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "swiper": "^6.4.5"
+    "swiper": "^6.5.1"
   }
 }
