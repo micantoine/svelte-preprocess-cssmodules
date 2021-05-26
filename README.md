@@ -56,7 +56,7 @@ Preprocessor can operate in the following modes:
 - `mixed` - scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
 - `scoped` - scopes classes with svelte scoping in addition to `mixed`
 
-The mode can be set globally from the preprocessor options or locally to override the global settings per component.
+The mode can be **set globally from the preprocessor options** or **locally to override the global settings** per component.
 
 **Mixed mode**
 ```html
@@ -105,11 +105,11 @@ The mode can be set globally from the preprocessor options or locally to overrid
 Toggle a class on an element.
 
 ```html
-<script module>
+<script>
   let isActive = true;
 </script>
 
-<style>
+<style module>
   .bold { font-weight: bold; }
 </style>
 
@@ -131,11 +131,11 @@ Toggle a class on an element.
 **Use of shorthand**
 
 ```html
-<script module>
+<script>
   let active = true;
 </script>
 
-<style>
+<style module>
   .active { font-weight: bold; }
 </style>
 
@@ -180,7 +180,7 @@ Force a selector to be scoped within a component to prevent style inheritance on
 
   /** 
    * Not needed rule because of the use of :local()
-   .secondary strong { font-weight: 700 }
+   .child strong { font-weight: 700 }
    */
 </style>
 
@@ -442,10 +442,10 @@ module.exports = {
 
 ### Svelte Preprocess
 
-Chaining multiple preprocessors which are using the svelte parser and walker may throw errors because of the way svelte runs its preprocessor in two phases. [Read more here](https://github.com/firefish5000/svelte-as-markup-preprocessor#motivation)
+Chaining several preprocessors may lead to errors if the svelte parser and walker is being manipulated multiple time. This issue is due to the way svelte runs its preprocessor in two phases. [Read more here](https://github.com/firefish5000/svelte-as-markup-preprocessor#motivation)
 
 
-In that situation the use of the package `svelte-as-markup-preprocessor` becomes necessary.
+In that situation, we recommend the use of the package [`svelte-as-markup-preprocessor`](https://github.com/firefish5000/svelte-as-markup-preprocessor).
 
 ```bash
 npm install --save-dev svelte-as-markup-preprocessor
