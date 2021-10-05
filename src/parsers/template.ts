@@ -1,7 +1,6 @@
-// @ts-expect-error walk is not in d.ts
 import { walk } from 'svelte/compiler';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
-import Processor from '../processors/processor';
+import type Processor from '../processors/processor';
 
 /**
  * Update a string of multiple Classes
@@ -45,8 +44,9 @@ export default (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;
   const allowedAttributes = ['class', ...processor.options.allowedAttributes];
 
-  walk(processor.ast, {
-    enter(node: TemplateNode) {
+  walk(processor.ast.html, {
+    enter(baseNode) {
+      const node = baseNode as TemplateNode;
       if (node.type === 'Script' || node.type === 'Style') {
         this.skip();
       }

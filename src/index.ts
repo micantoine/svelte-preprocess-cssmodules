@@ -69,7 +69,7 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
 };
 
 // eslint-disable-next-line no-multi-assign
-export default exports = module.exports = (options: Partial<PluginOptions>) => {
+export default module.exports = (options: Partial<PluginOptions>) => {
   pluginOptions = {
     ...pluginOptions,
     ...options,
