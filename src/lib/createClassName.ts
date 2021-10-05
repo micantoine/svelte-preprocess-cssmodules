@@ -1,6 +1,6 @@
 import path from 'path';
-import { getHashDigest } from 'loader-utils';
-import { PluginOptions } from '../types';
+import getHashDigest from './getHashDijest';
+import type { PluginOptions } from '../types';
 
 const PATTERN_PATH_UNALLOWED = /[<>:"/\\|?*]/g;
 
@@ -43,7 +43,7 @@ function interpolateName(resourcePath: string, localName: any, content: any) {
   if (content) {
     url = url.replace(
       /\[(?:([^:\]]+):)?(?:hash|contenthash)(?::([a-z]+\d*))?(?::(\d+))?\]/gi,
-      (all: never, hashType: never, digestType: never, maxLength: never) =>
+      (all: never, hashType: string, digestType: string, maxLength: never) =>
         getHashDigest(content, hashType, digestType, parseInt(maxLength, 10))
     );
   }

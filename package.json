@@ -45,10 +45,12 @@
     ]
   },
   "dependencies": {
-    "loader-utils": "^2.0.0",
+    "acorn": "^8.5.0",
+    "big.js": "^6.1.1",
     "magic-string": "^0.25.7"
   },
   "devDependencies": {
+    "@types/big.js": "^6.1.2",
     "@types/estree": "0.0.47",
     "@types/loader-utils": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
