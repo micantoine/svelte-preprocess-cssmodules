@@ -1,4 +1,4 @@
-// import cssModules from '../../dist';
+import cssModules from '../../dist/index.mjs';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -6,11 +6,11 @@ const config = {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte'
 	},
-  // preprocess: [
-  //   cssModules({
-  //     includePaths: ['./']
-  //   })
-  // ]
+  preprocess: [
+    cssModules({
+      includePaths: ['./']
+    }),
+  ]
 };
 
 export default config;
