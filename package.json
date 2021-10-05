@@ -16,7 +16,9 @@
   },
   "scripts": {
     "prebuild": "rm -rf dist/",
-    "build": "tsc",
+    "build": "npm run build:cjs && npm run build:esm",
+    "build:cjs": "tsc --module commonjs --target es6 --outDir dist --declaration true",
+    "build:esm": "tsc --module esnext --target esnext --outDir dist/esm && node tasks/parser.js && rm -rf dist/esm/",
     "dev": "npm run build -- -w",
     "lint": "eslint --ext .ts --fix ./src",
     "format": "prettier --write --loglevel warn ./{src,test}",
@@ -24,8 +26,15 @@
     "prepublishOnly": "npm run test && npm run build"
   },
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
   "directories": {
     "example": "example"
   },
