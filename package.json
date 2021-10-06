@@ -18,7 +18,7 @@
     "prebuild": "rm -rf dist/",
     "build": "npm run build:cjs && npm run build:esm",
     "build:cjs": "tsc --module commonjs --target es6 --outDir dist --declaration true",
-    "build:esm": "tsc --module esnext --target esnext --outDir dist/esm && node tasks/parser.js && rm -rf dist/esm/",
+    "build:esm": "tsc --module esnext --target esnext --outDir dist/esm && node tasks/parser.mjs && rm -rf dist/esm/",
     "dev": "npm run build -- -w",
     "lint": "eslint --ext .ts --fix ./src",
     "format": "prettier --write --loglevel warn ./{src,test}",
@@ -61,7 +61,6 @@
   "devDependencies": {
     "@types/big.js": "^6.1.2",
     "@types/estree": "0.0.47",
-    "@types/loader-utils": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^4.4.0",
     "@typescript-eslint/parser": "^4.4.0",
     "eslint": "^7.10.0",

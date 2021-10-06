@@ -1,23 +1,22 @@
 /* eslint-disable no-shadow */
-/* eslint-disable @typescript-eslint/no-var-requires */
-const fs = require('fs');
-const path = require('path');
-const { Parser } = require('acorn');
-const { walk } = require('svelte/compiler');
-const MagicString = require('magic-string');
+import { readdir, lstat, readFile, existsSync, writeFile } from 'fs';
+import { resolve, dirname } from 'path';
+import { Parser } from 'acorn';
+import { walk } from 'svelte/compiler';
+import MagicString from 'magic-string';
 
 const parseDir = (dir) => {
-  fs.readdir(dir, (err, children) => {
+  readdir(dir, (err, children) => {
     if (err) return
     children.forEach((child) => {
       const pathname = `${dir}/${child}`;
-      fs.lstat(pathname, (err, stats) => {
+      lstat(pathname, (err, stats) => {
         if (err) return
         if (stats.isDirectory()) {
           parseDir(pathname);
         }
         if (stats.isFile()) {
-          fs.readFile(pathname, 'utf-8', (err, content) => {
+          readFile(pathname, 'utf-8', (err, content) => {
             if (err) return
             const ast = Parser.parse(content, {
               ecmaVersion: 'latest',
@@ -27,11 +26,11 @@ const parseDir = (dir) => {
             walk(ast, {
               enter(node) {
                 if (['ImportDeclaration', 'ExportNamedDeclaration', 'ExportAllDeclaration'].includes(node.type) && node.source) {
-                  const filename = path.resolve(path.dirname(pathname), `${node.source.value}.js`);
-                  const dirIndex = path.resolve(path.dirname(pathname), `${node.source.value}/index.js`);
-                  if (fs.existsSync(filename)) {
+                  const filename = resolve(dirname(pathname), `${node.source.value}.js`);
+                  const dirIndex = resolve(dirname(pathname), `${node.source.value}/index.js`);
+                  if (existsSync(filename)) {
                     magicContent.prependLeft(node.source.end - 1, '.mjs');
-                  } else if (fs.existsSync(dirIndex)) {
+                  } else if (existsSync(dirIndex)) {
                     magicContent.prependLeft(node.source.end - 1, '/index.mjs');
                   }
                 } else if (
@@ -45,7 +44,7 @@ const parseDir = (dir) => {
               }
             });
             const mjsPathname = pathname.replace('/esm', '').replace('.js', '.mjs');
-            fs.writeFile(mjsPathname, magicContent.toString(), (err) => {
+            writeFile(mjsPathname, magicContent.toString(), (err) => {
               if (err) throw err;
             });
           });
