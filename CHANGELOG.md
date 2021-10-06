@@ -1,5 +1,8 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.1.0-rc.1 (Oct 6, 2021)
+- Add ESM distribution
+
 ## 2.0.2 (May 26, 2021)
 - Fix Readme
 
