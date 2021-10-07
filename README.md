@@ -27,7 +27,7 @@ npm install --save-dev svelte-preprocess-cssmodules
 
 ## Usage
 
-Add `module` attribute to the `<style>` tag to enable cssModules in the component.
+Add the `module` attribute to the `<style>` tag to enable cssModules
 
 ```html
 <style module>
@@ -212,6 +212,44 @@ Force a selector to be scoped within a component to prevent style inheritance on
 
 <p class="child-uhRt2j">My <em>secondary</em> lorem <strong>ipsum tuye</strong></p>
 ```
+
+When used with a class, `:local()` applies the svelte scoping system to the selector. This could be useful when targetting global classname.
+
+```html
+<style module>
+  .actions {
+    padding: 10px;
+  }
+  /* target a css framework classname without replacing it*/
+  :local(.btn-primary) {
+    margin-right: 10px;
+  }
+</style>
+
+<div class="actions">
+  <button class="btn btn-primary">Ok</button>
+  <button class="btn btn-default">Cancel</button>
+</div>
+```
+
+*Generating*
+
+```html
+<style>
+  .actions-7Fhti9 {
+    padding: 10px;
+  }
+  .btn-primary.svelte-saq8ts {
+    margin-right: 10px;
+  }
+</style>
+
+<div class="actions-7Fhti9">
+  <button class="btn btn-primary svelte-saq8ts">Ok</button>
+  <button class="btn btn-default">Cancel</button>
+</div>
+```
+
 
 ## Import styles from an external stylesheet
 
@@ -763,7 +801,7 @@ export default {
 </section>
 ```
 
-***OR** Svelte Component using `import`*
+***OR** Svelte Component importing external stylesheet*
 
 ```css
 /** style.module.css */
