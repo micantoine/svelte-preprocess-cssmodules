@@ -54,7 +54,6 @@ test('Use the filepath only as hash seeder', async () => {
   const output = await compiler({
     source: '<style module>.red { color: red; } .bold { color: bold; }</style><span class="red bold">Red</span>',
   }, {
-    mode: 'native',
     localIdentName: '[local]-[hash:6]',
     hashSeeder: ['filepath'],
   });
@@ -84,7 +83,6 @@ describe('When the preprocessor is set as default scoping', () => {
     const output = await compiler({
       source
     }, {
-      mode: 'native',
       localIdentName: '[local]-123',
       useAsDefaultScoping: true,
     });

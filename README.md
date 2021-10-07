@@ -215,9 +215,10 @@ Force a selector to be scoped within a component to prevent style inheritance on
 
 ## Import styles from an external stylesheet
 
-Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The  name referring to the import can then be used in the markup targetting any existing classname of the stylesheet.
+Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The name referring to the import can then be used in the markup targetting any existing classname of the stylesheet.
 
-The css file must follow the convention `FILENAME.module.css` in order to be processed.
+- The option `parseExternalSylesheet` need to be enabled.
+- The css file must follow the convention `FILENAME.module.css` in order to be processed.
 
 **Note:** *The import option is only meant for stylesheets relative to the component. You will have to set your own bundler in order to import *node_modules* packages css files.*
 
@@ -497,27 +498,16 @@ Pass an object of the following properties
 
 | Name | Type | Default | Description |
 | ------------- | ------------- | ------------- | ------------- |
-| `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
-| `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
-| `hashSeeder` | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on |
-| `allowedAttributes` | `{Array}` | `[]` | An array of attributes to parse along with `class` |
-| `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
 | `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
+| `hashSeeder` | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on |
+| `includeAttributes` | `{Array}` | `[]` | An array of attributes to parse along with `class` |
+| `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
+| `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
+| `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
+| `parseExternalStylesheet` | `{Boolean}` | `false` | Enable parsing on imported external stylesheet |
+| `parseStyleTag` | `{Boolean}` | `true` | Enable parsing on style tag |
+| `useAsDefaultScoping` | `{Boolean}` | `false` | Replace svelte scoping globally |
 
-**`localIdentName`**
-
-Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename), here is the list of tokens:
-
-- `[local]` the targeted classname
-- `[ext]` the extension of the resource
-- `[name]` the basename of the resource
-- `[path]` the path of the resource
-- `[folder]` the folder the resource is in
-- `[contenthash]` or `[hash]` *(they are the same)* the hash of the resource content (by default it's the hex digest of the md4 hash)
-- `[<hashType>:contenthash:<digestType>:<length>]` optionally one can configure
-  - other hashTypes, i. e. `sha1`, `md4`, `md5`, `sha256`, `sha512`
-  - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
-  - and `length` the length in chars
 
 **`hashSeeder`**
 
@@ -560,7 +550,31 @@ preprocess: [
 </style>
 ```
 
-**`allowedAttributes`**
+**`getLocalIdent`**
+
+Customize the creation of the classname instead of relying on the built-in function.
+
+```ts
+function getLocalIdent(
+  context: {
+    context: string, // the context path
+    resourcePath: string, // path + filename
+  },
+  localIdentName: {
+    template: string, // the template rule
+    interpolatedName: string, // the built-in generated classname
+  },
+  className: string, // the classname string
+  content: { 
+    markup: string, // the markup content
+    style: string,  // the style content
+  }
+): string {
+  return `your_generated_classname`;
+}
+```
+
+**`includeAttributes`**
 
 Add other attributes than `class` to be parsed by the preprocesser
 
@@ -569,7 +583,7 @@ Add other attributes than `class` to be parsed by the preprocesser
 ...
 preprocess: [
   cssModules({
-    allowedAttributes: ['data-color', 'classname'],
+    includeAttributes: ['data-color', 'classname'],
   })
 ],
 ...
@@ -594,29 +608,6 @@ preprocess: [
 </style>
 ```
 
-**`getLocalIdent`**
-
-Customize the creation of the classname instead of relying on the built-in function.
-
-```ts
-function getLocalIdent(
-  context: {
-    context: string, // the context path
-    resourcePath: string, // path + filename
-  },
-  localIdentName: {
-    template: string, // the template rule
-    interpolatedName: string, // the built-in generated classname
-  },
-  className: string, // the classname string
-  content: { 
-    markup: string, // the markup content
-    style: string,  // the style content
-  }
-): string {
-  return `your_generated_classname`;
-}
-```
 
 *Example of use*
 
@@ -652,6 +643,50 @@ preprocess: [
 ...
 ```
 
+**`localIdentName`**
+
+Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename), here is the list of tokens:
+
+- `[local]` the targeted classname
+- `[ext]` the extension of the resource
+- `[name]` the basename of the resource
+- `[path]` the path of the resource
+- `[folder]` the folder the resource is in
+- `[contenthash]` or `[hash]` *(they are the same)* the hash of the resource content (by default it's the hex digest of the md4 hash)
+- `[<hashType>:contenthash:<digestType>:<length>]` optionally one can configure
+  - other hashTypes, i. e. `sha1`, `md4`, `md5`, `sha256`, `sha512`
+  - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
+  - and `length` the length in chars
+
+**`useAsDefaultScoping`**
+
+Globally replace the default svelte scoping by the cssModules scoping. As a result, the `module` attribute to `<style>` becomes unnecessary.
+
+```js
+// Preprocess config
+...
+preprocess: [
+  cssModules([
+    useAsDefaultScoping: true
+  ]),
+],
+...
+```
+
+```html
+<h1 class="title">Welcome</h1>
+<style>
+  .title { color: blue }
+</style>
+```
+
+*Generating*
+```html
+<h1 class="title-erYt1">Welcome</h1>
+<style>
+  .title-erYt1 { color: blue }
+</style>
+```
 ## Migrating from v1
 If you want to migrate an existing project to `v2` keeping the approach of the 1st version, follow the steps below:
 
@@ -673,7 +708,6 @@ If you want to migrate an existing project to `v2` keeping the approach of the 1
    ...
    </style>
    ```
-
 
 ## Code Example
 
@@ -702,20 +736,15 @@ export default {
 <style module>
   .modal {
     position: fixed;
-    ...
   }
-  header {
-    ...
+  .wrapper {
+    padding: 0.5rem 1rem;
   }
   .body {
     flex: 1 0 0;
-    ...
-  }
-  footer {
-    ...
   }
   button {
-    ...
+    background-color: white;
   }
   .cancel {
     background-color: #f2f2f2;
@@ -723,11 +752,11 @@ export default {
 </style>
 
 <section class="modal">
-  <header>My Modal Title</header>
-  <div class="body">
-    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
+  <header class="wrapper">My Modal Title</header>
+  <div class="body wrapper">
+    <p>Lorem ipsum dolor sit, amet consectetur.</p>
   </div>
-  <footer>
+  <footer class="wrapper">
     <button>Ok</button>
     <button class="cancel">Cancel</button>
   </footer>
@@ -740,10 +769,8 @@ export default {
 /** style.module.css */
 .modal {
   position: fixed;
-  ...
 }
-
-[...]
+...
 ```
 ```html
 <script>
@@ -751,11 +778,11 @@ export default {
 </script>
 
 <section class={style.modal}>
-  <header>My Modal Title</header>
-  <div class={style.body}>
-    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
+  <header class={style.wrapper}>My Modal Title</header>
+  <div class="{style.body} {style.wrapper}">
+    <p>Lorem ipsum dolor sit, amet consectetur.</p>
   </div>
-  <footer>
+  <footer class={style.wrapper}>
     <button>Ok</button>
     <button class={style.cancel}>Cancel</button>
   </footer>
@@ -768,20 +795,15 @@ export default {
 <style>
   ._329TyLUs9c {
     position: fixed;
-    ...
   }
-  header {
-    ...
+  .Re123xDTGv {
+    padding: 0.5rem 1rem;
   }
   ._1HPUBXtzNG {
     flex: 1 0 0;
-    ...
-  }
-  footer {
-    ...
   }
   button {
-    ...
+    background-color: white;
   }
   ._1xhJxRwWs7 {
     background-color: #f2f2f2;
@@ -789,11 +811,11 @@ export default {
 </style>
 
 <section class="_329TyLUs9c">
-  <header>My Modal Title</header>
-  <div class="_1HPUBXtzNG">
-    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit.</p>
+  <header class="Re123xDTGv">My Modal Title</header>
+  <div class="_1HPUBXtzNG Re123xDTGv">
+    <p>Lorem ipsum dolor sit, amet consectetur.</p>
   </div>
-  <footer>
+  <footer class="Re123xDTGv">
     <button>Ok</button>
     <button class="_1xhJxRwWs7">Cancel</button>
   </footer>
@@ -802,7 +824,7 @@ export default {
 
 ## Why CSS Modules on Svelte
 
-While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full Svelte application, the thought on the class naming would not be less different than what we would do on a regular html page. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` in order to prevent inheriting styles from other `.body` and `.cancel` classes.
+While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full Svelte application, paying attention to the name of a class would be no less different than to a regular html project. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` in order to prevent inheriting styles from other `.body` and `.cancel` classes.
 
 ## License
 
