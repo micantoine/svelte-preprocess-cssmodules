@@ -96,7 +96,10 @@ export default class Processor {
    * @returns The CssModule updated component
    */
   public parse = (): string => {
-    if (this.options.parseStyleTag && hasModuleAttribute(this.ast)) {
+    if (
+      this.options.parseStyleTag &&
+      (hasModuleAttribute(this.ast) || (this.options.useAsDefaultScoping && this.ast.css))
+    ) {
       this.isParsingImports = false;
       this.styleParser(this);
     }

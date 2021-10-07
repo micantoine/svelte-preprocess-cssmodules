@@ -25,7 +25,11 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
 
   const ast: Ast = parse(content, { filename });
 
-  if (!hasModuleAttribute(ast) && !hasModuleImports(content)) {
+  if (
+    !pluginOptions.useAsDefaultScoping &&
+    !hasModuleAttribute(ast) &&
+    !hasModuleImports(content)
+  ) {
     return { code: content };
   }
 

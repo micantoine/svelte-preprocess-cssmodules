@@ -50,6 +50,44 @@ describe('When the module attribute has an invalid value', () => {
   });
 });
 
+describe('When the preprocessor is set as default scoping', () => {
+  it('parses the style tag with no module attributes', async () => {
+    const source = '<style>.red { color: red; }</style><p class="red">red</p>';
+    const output = await compiler({
+      source
+    }, {
+      mode: 'native',
+      localIdentName: '[local]-123',
+      useAsDefaultScoping: true,
+    });
+
+    expect(output).toBe('<style>:global(.red-123) { color: red; }</style><p class="red-123">red</p>')
+  });
+
+  it('parses the style tag with module attributes', async () => {
+    const source = '<style module="scoped">.red { color: red; }</style><p class="red">red</p>';
+    const output = await compiler({
+      source
+    }, {
+      localIdentName: '[local]-123',
+      useAsDefaultScoping: true,
+    });
+
+    expect(output).toBe('<style module="scoped">.red-123 { color: red; }</style><p class="red-123">red</p>')
+  });
+
+  it('does not parse when the style tag does not exist', async () => {
+    const source = '<p class="red">red</p>';
+    const output = await compiler({
+      source
+    }, {
+      useAsDefaultScoping: true,
+    });
+
+    expect(output).toBe('<p class="red">red</p>')
+  });
+});
+
 test('Use the filepath only as hash seeder', async () => {
   const output = await compiler({
     source: '<style module>.red { color: red; } .bold { color: bold; }</style><span class="red bold">Red</span>',
@@ -77,6 +115,5 @@ describe('When the hashSeeder has a wrong key', () => {
     );
   });
 });
-
 
 
