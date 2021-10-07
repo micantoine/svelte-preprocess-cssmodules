@@ -50,6 +50,34 @@ describe('When the module attribute has an invalid value', () => {
   });
 });
 
+test('Use the filepath only as hash seeder', async () => {
+  const output = await compiler({
+    source: '<style module>.red { color: red; } .bold { color: bold; }</style><span class="red bold">Red</span>',
+  }, {
+    mode: 'native',
+    localIdentName: '[local]-[hash:6]',
+    hashSeeder: ['filepath'],
+  });
+
+  expect(output).toBe(
+    '<style module>:global(.red-027d15) { color: red; } :global(.bold-027d15) { color: bold; }</style><span class="red-027d15 bold-027d15">Red</span>'
+  );
+});
+
+describe('When the hashSeeder has a wrong key', () => {
+  const source = '<style module>.red { color: red; }</style>';
+
+  it('throws an exception', async () => {
+    await expect(compiler({
+      source
+    }, {
+      hashSeeder: ['filepath', 'content'],
+    })).rejects.toThrow(
+      `The hash seeder only accepts the keys 'style', 'filepath' and 'classname': 'content' was passed.`
+    );
+  });
+});
+
 describe('When the preprocessor is set as default scoping', () => {
   it('parses the style tag with no module attributes', async () => {
     const source = '<style>.red { color: red; }</style><p class="red">red</p>';
@@ -94,40 +122,10 @@ describe('When the preprocessor is set as default scoping', () => {
     const output = await compiler({
       source
     }, {
-      parseStyleTag: true,
       useAsDefaultScoping: true,
     });
 
     expect(output).toBe('<p class="red">red</p>')
   });
 });
-
-test('Use the filepath only as hash seeder', async () => {
-  const output = await compiler({
-    source: '<style module>.red { color: red; } .bold { color: bold; }</style><span class="red bold">Red</span>',
-  }, {
-    mode: 'native',
-    localIdentName: '[local]-[hash:6]',
-    hashSeeder: ['filepath'],
-  });
-
-  expect(output).toBe(
-    '<style module>:global(.red-027d15) { color: red; } :global(.bold-027d15) { color: bold; }</style><span class="red-027d15 bold-027d15">Red</span>'
-  );
-});
-
-describe('When the hashSeeder has a wrong key', () => {
-  const source = '<style module>.red { color: red; }</style>';
-
-  it('throws an exception', async () => {
-    await expect(compiler({
-      source
-    }, {
-      hashSeeder: ['filepath', 'content'],
-    })).rejects.toThrow(
-      `The hash seeder only accepts the keys 'style', 'filepath' and 'classname': 'content' was passed.`
-    );
-  });
-});
-
 

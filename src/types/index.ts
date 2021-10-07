@@ -1,14 +1,14 @@
 import type { GetLocalIdent } from '../lib';
 
 export type PluginOptions = {
-  mode: 'native' | 'mixed' | 'scoped';
+  getLocalIdent: GetLocalIdent;
+  hashSeeder: Array<'style' | 'filepath' | 'classname'>;
   includeAttributes: string[];
   includePaths: string[];
   localIdentName: string;
-  getLocalIdent: GetLocalIdent;
-  hashSeeder: Array<'style' | 'filepath' | 'classname'>;
-  parseStyleTag: boolean;
+  mode: 'native' | 'mixed' | 'scoped';
   parseExternalStylesheet: boolean;
+  parseStyleTag: boolean;
   useAsDefaultScoping: boolean;
 };
 

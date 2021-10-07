@@ -4,17 +4,21 @@ import type { PluginOptions, PreprocessorOptions, PreprocessorResult } from './t
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import { getLocalIdent, isFileIncluded, hasModuleImports, hasModuleAttribute } from './lib';
 
-let pluginOptions: PluginOptions = {
-  mode: 'native',
-  getLocalIdent,
-  hashSeeder: ['style', 'filepath', 'classname'],
-  includePaths: [],
-  includeAttributes: [],
-  localIdentName: '[local]-[hash:base64:6]',
-  parseStyleTag: true,
-  parseExternalStylesheet: false,
-  useAsDefaultScoping: false,
+const defaultOptions = (): PluginOptions => {
+  return {
+    getLocalIdent,
+    hashSeeder: ['style', 'filepath', 'classname'],
+    includeAttributes: [],
+    includePaths: [],
+    localIdentName: '[local]-[hash:base64:6]',
+    mode: 'native',
+    parseExternalStylesheet: false,
+    parseStyleTag: true,
+    useAsDefaultScoping: false,
+  };
 };
+
+let pluginOptions: PluginOptions;
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
   const isIncluded = await isFileIncluded(pluginOptions.includePaths, filename);
@@ -75,10 +79,9 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
   };
 };
 
-// eslint-disable-next-line no-multi-assign
 export default module.exports = (options: Partial<PluginOptions>) => {
   pluginOptions = {
-    ...pluginOptions,
+    ...defaultOptions(),
     ...options,
   };
   return {
