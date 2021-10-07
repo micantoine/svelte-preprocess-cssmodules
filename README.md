@@ -213,7 +213,7 @@ Force a selector to be scoped within a component to prevent style inheritance on
 <p class="child-uhRt2j">My <em>secondary</em> lorem <strong>ipsum tuye</strong></p>
 ```
 
-When being used with a class, `:local()` applies the svelte scoping system to the selector. This could be useful when targetting global classnames.
+When used on a class, `:local()` applies the svelte scoping system to the selector. This could be useful when targetting global classnames.
 
 ```html
 <style module>
