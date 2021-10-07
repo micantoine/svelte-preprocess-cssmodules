@@ -6,11 +6,14 @@ import { getLocalIdent, isFileIncluded, hasModuleImports, hasModuleAttribute } f
 
 let pluginOptions: PluginOptions = {
   mode: 'native',
-  includePaths: [],
-  localIdentName: '[local]-[hash:base64:6]',
   getLocalIdent,
   hashSeeder: ['style', 'filepath', 'classname'],
-  allowedAttributes: [],
+  includePaths: [],
+  includeAttributes: [],
+  localIdentName: '[local]-[hash:base64:6]',
+  parseStyleTag: true,
+  parseExternalStylesheet: false,
+  useAsDefaultScoping: false,
 };
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {

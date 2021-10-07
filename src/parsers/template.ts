@@ -42,7 +42,7 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
  */
 export default (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;
-  const allowedAttributes = ['class', ...processor.options.allowedAttributes];
+  const allowedAttributes = ['class', ...processor.options.includeAttributes];
 
   walk(processor.ast.html, {
     enter(baseNode) {
