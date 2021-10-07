@@ -96,12 +96,12 @@ export default class Processor {
    * @returns The CssModule updated component
    */
   public parse = (): string => {
-    if (hasModuleAttribute(this.ast)) {
+    if (this.options.parseStyleTag && hasModuleAttribute(this.ast)) {
       this.isParsingImports = false;
       this.styleParser(this);
     }
 
-    if (hasModuleImports(this.rawContent)) {
+    if (this.options.parseExternalStylesheet && hasModuleImports(this.rawContent)) {
       this.isParsingImports = true;
       parseImportDeclaration(this);
     }

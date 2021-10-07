@@ -58,7 +58,7 @@ describe('Scoped Mode', () => {
     expect(output).toBe('<script>const red = true;</script><style module="scoped">.red-123 { color: red; } .blue-123 { color: blue; }</style><span class:red-123={red} class:blue-123={red}>Red</span>');
   });
 
-  test('Replace Multiple Clasnames on attribute', async () => {
+  test('Replace multiple classnames on attribute', async () => {
     const output = await compiler({
       source: '<style module="scoped">.red { color: red; } .bold { font-weight: bold }</style><span class="red bold">Red</span>'
     }, {
@@ -67,7 +67,7 @@ describe('Scoped Mode', () => {
     expect(output).toBe('<style module="scoped">.red-123 { color: red; } .bold-123 { font-weight: bold }</style><span class="red-123 bold-123">Red</span>');
   });
 
-  test('Replace Clasnames on conditional expression', async () => {
+  test('Replace classnames on conditional expression', async () => {
     const output = await compiler({
       source: `<style module="scoped">.red { color: red; } .bold { font-weight: bold }</style><span class="red {true ? 'bold' : 'red'} bold">Red</span>`
     }, {
@@ -76,7 +76,7 @@ describe('Scoped Mode', () => {
     expect(output).toBe(`<style module="scoped">.red-123 { color: red; } .bold-123 { font-weight: bold }</style><span class="red-123 {true ? 'bold-123' : 'red-123'} bold-123">Red</span>`);
   });
 
-  test('Replace Clasnames on component', async () => {
+  test('Replace classname on component', async () => {
     const output = await compiler({
       source: `<script>import Button from './Button.svelte';</script><style module="scoped">.red { color: red; }</style><Button class="red" />`
     }, {
@@ -111,6 +111,25 @@ describe('Scoped Mode', () => {
       includeAttributes: ['data-color'],
     });
     expect(output).toBe(`<style module="scoped">.red-123 { color: red; }</style><span class="red-123" data-color="red-123">Red</span>`);
+  });
+
+  test('Do not replace the classname', async () => {
+    const output = await compiler({
+      source: `<style>.red { color: red; }</style><span class="red">Red</span>`
+    }, {
+      localIdentName: '[local]-123',
+    });
+    expect(output).toBe(`<style>.red { color: red; }</style><span class="red">Red</span>`);
+  });
+
+  test('Do not replace the classname when `parseStyleTag` is off', async () => {
+    const output = await compiler({
+      source: `<style module="scoped">.red { color: red; }</style><span class="red">Red</span>`
+    }, {
+      localIdentName: '[local]-123',
+      parseStyleTag: false,
+    });
+    expect(output).toBe(`<style module="scoped">.red { color: red; }</style><span class="red">Red</span>`);
   });
 
 });
