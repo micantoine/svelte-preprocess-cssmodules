@@ -76,11 +76,25 @@ describe('When the preprocessor is set as default scoping', () => {
     expect(output).toBe('<style module="scoped">.red-123 { color: red; }</style><p class="red-123">red</p>')
   });
 
+  it('does not parse when `parseStyleTag` is off', async () => {
+    const source = '<style module="scoped">.red { color: red; }</style><p class="red">red</p>';
+    const output = await compiler({
+      source
+    }, {
+      localIdentName: '[local]-123',
+      parseStyleTag: false,
+      useAsDefaultScoping: true,
+    });
+
+    expect(output).toBe('<style module="scoped">.red { color: red; }</style><p class="red">red</p>')
+  });
+
   it('does not parse when the style tag does not exist', async () => {
     const source = '<p class="red">red</p>';
     const output = await compiler({
       source
     }, {
+      parseStyleTag: true,
       useAsDefaultScoping: true,
     });
 
