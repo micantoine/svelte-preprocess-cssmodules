@@ -1,5 +1,15 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.1.0 (Oct 20, 2021)
+### Features
+- SvelteKit support
+- `useAsDefaultScoping` option
+- `parseExternalStylesheet` option
+
+### Breaking changes
+- Rename option `allowedAttributes` to  `includeAttributes`
+- External cssModules stylesheets are not being processed automatically.
+
 ## 2.1.0-rc.2 (Oct 7, 2021)
 ### Features
 - Add option `useAsDefaultScoping` to enable cssModules globally without the need of the `module` attribute
