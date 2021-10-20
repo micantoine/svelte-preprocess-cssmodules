@@ -727,7 +727,7 @@ preprocess: [
 ```
 
 **Beware**   
-The enabled option will applied cssModules scoping to all imported Svelte files, even the ones coming from `node_modules`. When using a third party library, make sure the compiled version is being imported. In the case of a raw svelte file, its styling may be broken.
+The enabled option will applied cssModules scoping to all imported Svelte files, even the ones coming from `node_modules`. When using a third party library, make sure the compiled version is being imported. In the case of a raw svelte file, it might break its styling.
 
 To prevent any scoping conflict, it is recommended to associate the option `useAsDefaultScoping` with `includePaths`.
 
