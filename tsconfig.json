@@ -1,20 +1,18 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "target": "es6",
-    "lib": [
-      "esnext"
-    ],
     "noImplicitAny": true,
     "moduleResolution": "node",
     "removeComments": true,
     "sourceMap": false,
-    "declaration": true,
-    "outDir": "dist",
+    "strict": true,
     "baseUrl": ".",
     "resolveJsonModule": true,
-    "paths": {},
+    "lib": [
+      "esnext"
+    ],
     "typeRoots": [
       "./src/types",
       "./node_modules/@types",
@@ -28,6 +26,7 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "tasks"
   ]
 }

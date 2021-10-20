@@ -1,12 +1,15 @@
-import { GetLocalIdent } from '../lib';
+import type { GetLocalIdent } from '../lib';
 
 export type PluginOptions = {
-  mode: 'native' | 'mixed' | 'scoped';
-  includePaths: string[];
-  localIdentName: string;
   getLocalIdent: GetLocalIdent;
   hashSeeder: Array<'style' | 'filepath' | 'classname'>;
-  allowedAttributes: string[];
+  includeAttributes: string[];
+  includePaths: string[];
+  localIdentName: string;
+  mode: 'native' | 'mixed' | 'scoped';
+  parseExternalStylesheet: boolean;
+  parseStyleTag: boolean;
+  useAsDefaultScoping: boolean;
 };
 
 export interface PreprocessorOptions {

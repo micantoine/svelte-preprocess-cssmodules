@@ -16,7 +16,7 @@ export default class Processor {
     ast: Style;
     openTag: string;
     closeTag: string;
-  } = { ast: null, openTag: '<style module>', closeTag: '</style>' };
+  };
 
   public magicContent: MagicString;
 
@@ -37,10 +37,11 @@ export default class Processor {
     this.magicContent = new MagicString(content);
     this.styleParser = parser.bind(this);
 
-    if (ast.css) {
-      this.style.ast = ast.css;
-      this.style.openTag = content.substring(this.style.ast.start, this.style.ast.content.start);
-    }
+    this.style = {
+      ast: ast.css,
+      openTag: ast.css ? content.substring(ast.css.start, ast.css.content.start) : '<style module>',
+      closeTag: '</style>',
+    };
   }
 
   /**
@@ -77,9 +78,10 @@ export default class Processor {
    * @param node The ast "Selector" node to parse
    */
   public parsePseudoLocalSelectors = (node: TemplateNode): void => {
-    const pseudoLocalSelectors = node.children.filter(
-      (item) => item.type === 'PseudoClassSelector' && item.name === 'local'
-    );
+    const pseudoLocalSelectors =
+      node.children?.filter(
+        (item) => item.type === 'PseudoClassSelector' && item.name === 'local'
+      ) ?? [];
 
     if (pseudoLocalSelectors.length > 0) {
       pseudoLocalSelectors.forEach((item) => {
@@ -94,12 +96,15 @@ export default class Processor {
    * @returns The CssModule updated component
    */
   public parse = (): string => {
-    if (hasModuleAttribute(this.ast)) {
+    if (
+      this.options.parseStyleTag &&
+      (hasModuleAttribute(this.ast) || (this.options.useAsDefaultScoping && this.ast.css))
+    ) {
       this.isParsingImports = false;
       this.styleParser(this);
     }
 
-    if (hasModuleImports(this.rawContent)) {
+    if (this.options.parseExternalStylesheet && hasModuleImports(this.rawContent)) {
       this.isParsingImports = true;
       parseImportDeclaration(this);
     }

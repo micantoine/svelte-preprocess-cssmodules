@@ -1,16 +1,16 @@
 /* eslint-disable no-param-reassign */
-// @ts-expect-error walk is not in d.ts
-import { parse, walk } from 'svelte/compiler';
 import path from 'path';
 import fs, { constants } from 'fs';
 import MagicString from 'magic-string';
+import { parse, walk } from 'svelte/compiler';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
-import Processor from '../processors/processor';
+import type Processor from '../processors/processor';
 
 /**
  * Parse CssModules Imports
  */
 export default (processor: Processor): void => {
+  const ast = (processor.ast as unknown) as TemplateNode;
   const backup = {
     ast: processor.ast,
     magicContent: processor.magicContent,
@@ -18,8 +18,9 @@ export default (processor: Processor): void => {
 
   let importedContent = '';
 
-  walk(processor.ast, {
-    enter(node: TemplateNode) {
+  walk(ast, {
+    enter(baseNode) {
+      const node = baseNode as TemplateNode;
       if (node.type === 'Style' || node.type === 'Fragment') {
         this.skip();
       }
@@ -76,7 +77,7 @@ export default (processor: Processor): void => {
           } else {
             importedContent += content;
           }
-        } catch (err) {
+        } catch (err: any) {
           fs.access(nodeModulesPath, constants.F_OK, (error) => {
             if (error) {
               throw new Error(err); // not found in node_modules packages either, throw orignal error

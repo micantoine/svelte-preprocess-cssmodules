@@ -1,4 +1,3 @@
-// @ts-expect-error walk is not in d.ts
 import { walk } from 'svelte/compiler';
 import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import type { PluginOptions } from '../types';
@@ -33,10 +32,12 @@ const updateSelectorBoundaries = (
  * @param processor The CSS Module Processor
  */
 const parser = (processor: Processor): void => {
+  const ast = (processor.ast as unknown) as TemplateNode;
   let selectorBoundaries: Array<Boundaries> = [];
 
-  walk(processor.ast, {
-    enter(node: TemplateNode) {
+  walk(ast, {
+    enter(baseNode) {
+      const node = baseNode as TemplateNode;
       if (node.type === 'Script' || node.type === 'Fragment') {
         this.skip();
       }
@@ -44,29 +45,31 @@ const parser = (processor: Processor): void => {
         let start = 0;
         let end = 0;
 
-        node.children.forEach((item, index) => {
-          let hasPushed = false;
-          if (
-            (item.name === 'global' || item.name === 'local') &&
-            item.type === 'PseudoClassSelector'
-          ) {
-            if (start > 0 && end > 0) {
-              selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-              hasPushed = true;
+        if (node.children) {
+          node.children.forEach((item, index) => {
+            let hasPushed = false;
+            if (
+              (item.name === 'global' || item.name === 'local') &&
+              item.type === 'PseudoClassSelector'
+            ) {
+              if (start > 0 && end > 0) {
+                selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+                hasPushed = true;
+              }
+              start = item.end + 1;
+              end = 0;
+            } else if (item.start && item.end) {
+              if (start === 0) {
+                start = item.start;
+              }
+              end = item.end;
             }
-            start = item.end + 1;
-            end = 0;
-          } else if (item.start && item.end) {
-            if (start === 0) {
-              start = item.start;
-            }
-            end = item.end;
-          }
 
-          if (!hasPushed && index === node.children.length - 1 && end > 0) {
-            selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-          }
-        });
+            if (!hasPushed && node.children && index === node.children.length - 1 && end > 0) {
+              selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+            }
+          });
+        }
 
         processor.parsePseudoLocalSelectors(node);
       }

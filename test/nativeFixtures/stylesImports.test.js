@@ -29,6 +29,7 @@ describe('Native Mode Imports', () => {
     },{
       mode: 'native',
       localIdentName: '[local]-123',
+      parseExternalStylesheet: true,
     });
 
     expect(output).toBe(expectedOutput);

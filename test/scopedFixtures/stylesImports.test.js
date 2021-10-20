@@ -1,6 +1,31 @@
 const compiler = require('../compiler.js');
 
 describe('Scoped Mode Imports', () => {
+  test('do no apply styling', async () => {
+    const source =
+    `<script>
+      import style from './assets/class.module.css';
+    </script>
+    <div class:style.error={true}>Error</div>
+    <div class:style.success={true}>Success</div>`;
+
+    const expectedOutput =
+    `<script>
+      import style from './assets/class.module.css';
+    </script>
+    <div class:style.error={true}>Error</div>
+    <div class:style.success={true}>Success</div>`;
+
+    const output = await compiler({
+      source,
+    },{
+      mode: 'scoped',
+      localIdentName: '[local]-123',
+    });
+
+    expect(output).toBe(expectedOutput);
+  });
+
   test('Import all classes from stylesheet', async () => {
     const source =
     `<script>
@@ -24,6 +49,7 @@ describe('Scoped Mode Imports', () => {
     },{
       mode: 'scoped',
       localIdentName: '[local]-123',
+      parseExternalStylesheet: true,
     });
 
     expect(output).toBe(expectedOutput);
@@ -52,6 +78,7 @@ describe('Scoped Mode Imports', () => {
     },{
       mode: 'scoped',
       localIdentName: '[local]-123',
+      parseExternalStylesheet: true,
     });
 
     expect(output).toBe(expectedOutput);
@@ -80,7 +107,8 @@ describe('Scoped Mode Imports', () => {
       source
     },{
       mode: 'scoped',
-      localIdentName: '[local]-123'
+      localIdentName: '[local]-123',
+      parseExternalStylesheet: true,
     });
   });
 
@@ -107,6 +135,7 @@ describe('Scoped Mode Imports', () => {
     },{
       mode: 'scoped',
       localIdentName: '[local]-123',
+      parseExternalStylesheet: true,
     });
 
     expect(output).toBe(expectedOutput);
@@ -140,9 +169,9 @@ describe('Scoped Mode Imports', () => {
     },{
       mode: 'scoped',
       localIdentName: '[local]-123',
+      parseExternalStylesheet: true,
     });
 
     expect(output).toBe(expectedOutput);
   });
-
 });

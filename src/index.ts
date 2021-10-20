@@ -4,32 +4,43 @@ import type { PluginOptions, PreprocessorOptions, PreprocessorResult } from './t
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import { getLocalIdent, isFileIncluded, hasModuleImports, hasModuleAttribute } from './lib';
 
-let pluginOptions: PluginOptions = {
-  mode: 'native',
-  includePaths: [],
-  localIdentName: '[local]-[hash:base64:6]',
-  getLocalIdent,
-  hashSeeder: ['style', 'filepath', 'classname'],
-  allowedAttributes: [],
+const defaultOptions = (): PluginOptions => {
+  return {
+    getLocalIdent,
+    hashSeeder: ['style', 'filepath', 'classname'],
+    includeAttributes: [],
+    includePaths: [],
+    localIdentName: '[local]-[hash:base64:6]',
+    mode: 'native',
+    parseExternalStylesheet: false,
+    parseStyleTag: true,
+    useAsDefaultScoping: false,
+  };
 };
+
+let pluginOptions: PluginOptions;
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
   const isIncluded = await isFileIncluded(pluginOptions.includePaths, filename);
 
-  if (!isIncluded) {
+  if (!isIncluded || (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)) {
     return { code: content };
   }
 
   const ast: Ast = parse(content, { filename });
 
-  if (!hasModuleAttribute(ast) && !hasModuleImports(content)) {
+  if (
+    !pluginOptions.useAsDefaultScoping &&
+    !hasModuleAttribute(ast) &&
+    !hasModuleImports(content)
+  ) {
     return { code: content };
   }
 
   // eslint-disable-next-line prefer-const
   let { mode, hashSeeder } = pluginOptions;
 
-  if (hasModuleAttribute(ast)) {
+  if (pluginOptions.parseStyleTag && hasModuleAttribute(ast)) {
     const moduleAttribute = ast.css.attributes.find((item) => item.name === 'module');
     mode = moduleAttribute.value !== true ? moduleAttribute.value[0].data : mode;
   }
@@ -68,13 +79,11 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
   };
 };
 
-// eslint-disable-next-line no-multi-assign
-export default exports = module.exports = (options: Partial<PluginOptions>) => {
+export default module.exports = (options: Partial<PluginOptions>) => {
   pluginOptions = {
-    ...pluginOptions,
+    ...defaultOptions(),
     ...options,
   };
-
   return {
     markup,
   };
