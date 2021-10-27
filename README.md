@@ -570,6 +570,41 @@ function getLocalIdent(
 }
 ```
 
+
+*Example of use*
+
+```bash
+# Directory
+SvelteApp
+└─ src
+   ├─ App.svelte
+   └─ components
+      └─ Button.svelte
+```
+```html
+<!-- Button.svelte -->
+<button class="red">Ok</button>
+
+<style>
+  .red { background-color: red; }
+</style>
+```
+
+```js
+// Preprocess config
+...
+preprocess: [
+  cssModules({
+    localIdentName: '[path][name]__[local]',
+    getLocalIdent: (context, { interpolatedName }) => {
+      return interpolatedName.toLowerCase().replace('src_', '');
+      // svelteapp_components_button__red;
+    }
+  })
+],
+...
+```
+
 **`hashSeeder`**
 
 Set the source to create the hash from (when using `[hash]` / `[contenthash]`).
@@ -643,41 +678,6 @@ preprocess: [
   .red-yr6RT { background-color: red; }
   .blue-aE4qW { background-color: blue; }
 </style>
-```
-
-
-*Example of use*
-
-```bash
-# Directory
-SvelteApp
-└─ src
-   ├─ App.svelte
-   └─ components
-      └─ Button.svelte
-```
-```html
-<!-- Button.svelte -->
-<button class="red">Ok</button>
-
-<style>
-  .red { background-color: red; }
-</style>
-```
-
-```js
-// Preprocess config
-...
-preprocess: [
-  cssModules({
-    localIdentName: '[path][name]__[local]',
-    getLocalIdent: (context, { interpolatedName }) => {
-      return interpolatedName.toLowerCase().replace('src_', '');
-      // svelteapp_components_button__red;
-    }
-  })
-],
-...
 ```
 
 **`localIdentName`**

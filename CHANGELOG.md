@@ -1,5 +1,9 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.1.1 (Oct 27, 2021)
+
+- Fix readme
+
 ## 2.1.0 (Oct 20, 2021)
 ### Features
 - SvelteKit support
