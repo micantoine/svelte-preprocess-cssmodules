@@ -536,17 +536,17 @@ Pass an object of the following properties
 
 | Name | Type | Default | Description |
 | ------------- | ------------- | ------------- | ------------- |
-| `getLocalIdent` | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
-| `hashSeeder` | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on |
-| `includeAttributes` | `{Array}` | `[]` | An array of attributes to parse along with `class` |
+| [`getLocalIdent`](#getlocalident) | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
+| [`hashSeeder`](#hashseeder) | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on |
+| [`includeAttributes`](#includeattributes) | `{Array}` | `[]` | An array of attributes to parse along with `class` |
 | `includePaths` | `{Array}` | `[]` (Any) | An array of paths to be processed |
-| `localIdentName` | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
+| [`localIdentName`](#localidentname) | `{String}` | `"[local]-[hash:base64:6]"` |  A rule using any available token |
 | `mode`  | `native\|mixed\|scoped` | `native` | The preprocess mode to use
 | `parseExternalStylesheet` | `{Boolean}` | `false` | Enable parsing on imported external stylesheet |
 | `parseStyleTag` | `{Boolean}` | `true` | Enable parsing on style tag |
-| `useAsDefaultScoping` | `{Boolean}` | `false` | Replace svelte scoping globally |
+| [`useAsDefaultScoping`](#useasdefaultscoping) | `{Boolean}` | `false` | Replace svelte scoping globally |
 
-**`getLocalIdent`**
+#### `getLocalIdent`
 
 Customize the creation of the classname instead of relying on the built-in function.
 
@@ -605,7 +605,7 @@ preprocess: [
 ...
 ```
 
-**`hashSeeder`**
+#### `hashSeeder`
 
 Set the source to create the hash from (when using `[hash]` / `[contenthash]`).
 
@@ -646,7 +646,7 @@ preprocess: [
 </style>
 ```
 
-**`includeAttributes`**
+#### `includeAttributes`
 
 Add other attributes than `class` to be parsed by the preprocesser
 
@@ -680,7 +680,7 @@ preprocess: [
 </style>
 ```
 
-**`localIdentName`**
+#### `localIdentName`
 
 Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#interpolatename), here is the list of tokens:
 
@@ -695,7 +695,7 @@ Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#in
   - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
   - and `length` the length in chars
 
-**`useAsDefaultScoping`**
+#### `useAsDefaultScoping`
 
 Globally replace the default svelte scoping by the cssModules scoping. As a result, the `module` attribute to `<style>` becomes unnecessary.
 
