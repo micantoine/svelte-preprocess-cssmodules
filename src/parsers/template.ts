@@ -12,8 +12,9 @@ const updateMultipleClasses = (processor: Processor, classNames: string): string
   const classes: string[] = classNames.split(' ');
   const generatedClassNames: string = classes.reduce((accumulator, currentValue, currentIndex) => {
     let value: string = currentValue;
-    if (currentValue in processor.cssModuleList) {
-      value = processor.cssModuleList[currentValue.trim()];
+    const rawValue: string = value.trim();
+    if (rawValue in processor.cssModuleList) {
+      value = value.replace(rawValue, processor.cssModuleList[rawValue]);
     }
     if (currentIndex < classes.length - 1) {
       value += ' ';
