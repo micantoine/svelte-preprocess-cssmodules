@@ -1,5 +1,9 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.1.2 (Jan 8, 2021)
+
+- Fix multiline class attribute [issue 39](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/39)
+
 ## 2.1.1 (Oct 27, 2021)
 
 - Fix readme
