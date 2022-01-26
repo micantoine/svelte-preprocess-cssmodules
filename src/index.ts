@@ -2,7 +2,13 @@ import { parse } from 'svelte/compiler';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
 import type { PluginOptions, PreprocessorOptions, PreprocessorResult } from './types';
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
-import { getLocalIdent, isFileIncluded, hasModuleImports, hasModuleAttribute } from './lib';
+import {
+  getLocalIdent,
+  isFileIncluded,
+  hasModuleImports,
+  hasModuleAttribute,
+  normalizeIncludePaths,
+} from './lib';
 
 const defaultOptions = (): PluginOptions => {
   return {
@@ -21,7 +27,7 @@ const defaultOptions = (): PluginOptions => {
 let pluginOptions: PluginOptions;
 
 const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
-  const isIncluded = await isFileIncluded(pluginOptions.includePaths, filename);
+  const isIncluded = isFileIncluded(pluginOptions.includePaths, filename);
 
   if (!isIncluded || (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)) {
     return { code: content };
@@ -84,6 +90,11 @@ export default module.exports = (options: Partial<PluginOptions>) => {
     ...defaultOptions(),
     ...options,
   };
+
+  if (pluginOptions.includePaths) {
+    pluginOptions.includePaths = normalizeIncludePaths(pluginOptions.includePaths);
+  }
+
   return {
     markup,
   };
