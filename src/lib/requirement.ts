@@ -1,9 +1,19 @@
 import path from 'path';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
 
+/**
+ * Normalize path by replacing potential backslashes to slashes
+ * @param filepath The file path to normalize
+ * @returns a path using forward slashes
+ */
 const normalizePath = (filepath: string): string =>
   path.sep === '\\' ? filepath.replace(/\\/g, '/') : filepath;
 
+/**
+ * Normalize all included paths
+ * @param paths all paths to be normalized
+ * @returns list of path using forward slashes
+ */
 export const normalizeIncludePaths = (paths: string[]): string[] =>
   paths.map((includePath) => normalizePath(path.resolve(includePath)));
 
