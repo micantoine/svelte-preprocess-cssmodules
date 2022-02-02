@@ -2,31 +2,33 @@ import path from 'path';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
 
 /**
+ * Normalize path by replacing potential backslashes to slashes
+ * @param filepath The file path to normalize
+ * @returns a path using forward slashes
+ */
+const normalizePath = (filepath: string): string =>
+  path.sep === '\\' ? filepath.replace(/\\/g, '/') : filepath;
+
+/**
+ * Normalize all included paths
+ * @param paths all paths to be normalized
+ * @returns list of path using forward slashes
+ */
+export const normalizeIncludePaths = (paths: string[]): string[] =>
+  paths.map((includePath) => normalizePath(path.resolve(includePath)));
+
+/**
  * Check if a file requires processing
  * @param includePaths List of allowd paths
  * @param filename the current filename to compare with the paths
  * @returns The permission status
  */
-export const isFileIncluded = async (
-  includePaths: string[],
-  filename: string
-): Promise<boolean> => {
+export const isFileIncluded = (includePaths: string[], filename: string): boolean => {
   if (includePaths.length < 1) {
     return true;
   }
 
-  const isIncluded: boolean = await new Promise((resolve): void => {
-    includePaths.forEach((includePath, index): void => {
-      if (filename.indexOf(path.resolve(includePath)) !== -1) {
-        resolve(true);
-      }
-      if (index === includePaths.length - 1) {
-        resolve(false);
-      }
-    });
-  });
-
-  return isIncluded;
+  return includePaths.some((includePath) => filename.startsWith(includePath));
 };
 
 /**
