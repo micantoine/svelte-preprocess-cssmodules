@@ -255,7 +255,7 @@ When used on a class, `:local()` applies the svelte scoping system to the select
 
 Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The name referring to the import can then be used in the markup targetting any existing classname of the stylesheet.
 
-- The option `parseExternalSylesheet` need to be enabled.
+- The option `parseExternalStylesheet` need to be enabled.
 - The css file must follow the convention `FILENAME.module.css` in order to be processed.
 
 **Note:** *The import option is only meant for stylesheets relative to the component. You will have to set your own bundler in order to import *node_modules* packages css files.*
