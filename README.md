@@ -704,9 +704,9 @@ Globally replace the default svelte scoping by the cssModules scoping. As a resu
 // Preprocess config
 ...
 preprocess: [
-  cssModules([
+  cssModules({
     useAsDefaultScoping: true
-  ]),
+  }),
 ],
 ...
 ```
@@ -735,10 +735,10 @@ To prevent any scoping conflict, it is recommended to associate the option `useA
 // Preprocess config
 ...
 preprocess: [
-  cssModules([
+  cssModules({
     useAsDefaultScoping: true,
     includePaths: ['./src'],
-  ]),
+  }),
 ],
 ...
 ```
@@ -751,9 +751,9 @@ If you want to migrate an existing project to `v2` keeping the approach of the 1
    // Preprocess config
    ...
    preprocess: [
-    cssModules([
+    cssModules({
       mode: 'mixed',
-    ]),
+    }),
    ],
    ...
    ```
