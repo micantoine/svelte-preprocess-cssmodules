@@ -1,6 +1,15 @@
 # Svelte preprocess CSS Modules, changelog
 
-## 2.1.2 (Jan 8, 2021)
+## 2.1.3 (Mar 14, 2022)
+
+### Fixes
+- Normalise `includePaths` [issue 42](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/42)
+- Readme typos
+
+### Updates
+- Dependencies
+
+## 2.1.2 (Jan 8, 2022)
 
 - Fix multiline class attribute [issue 39](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/39)
 
