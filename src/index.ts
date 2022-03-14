@@ -1,6 +1,11 @@
-import { parse } from 'svelte/compiler';
+import { parse, preprocess } from 'svelte/compiler';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
-import type { PluginOptions, PreprocessorOptions, PreprocessorResult } from './types';
+import type {
+  PreprocessorGroup,
+  Processed,
+  MarkupPreprocessor,
+} from 'svelte/types/compiler/preprocess/index.d';
+import type { PluginOptions } from './types';
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import {
   getLocalIdent,
@@ -32,8 +37,13 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
   if (!isIncluded || (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)) {
     return { code: content };
   }
-
-  const ast: Ast = parse(content, { filename });
+  let ast: Ast;
+  try {
+    ast = parse(content, { filename });
+  } catch (err) {
+    console.log(content);
+    throw new Error('AST being used parser');
+  }
 
   if (
     !pluginOptions.useAsDefaultScoping &&
@@ -80,12 +90,14 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
     }
   }
 
+  console.log('new', parsedContent);
+
   return {
     code: parsedContent,
   };
 };
 
-export default module.exports = (options: Partial<PluginOptions>) => {
+export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup => {
   pluginOptions = {
     ...defaultOptions(),
     ...options,
@@ -99,3 +111,38 @@ export default module.exports = (options: Partial<PluginOptions>) => {
     markup,
   };
 };
+
+export const appendCssModules = (
+  preprocessors: PreprocessorGroup[],
+  options: Partial<PluginOptions>
+): PreprocessorGroup => {
+  return {
+    markup: async ({ content, filename }): Promise<Processed> => {
+      let dependencies: string[] = [];
+      let code = content;
+
+      preprocessors.forEach(async (preprocessor) => {
+        console.log(preprocessor);
+        const processed = await preprocess(code, preprocessor, { filename });
+        if (processed) {
+          code = processed.code;
+          if (processed.dependencies) {
+            dependencies = {
+              ...dependencies,
+              ...processed.dependencies,
+            };
+          }
+        }
+      });
+
+      console.log(code);
+
+      return {
+        code,
+        dependencies,
+      };
+    },
+  };
+};
+
+export default module.exports = cssModules;
