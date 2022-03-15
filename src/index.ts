@@ -31,7 +31,7 @@ const defaultOptions = (): PluginOptions => {
 
 let pluginOptions: PluginOptions;
 
-const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
+const markup: MarkupPreprocessor = async ({ content, filename }) => {
   const isIncluded = isFileIncluded(pluginOptions.includePaths, filename);
 
   if (!isIncluded || (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)) {
@@ -41,8 +41,9 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
   try {
     ast = parse(content, { filename });
   } catch (err) {
-    console.log(content);
-    throw new Error('AST being used parser');
+    throw new Error(
+      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "appendCssModules()"`
+    );
   }
 
   if (
@@ -90,8 +91,6 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
     }
   }
 
-  console.log('new', parsedContent);
-
   return {
     code: parsedContent,
   };
@@ -113,36 +112,37 @@ export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup =
 };
 
 export const appendCssModules = (
-  preprocessors: PreprocessorGroup[],
+  preprocessors: PreprocessorGroup[] | PreprocessorGroup,
   options: Partial<PluginOptions>
-): PreprocessorGroup => {
-  return {
-    markup: async ({ content, filename }): Promise<Processed> => {
-      let dependencies: string[] = [];
-      let code = content;
+): PreprocessorGroup[] => {
+  return [
+    {
+      async markup({ content, filename }): Promise<Processed> {
+        let code = content;
+        let dependencies: Processed['dependencies'] = [];
 
-      preprocessors.forEach(async (preprocessor) => {
-        console.log(preprocessor);
-        const processed = await preprocess(code, preprocessor, { filename });
-        if (processed) {
-          code = processed.code;
-          if (processed.dependencies) {
-            dependencies = {
-              ...dependencies,
-              ...processed.dependencies,
-            };
+        const preprocessorGroup = Array.isArray(preprocessors) ? preprocessors : [preprocessors];
+
+        for (let i = 0; i < preprocessorGroup.length; i += 1) {
+          const preprocessor = preprocessorGroup[i];
+          // eslint-disable-next-line no-await-in-loop
+          const processed = await preprocess(code, preprocessor, { filename });
+
+          code = processed?.code ?? code;
+
+          if (processed?.dependencies?.length) {
+            dependencies = [...dependencies, ...processed.dependencies];
           }
         }
-      });
 
-      console.log(code);
-
-      return {
-        code,
-        dependencies,
-      };
+        return {
+          code,
+          dependencies,
+        };
+      },
     },
-  };
+    cssModules(options),
+  ];
 };
 
 export default module.exports = cssModules;
