@@ -2,7 +2,6 @@ import { parse, preprocess } from 'svelte/compiler';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
 import type {
   PreprocessorGroup,
-  Processed,
   MarkupPreprocessor,
 } from 'svelte/types/compiler/preprocess/index.d';
 import type { PluginOptions } from './types';
@@ -42,7 +41,7 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
     ast = parse(content, { filename });
   } catch (err) {
     throw new Error(
-      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "appendCssModules()"`
+      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "cssModulesPreprocess().after()"`
     );
   }
 
@@ -112,37 +111,38 @@ export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup =
 };
 
 export const appendCssModules = (
-  preprocessors: PreprocessorGroup[] | PreprocessorGroup,
+  preprocessor: PreprocessorGroup[] | PreprocessorGroup,
   options: Partial<PluginOptions>
 ): PreprocessorGroup[] => {
-  return [
-    {
-      async markup({ content, filename }): Promise<Processed> {
-        let code = content;
-        let dependencies: Processed['dependencies'] = [];
+  const preprocessorGroup: PreprocessorGroup[] = [];
+  const preprocessors = Array.isArray(preprocessor) ? preprocessor : [preprocessor];
 
-        const preprocessorGroup = Array.isArray(preprocessors) ? preprocessors : [preprocessors];
+  for (let i = 0; i < preprocessors.length; i += 1) {
+    const p = preprocessors[i];
+    const isMarkup = !p.script && !p.style;
 
-        for (let i = 0; i < preprocessorGroup.length; i += 1) {
-          const preprocessor = preprocessorGroup[i];
-          // eslint-disable-next-line no-await-in-loop
-          const processed = await preprocess(code, preprocessor, { filename });
+    if (isMarkup) {
+      preprocessorGroup.push(p);
+    } else {
+      preprocessorGroup.push({
+        async markup({ content, filename }) {
+          return preprocess(content, p, { filename });
+        },
+      });
+    }
+  }
 
-          code = processed?.code ?? code;
+  return [...preprocessorGroup, cssModules(options)];
+};
 
-          if (processed?.dependencies?.length) {
-            dependencies = [...dependencies, ...processed.dependencies];
-          }
-        }
-
-        return {
-          code,
-          dependencies,
-        };
-      },
-    },
-    cssModules(options),
-  ];
+export const cssModulesPreprocess = (
+  options: Partial<PluginOptions>
+): {
+  after(preprocessor: PreprocessorGroup[] | PreprocessorGroup): PreprocessorGroup[];
+} => {
+  return {
+    after: (preprocessor) => appendCssModules(preprocessor, options),
+  };
 };
 
 export default module.exports = cssModules;
