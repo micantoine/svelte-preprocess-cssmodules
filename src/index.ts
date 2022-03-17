@@ -30,6 +30,11 @@ const defaultOptions = (): PluginOptions => {
 
 let pluginOptions: PluginOptions;
 
+/**
+ * cssModules markup phase
+ * @param param0
+ * @returns the preprocessor markup
+ */
 const markup: MarkupPreprocessor = async ({ content, filename }) => {
   const isIncluded = isFileIncluded(pluginOptions.includePaths, filename);
 
@@ -95,6 +100,11 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
   };
 };
 
+/**
+ * css Modules
+ * @param options
+ * @returns the css modules preprocessors
+ */
 export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup => {
   pluginOptions = {
     ...defaultOptions(),
@@ -110,39 +120,21 @@ export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup =
   };
 };
 
-export const appendCssModules = (
-  preprocessor: PreprocessorGroup[] | PreprocessorGroup,
-  options: Partial<PluginOptions>
-): PreprocessorGroup[] => {
-  const preprocessorGroup: PreprocessorGroup[] = [];
-  const preprocessors = Array.isArray(preprocessor) ? preprocessor : [preprocessor];
-
-  for (let i = 0; i < preprocessors.length; i += 1) {
-    const p = preprocessors[i];
-    const isMarkup = !p.script && !p.style;
-
-    if (isMarkup) {
-      preprocessorGroup.push(p);
-    } else {
-      preprocessorGroup.push({
-        async markup({ content, filename }) {
-          return preprocess(content, p, { filename });
-        },
-      });
-    }
-  }
-
-  return [...preprocessorGroup, cssModules(options)];
-};
-
-export const cssModulesPreprocess = (
-  options: Partial<PluginOptions>
-): {
-  after(preprocessor: PreprocessorGroup[] | PreprocessorGroup): PreprocessorGroup[];
-} => {
-  return {
-    after: (preprocessor) => appendCssModules(preprocessor, options),
-  };
+/**
+ * Create a group of preprocessors which will be processed in a linear order
+ * @param preprocessors list of preprocessors
+ * @returns group of `markup` preprocessors
+ */
+export const linearPreprocess = (preprocessors: PreprocessorGroup[]): PreprocessorGroup[] => {
+  return preprocessors.map((p) => {
+    return !p.script && !p.style
+      ? p
+      : {
+          async markup({ content, filename }) {
+            return preprocess(content, p, { filename });
+          },
+        };
+  });
 };
 
 export default module.exports = cssModules;
