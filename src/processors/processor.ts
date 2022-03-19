@@ -15,6 +15,7 @@ export default class Processor {
   public options: PluginOptions;
   public rawContent: string;
   public cssModuleList: CSSModuleList = {};
+  public cssVarList: CSSModuleList = {};
   public importedCssModuleList: CSSModuleList = {};
 
   public ast: Ast;
@@ -77,6 +78,35 @@ export default class Processor {
       this.importedCssModuleList[camelCase(name)] = value;
     }
     this.cssModuleList[name] = value;
+  };
+
+  /**
+   * Parse pseudo selector :local()
+   * @param node The ast "Selector" node to parse
+   */
+  public parseBindedVariables = (node: TemplateNode): void => {
+    const bindedVariables =
+      node.children?.filter(
+        (item) => item.type === 'Function' && item.name === 'bind' && node.children?.length
+      ) ?? [];
+
+    if (bindedVariables.length > 0) {
+      bindedVariables.forEach((item) => {
+        if (item.children) {
+          const generatedVarName = generateName(
+            this.filename,
+            this.ast.css.content.styles,
+            item.children[0].name,
+            {
+              hashSeeder: ['style', 'filepath'],
+              localIdentName: '[local]-[hash:base64:6]',
+            }
+          );
+          this.magicContent.overwrite(item.start, item.end, `var(--${generatedVarName})`);
+          this.cssVarList[item.children[0].name] = generatedVarName;
+        }
+      });
+    }
   };
 
   /**
