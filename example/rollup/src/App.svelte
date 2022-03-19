@@ -3,7 +3,7 @@
 </script>
 
 <main class="main">
-	<h1>Hello {name}!</h1>
+	<h1 class="red">Hello {name}!</h1>
 	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
 </main>
 
@@ -14,7 +14,7 @@
 		max-width: 240px;
 		margin: 0 auto;
 
-		h1 {
+		.red {
 			color: #ff3e00;
 		}
 	}

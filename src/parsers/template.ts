@@ -1,5 +1,5 @@
 import { walk } from 'svelte/compiler';
-import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import type { Attribute, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import type Processor from '../processors/processor';
 
 /**
@@ -38,6 +38,32 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
 };
 
 /**
+ * Get the css variables formatted values
+ * @param processor: The CSS Module Processor
+ * @returns the values and the style attribute;
+ */
+const cssVariables = (
+  processor: Processor
+): {
+  styleAttribute: string;
+  values: string;
+} => {
+  const cssVarListKeys = Object.keys(processor.cssVarList);
+  let styleAttribute = '';
+  let values = '';
+
+  if (cssVarListKeys.length) {
+    for (let i = 0; i < cssVarListKeys.length; i += 1) {
+      const key = cssVarListKeys[i];
+      values += `--${processor.cssVarList[key]}:{${key}};`;
+    }
+    styleAttribute = `style="${values}"`;
+  }
+
+  return { styleAttribute, values };
+};
+
+/**
  * Parse the template markup to update the class attributes with CSS modules
  * @param processor The CSS Module Processor
  */
@@ -45,11 +71,36 @@ export default (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;
   const allowedAttributes = ['class', ...processor.options.includeAttributes];
 
+  const cssVar = cssVariables(processor);
+
   walk(processor.ast.html, {
     enter(baseNode) {
       const node = baseNode as TemplateNode;
       if (node.type === 'Script' || node.type === 'Style') {
         this.skip();
+      }
+
+      // css variables on parent elements
+      if (node.type === 'Fragment' && cssVar.values.length) {
+        node.children?.forEach((item) => {
+          if (item.type === 'Element') {
+            const attributesLength = item.attributes.length;
+            if (attributesLength) {
+              const styleAttr = item.attributes.find((attr: Attribute) => attr.name === 'style');
+              if (styleAttr) {
+                processor.magicContent.appendLeft(styleAttr.value[0].start, cssVar.values);
+              } else {
+                const lastAttr = item.attributes[attributesLength - 1];
+                processor.magicContent.appendRight(lastAttr.end, ` ${cssVar.styleAttribute}`);
+              }
+            } else {
+              processor.magicContent.appendRight(
+                item.start + item.name.length + 1,
+                ` ${cssVar.styleAttribute}`
+              );
+            }
+          }
+        });
       }
 
       if (['Element', 'InlineComponent'].includes(node.type) && node.attributes.length > 0) {
