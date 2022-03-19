@@ -85,25 +85,21 @@ export default class Processor {
    * @param node The ast "Selector" node to parse
    */
   public parseBindedVariables = (node: TemplateNode): void => {
-    const bindedVariables =
+    const bindedVariableNodes =
       node.children?.filter(
         (item) => item.type === 'Function' && item.name === 'bind' && node.children?.length
       ) ?? [];
 
-    if (bindedVariables.length > 0) {
-      bindedVariables.forEach((item) => {
+    if (bindedVariableNodes.length > 0) {
+      bindedVariableNodes.forEach((item) => {
         if (item.children) {
-          const generatedVarName = generateName(
-            this.filename,
-            this.ast.css.content.styles,
-            item.children[0].name,
-            {
-              hashSeeder: ['style', 'filepath'],
-              localIdentName: '[local]-[hash:base64:6]',
-            }
-          );
+          const { name } = item.children[0];
+          const generatedVarName = generateName(this.filename, this.ast.css.content.styles, name, {
+            hashSeeder: ['style', 'filepath'],
+            localIdentName: '[local]-[hash:base64:6]',
+          });
           this.magicContent.overwrite(item.start, item.end, `var(--${generatedVarName})`);
-          this.cssVarList[item.children[0].name] = generatedVarName;
+          this.cssVarList[name] = generatedVarName;
         }
       });
     }
@@ -145,7 +141,7 @@ export default class Processor {
       parseImportDeclaration(this);
     }
 
-    if (Object.keys(this.cssModuleList).length > 0) {
+    if (Object.keys(this.cssModuleList).length > 0 || Object.keys(this.cssVarList).length > 0) {
       parseTemplate(this);
     }
 
