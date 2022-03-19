@@ -12,14 +12,5 @@ export type PluginOptions = {
   useAsDefaultScoping: boolean;
 };
 
-// export interface PreprocessorOptions {
-//   content: string;
-//   filename: string;
-// }
-
-// export interface PreprocessorResult {
-//   code: string;
-// }
-
 export type CSSModuleList = Record<string, string>;
 export type CSSModuleDirectory = Record<string, CSSModuleList>;

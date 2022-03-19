@@ -33,7 +33,7 @@ const updateSelectorBoundaries = (
  */
 const parser = (processor: Processor): void => {
   const ast = (processor.ast as unknown) as TemplateNode;
-  let selectorBoundaries: Array<Boundaries> = [];
+  let selectorBoundaries: Boundaries[] = [];
 
   walk(ast, {
     enter(baseNode) {
@@ -73,6 +73,8 @@ const parser = (processor: Processor): void => {
 
         processor.parsePseudoLocalSelectors(node);
       }
+
+      processor.parseBindedVariables(node);
 
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);
