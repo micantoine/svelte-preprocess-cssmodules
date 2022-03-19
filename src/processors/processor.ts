@@ -96,7 +96,7 @@ export default class Processor {
           const { name } = item.children[0];
           const generatedVarName = generateName(this.filename, this.ast.css.content.styles, name, {
             hashSeeder: ['style', 'filepath'],
-            localIdentName: '[local]-[hash:base64:6]',
+            localIdentName: `[local]-${this.options.cssVariableHash}`,
           });
           this.magicContent.overwrite(item.start, item.end, `var(--${generatedVarName})`);
           this.cssVarList[name] = generatedVarName;

@@ -1,6 +1,7 @@
 import type { GetLocalIdent } from '../lib';
 
 export type PluginOptions = {
+  cssVariableHash: string;
   getLocalIdent: GetLocalIdent;
   hashSeeder: Array<'style' | 'filepath' | 'classname'>;
   includeAttributes: string[];

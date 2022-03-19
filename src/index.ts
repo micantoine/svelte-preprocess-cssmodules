@@ -16,6 +16,7 @@ import {
 
 const defaultOptions = (): PluginOptions => {
   return {
+    cssVariableHash: '[hash:base64:6]',
     getLocalIdent,
     hashSeeder: ['style', 'filepath', 'classname'],
     includeAttributes: [],
