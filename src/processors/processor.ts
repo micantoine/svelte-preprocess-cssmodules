@@ -1,7 +1,13 @@
 import MagicString from 'magic-string';
 import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import { CSSModuleList, PluginOptions } from '../types';
-import { camelCase, createClassName, hasModuleAttribute, hasModuleImports } from '../lib';
+import {
+  camelCase,
+  createClassName,
+  generateName,
+  hasModuleAttribute,
+  hasModuleImports,
+} from '../lib';
 import { parseImportDeclaration, parseTemplate } from '../parsers';
 
 export default class Processor {
