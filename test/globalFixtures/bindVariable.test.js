@@ -39,4 +39,16 @@ describe('Bind variable to CSS', () => {
       `${script}<div style="--color-123:{color};display:block">blue</div><style module>:global(div){color:var(--color-123)}</style>`
     );
   });
+
+  test('element wrapped by a root component', async () => {
+    const output = await compiler({
+      source: `${script}<Component><div>blue</div></Component><style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+    });
+
+    expect(output).toBe(
+      `${script}<Component><div style="--color-123:{color};">blue</div></Component><style module>:global(div){color:var(--color-123)}</style>`
+    );
+  });
 });
