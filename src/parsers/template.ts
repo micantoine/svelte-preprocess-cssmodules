@@ -45,31 +45,35 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
 /**
  * Add the dynamic variables to elements
  * @param processor The CSS Module Processor
- * @param item the node element
+ * @param node the node element
  * @param cssVar the cssVariables data
  */
 const addDynamicVariablesToElements = (
   processor: Processor,
-  item: TemplateNode,
+  node: TemplateNode,
   cssVar: CssVariables
 ): void => {
-  if (item.type === 'Element') {
-    const attributesLength = item.attributes.length;
-    if (attributesLength) {
-      const styleAttr = item.attributes.find((attr: Attribute) => attr.name === 'style');
-      if (styleAttr) {
-        processor.magicContent.appendLeft(styleAttr.value[0].start, cssVar.values);
+  node.children?.forEach((childNode) => {
+    if (childNode.type === 'InlineComponent') {
+      addDynamicVariablesToElements(processor, childNode, cssVar);
+    } else if (childNode.type === 'Element') {
+      const attributesLength = childNode.attributes.length;
+      if (attributesLength) {
+        const styleAttr = childNode.attributes.find((attr: Attribute) => attr.name === 'style');
+        if (styleAttr) {
+          processor.magicContent.appendLeft(styleAttr.value[0].start, cssVar.values);
+        } else {
+          const lastAttr = childNode.attributes[attributesLength - 1];
+          processor.magicContent.appendRight(lastAttr.end, ` ${cssVar.styleAttribute}`);
+        }
       } else {
-        const lastAttr = item.attributes[attributesLength - 1];
-        processor.magicContent.appendRight(lastAttr.end, ` ${cssVar.styleAttribute}`);
+        processor.magicContent.appendRight(
+          childNode.start + childNode.name.length + 1,
+          ` ${cssVar.styleAttribute}`
+        );
       }
-    } else {
-      processor.magicContent.appendRight(
-        item.start + item.name.length + 1,
-        ` ${cssVar.styleAttribute}`
-      );
     }
-  }
+  });
 };
 
 /**
@@ -112,15 +116,7 @@ export default (processor: Processor): void => {
 
       // css variables on parent elements
       if (node.type === 'Fragment' && cssVar.values.length) {
-        node.children?.forEach((item) => {
-          if (item.type === 'InlineComponent') {
-            item.children?.forEach((childNode) => {
-              addDynamicVariablesToElements(processor, childNode, cssVar);
-            });
-          } else {
-            addDynamicVariablesToElements(processor, item, cssVar);
-          }
-        });
+        addDynamicVariablesToElements(processor, node, cssVar);
       }
 
       if (['Element', 'InlineComponent'].includes(node.type) && node.attributes.length > 0) {

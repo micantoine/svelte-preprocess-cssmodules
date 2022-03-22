@@ -51,4 +51,39 @@ describe('Bind variable to CSS', () => {
       `${script}<Component><div style="--color-123:{color};">blue</div></Component><style module>:global(div){color:var(--color-123)}</style>`
     );
   });
+
+  test('deep nested element in components', async () => {
+    const output = await compiler({
+      source: `${script}
+      <Component1><Component2><Component3><div>blue</div></Component3></Component2></Component1>
+      <Component2>
+        <div>blue</div>
+        <Component3>
+          <span><i>red</i></span>
+          <span><i>green</i></span>
+          <Component4><i>none</i></Component4>
+        </Component3>
+      </Component2>
+      <div>yellow <Component1><i>blue</i></Component1></div>
+      <style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+      mode: 'scoped',
+    });
+
+    expect(output).toBe(
+      `${script}
+      <Component1><Component2><Component3><div style="--color-123:{color};">blue</div></Component3></Component2></Component1>
+      <Component2>
+        <div style="--color-123:{color};">blue</div>
+        <Component3>
+          <span style="--color-123:{color};"><i>red</i></span>
+          <span style="--color-123:{color};"><i>green</i></span>
+          <Component4><i style="--color-123:{color};">none</i></Component4>
+        </Component3>
+      </Component2>
+      <div style="--color-123:{color};">yellow <Component1><i>blue</i></Component1></div>
+      <style module>div{color:var(--color-123)}</style>`
+    );
+  });
 });
