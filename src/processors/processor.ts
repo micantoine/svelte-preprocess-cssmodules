@@ -93,11 +93,18 @@ export default class Processor {
     if (bindedVariableNodes.length > 0) {
       bindedVariableNodes.forEach((item) => {
         if (item.children) {
-          const { name } = item.children[0];
-          const generatedVarName = generateName(this.filename, this.ast.css.content.styles, name, {
-            hashSeeder: ['style', 'filepath'],
-            localIdentName: `[local]-${this.options.cssVariableHash}`,
-          });
+          const child = item.children[0];
+          const name = child.name ?? child.value.replace(/'/g, '');
+          const varName = child.type === 'String' ? name.replace(/\./, '-') : name;
+          const generatedVarName = generateName(
+            this.filename,
+            this.ast.css.content.styles,
+            varName,
+            {
+              hashSeeder: ['style', 'filepath'],
+              localIdentName: `[local]-${this.options.cssVariableHash}`,
+            }
+          );
           this.magicContent.overwrite(item.start, item.end, `var(--${generatedVarName})`);
           this.cssVarList[name] = generatedVarName;
         }

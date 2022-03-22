@@ -65,7 +65,7 @@ describe('Bind variable to CSS', () => {
         </Component3>
       </Component2>
       <div>yellow <Component1><i>blue</i></Component1></div>
-      <style module>div{color:bind(color)}</style>`,
+      <style module>div{color:bind('color')}</style>`,
     }, {
       cssVariableHash: '123',
       mode: 'scoped',
@@ -84,6 +84,33 @@ describe('Bind variable to CSS', () => {
       </Component2>
       <div style="--color-123:{color};">yellow <Component1><i>blue</i></Component1></div>
       <style module>div{color:var(--color-123)}</style>`
+    );
+  });
+
+  test('root elements binded with js expression', async () => {
+    const output = await compiler({
+      source: `<script>let style = { display: 'none', margin: { top: '20px' } };</script>
+      <div>black</div>
+      <style module>
+        div{
+          margin-top:bind('style.margin.top');
+          display:bind('style.display');
+        }
+      </style>`,
+    }, {
+      cssVariableHash: '123',
+      mode: 'scoped',
+    });
+
+    expect(output).toBe(
+      `<script>let style = { display: 'none', margin: { top: '20px' } };</script>
+      <div style="--style-margin-top-123:{style.margin.top};--style-display-123:{style.display};">black</div>
+      <style module>
+        div{
+          margin-top:var(--style-margin-top-123);
+          display:var(--style-display-123);
+        }
+      </style>`
     );
   });
 });
