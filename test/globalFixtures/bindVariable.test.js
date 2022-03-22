@@ -87,7 +87,7 @@ describe('Bind variable to CSS', () => {
     );
   });
 
-  test('root elements binded with js expression', async () => {
+  test('root elements bound with js expression', async () => {
     const output = await compiler({
       source: `<script>let style = { display: 'none', margin: { top: '20px' } };</script>
       <div>black</div>

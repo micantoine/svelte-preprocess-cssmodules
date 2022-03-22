@@ -81,10 +81,10 @@ export default class Processor {
   };
 
   /**
-   * Parse pseudo selector :local()
+   * Parse css dynamic variables bound to js bind()
    * @param node The ast "Selector" node to parse
    */
-  public parseBindedVariables = (node: TemplateNode): void => {
+  public parseBoundVariables = (node: TemplateNode): void => {
     const bindedVariableNodes =
       node.children?.filter(
         (item) => item.type === 'Function' && item.name === 'bind' && node.children?.length
