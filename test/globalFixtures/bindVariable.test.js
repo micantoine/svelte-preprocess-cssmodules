@@ -94,7 +94,7 @@ describe('Bind variable to CSS', () => {
       <style module>
         div{
           margin-top:bind('style.margin.top');
-          display:bind('style.display');
+          display:bind("style.display");
         }
       </style>`,
     }, {

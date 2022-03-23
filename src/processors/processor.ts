@@ -94,7 +94,7 @@ export default class Processor {
       bindedVariableNodes.forEach((item) => {
         if (item.children) {
           const child = item.children[0];
-          const name = child.name ?? child.value.replace(/'/g, '');
+          const name = child.name ?? child.value.replace(/'|"/g, '');
           const varName = child.type === 'String' ? name.replace(/\./, '-') : name;
           const generatedVarName = generateName(
             this.filename,
