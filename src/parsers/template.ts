@@ -123,7 +123,7 @@ export default (processor: Processor): void => {
         node.attributes.forEach((item: TemplateNode) => {
           if (item.type === 'Attribute' && allowedAttributes.includes(item.name)) {
             item.value.forEach((classItem: TemplateNode) => {
-              if (classItem.type === 'Text') {
+              if (classItem.type === 'Text' && classItem.data.length > 0) {
                 const generatedClassNames = updateMultipleClasses(processor, classItem.data);
                 processor.magicContent.overwrite(
                   classItem.start,
