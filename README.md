@@ -2,19 +2,59 @@
 
 Generate CSS Modules classname on Svelte components
 
+1. Install package 
+
 ```bash
 npm install --save-dev svelte-preprocess-cssmodules
 ```
 
+2. Include to svelte config
+
+```js
+import cssModules from 'svelte-preprocess-cssmodules';
+
+...
+
+// svelte config
+preprocess: [
+  cssModules(),
+]
+```
+
+3. Add the `module` attribute to `<style>`
+
+```html
+<style module>
+  .red { color: red; }
+</style>
+
+<p class="red">My red text</p>
+```
+
+_the component will be compiled to_
+
+```html
+<style>
+  .red-30_1IC { color: red; }
+</style>
+
+<p class="red-30_1IC">My red text</p>
+```
+
+## Table of Content
+
 - [Usage](#usage)
-  - [Modes](#modes)
+  - [Approach](#approach)
   - [Class directive](#class-directive)
-- [Local selector](#local-selector)
+  - [Local selector](#local-selector)
+  - [CSS binding](#css-binding)
+  - [Scoped classname on child components](#scoped-classname-on-child-components)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
   - [Directive and dynamic class](#directive-and-dynamic-class)
+- [Preprocessor Modes](#preprocessor-modes)
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
@@ -27,78 +67,55 @@ npm install --save-dev svelte-preprocess-cssmodules
 
 ## Usage
 
-Add the `module` attribute to the `<style>` tag to enable cssModules
+Unlike the svelte scoping which appends every css selectors with a unique class. [CSS Modules](https://github.com/css-modules/css-modules) is scoping every class names with a unique id/name. None class selectors are left unscoped.
+
+### Approach
+
+Since the rules of non class selectors apply globally, it is best to write each selector with a class.
 
 ```html
+<!-- Component A -->
+<p>lorem ipsum tut moue</p>
+<p class="red">lorem ipsum tut moue</p>
+
 <style module>
   p { font-size: 14px; }
   .red { color: red; }
 </style>
-
-<p class="red">My red text</p>
 ```
-
-The component will be transformed to
-
 ```html
-<style>
-  p { font-size: 14px; }
-  .red-30_1IC { color: red; }
-</style>
+<!-- Component B -->
+<p class="text">lorem ipsum tut moue</p>
+<p class="text red">lorem ipsum tut moue</p>
 
-<p class="red-30_1IC">My red text</p>
-```
-
-### Modes
-
-Preprocessor can operate in the following modes:
-
-- `native` (default) - scopes classes with cssModules, anything else is unscoped
-- `mixed` - scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
-- `scoped` - scopes classes with svelte scoping in addition to `mixed`
-
-The mode can be **set globally from the preprocessor options** or **locally to override the global settings** per component.
-
-**Mixed mode**
-```html
-<style module="mixed">
-  p { font-size: 14px; }
+<style module>
+  .text { font-size: 14px; }
   .red { color: red; }
 </style>
-
-<p class="red">My red text</p>
 ```
 
-*generating*
+_transformed to_
 
 ```html
-<style>
-  p.svelte-teyu13r { font-size: 14px; }
-  .red-30_1IC { color: red; }
-</style>
+<!-- Component A -->
+<p>lorem ipsum tut moue</p>
+<p class="red-123qwe">lorem ipsum tut moue</p>
 
-<p class="red-30_1IC svelte-teyu13r">My red text</p>
+<style module>
+  p { font-size: 14px; } /* global rule */
+  .red-123qwe { color: red; }
+</style>
 ```
 
-**Scoped mode**
 ```html
-<style module="scoped">
-  p { font-size: 14px; }
-  .red { color: red; }
+<!-- Component B -->
+<p class="text-456rty">lorem ipsum tut moue</p>
+<p class="text-456rty red-123qwe">lorem ipsum tut moue</p>
+
+<style> /* all scoped to component */
+  .text-456rty { font-size: 14px; }
+  .red-123qwe { color: red; }
 </style>
-
-<p class="red">My red text</p>
-```
-
-*generating*
-
-```html
-<style>
-  p.svelte-teyu13r { font-size: 14px; }
-  .red-30_1IC.svelte-teyu13r { color: red; }
-</style>
-
-<p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
 ### Class directive
@@ -107,60 +124,62 @@ Toggle a class on an element.
 
 ```html
 <script>
-  let isActive = true;
-</script>
-
-<style module>
-  .bold { font-weight: bold; }
-</style>
-
-<p class:bold={isActive}>My red text</p>
-<p class="{isActive ? 'bold' : ''}">My blue text</p>
-```
-
-*Generating*
-
-```html
-<style>
-  .bold-2jIMhI { font-weight: bold; }
-</style>
-
-<p class="bold-2jIMhI">My red text</p>
-<p class="bold-2jIMhI">My blue text</p>
-```
-
-**Use of shorthand**
-
-```html
-<script>
-  let active = true;
+  let route = 'home';
+  $: isActive = route === 'home';
 </script>
 
 <style module>
   .active { font-weight: bold; }
 </style>
 
-<p class:active>My active text</p>
+<a class:active={isActive} href="/">Home</a>
+<!-- or -->
+<a class="{isActive ? 'active' : ''}" href="/">Home</a>
 ```
 
-*Generating*
+_generating_
 
 ```html
 <style>
   .active-2jIMhI { font-weight: bold; }
 </style>
 
-<p class="active-2jIMhI">My active text</p>
+<a class="active-2jIMhI" href="/">Home</a>
 ```
 
-## Local selector
-
-Force a selector to be scoped within a component to prevent style inheritance on child components.
-
-`:local()` is doing the opposite of `:global()` and can only be used with the `native` and `mixed` mode on.
+#### Use of shorthand
 
 ```html
-<!-- Parent Component-->
+<script>
+  let route = 'home';
+  $: active = route === 'home';
+</script>
+
+<style module>
+  .active { font-weight: bold; }
+</style>
+
+<a class:active href="/">Home</a>
+```
+
+_generating_
+
+```html
+<style>
+  .active-2jIMhI { font-weight: bold; }
+</style>
+
+<a class="active-2jIMhI" href="/">Home</a>
+```
+
+### Local selector
+
+Force a selector to be scoped within its component to prevent style inheritance on child components.
+
+`:local()` is doing the opposite of `:global()` and can only be used with the `native` and `mixed` modes on ([see preprocessor modes](#preprocessor-modes)). The svelte scoping is applied to the selector inside `:local()`.
+
+```html
+<!-- Parent Component -->
 
 <style module>
   .main em { color: grey; }
@@ -180,7 +199,7 @@ Force a selector to be scoped within a component to prevent style inheritance on
   .child em { color: black; }
 
   /** 
-   * Not needed rule because of the use of :local()
+   * Unnecessary rule because of the use of :local()
    .child strong { font-weight: 700 }
    */
 </style>
@@ -188,7 +207,7 @@ Force a selector to be scoped within a component to prevent style inheritance on
 <p class="child">My <em>secondary</em> lorem <strong>ipsum tuye</strong></p>
 ```
 
-*Generating*
+*generating*
 
 ```html
 <!-- Parent Component-->
@@ -213,7 +232,7 @@ Force a selector to be scoped within a component to prevent style inheritance on
 <p class="child-uhRt2j">My <em>secondary</em> lorem <strong>ipsum tuye</strong></p>
 ```
 
-When used on a class, `:local()` applies the svelte scoping system to the selector. This could be useful when targetting global classnames.
+When used with a class, `:local()` cssModules is replaced by the svelte scoping system. This could be useful when targetting global classnames.
 
 ```html
 <style module>
@@ -232,7 +251,7 @@ When used on a class, `:local()` applies the svelte scoping system to the select
 </div>
 ```
 
-*Generating*
+*generating*
 
 ```html
 <style>
@@ -248,6 +267,168 @@ When used on a class, `:local()` applies the svelte scoping system to the select
   <button class="btn btn-primary svelte-saq8ts">Ok</button>
   <button class="btn btn-default">Cancel</button>
 </div>
+```
+
+### CSS binding
+
+Link CSS values to the component dynamic states by using `bind()`.
+
+
+```html
+<script>
+  let color = 'red';
+</script>
+
+<p class="text">My lorem ipsum text</p>
+
+<style module>
+  .text {
+    font-size: 18px;
+    font-weight: bold;
+    color: bind(color);
+  }
+</style>
+```
+
+A scoped css variable, binding the state, will be created on the **root** html elements of the component. The value of the css property will inherit from this variable.
+
+```html
+<script>
+  let color = 'red';
+</script>
+
+<p class="text-t56rwy" style="--color-eh7sp:{color}">
+  My lorem ipsum text
+</p>
+
+<style>
+  .text-t56rwy {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-eh7sp);
+  }
+</style>
+```
+
+Object nested values can also be used by wrapping them with quotes.
+
+```html
+<script>
+  const style = {
+    opacity: 0;
+  };
+</script>
+
+<div class="content">
+  <h1>Heading</h1>
+  <p class="text">My lorem ipsum text</p>
+</div>
+
+<style module>
+  .content {
+    padding: 10px 20px;
+    background-color: #fff;
+  }
+  .text {
+    opacity: bind('style.opacity');
+  }
+</style>
+```
+
+_generating_
+
+```html
+<script>
+  const style = {
+    opacity: 0;
+  };
+</script>
+
+<div class="content-dhye8T" style="--opacity-r1gf51:{style.opacity}">
+  <h1>Heading</h1>
+  <p class="text-iTsx5A">My lorem ipsum text</p>
+</div>
+
+<style>
+  .content-dhye8T {
+    padding: 10px 20px;
+    background-color: #fff;
+  }
+  .text-iTsx5A {
+    opacity: var(--opacity-r1gf51);
+  }
+</style>
+```
+
+**Note:** _The inline css variable will never be added to a component element. It will always find the first html elements._
+
+### Scoped classname on child components
+
+CSS Modules allows you to pass a scoped classname to a child component giving you the possibility to style it from its parent component. _Only with the `native` and `mixed` modes ([see preprocessor modes](#preprocessor-modes))._
+
+```html
+<!-- Child Component Button.svelte -->
+
+<button class="{$$restProps.class} btn">
+  <slot />
+</button>
+
+<style module>
+  .btn {
+    background: red;
+    color: white;
+  }
+</style>
+```
+
+```html
+<!-- Parent Component -->
+
+<script>
+  import Button from './Button.svelte';
+</script>
+
+<div class="wrapper">
+  <h1>Welcome</h1>
+  <p>Lorem ipsum tut ewou tu po</p>
+  <Button class="btn">Start</Button>
+</div>
+
+<style module>
+  .wrapper {
+    margin: 0 auto;
+    padding: 16px;
+    max-width: 400px;
+  }
+  .btn {
+    margin-top: 30px;
+  }
+</style>
+```
+
+_generating_
+
+```html
+<div class="wrapper-tyaW3">
+  <h1>Welcome</h1>
+  <p>Lorem ipsum tut ewou tu po</p>
+  <button class="btn-dtg87W btn-rtY6ad">Start</button>
+</div>
+
+<style>
+  .wrapper-tyaW3 {
+    margin: 0 auto;
+    padding: 16px;
+    max-width: 400px;
+  }
+  .btn-dtg87W {
+    margin-top: 30px;
+  }
+  .btn-dtg87W {
+    background: red;
+    color: white;
+  }
+</style>
 ```
 
 
@@ -425,6 +606,59 @@ Use the Svelte's builtin `class:` directive or javascript template to display a 
 <p class={notice}>Notice</p>
 <p class={isSuccess ? success : error}>Notice</p>
 ```
+
+## Preprocessor Modes
+
+Preprocessor can operate in the following modes:
+
+- `native` (default) - scopes classes with cssModules, anything else is unscoped
+- `mixed` - scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
+- `scoped` - scopes classes with svelte scoping in addition to `mixed`
+
+The mode can be **set globally from the preprocessor options** or **locally to override the global settings** per component.
+
+**Mixed mode**
+```html
+<style module="mixed">
+  p { font-size: 14px; }
+  .red { color: red; }
+</style>
+
+<p class="red">My red text</p>
+```
+
+*generating*
+
+```html
+<style>
+  p.svelte-teyu13r { font-size: 14px; }
+  .red-30_1IC { color: red; }
+</style>
+
+<p class="red-30_1IC svelte-teyu13r">My red text</p>
+```
+
+**Scoped mode**
+```html
+<style module="scoped">
+  p { font-size: 14px; }
+  .red { color: red; }
+</style>
+
+<p class="red">My red text</p>
+```
+
+*generating*
+
+```html
+<style>
+  p.svelte-teyu13r { font-size: 14px; }
+  .red-30_1IC.svelte-teyu13r { color: red; }
+</style>
+
+<p class="red-30_1IC svelte-teyu13r">My red text</p>
+```
+
 
 ## Configuration
 
