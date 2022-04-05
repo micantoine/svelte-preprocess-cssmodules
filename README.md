@@ -2,43 +2,8 @@
 
 Generate CSS Modules classname on Svelte components
 
-1. Install package 
-
 ```bash
 npm install --save-dev svelte-preprocess-cssmodules
-```
-
-2. Include to svelte config
-
-```js
-import cssModules from 'svelte-preprocess-cssmodules';
-
-...
-
-// svelte config
-preprocess: [
-  cssModules(),
-]
-```
-
-3. Add the `module` attribute to `<style>`
-
-```html
-<style module>
-  .red { color: red; }
-</style>
-
-<p class="red">My red text</p>
-```
-
-_the component will be compiled to_
-
-```html
-<style>
-  .red-30_1IC { color: red; }
-</style>
-
-<p class="red-30_1IC">My red text</p>
 ```
 
 ## Table of Content
@@ -67,11 +32,32 @@ _the component will be compiled to_
 
 ## Usage
 
-Unlike the svelte scoping which appends every css selectors with a unique class. [CSS Modules](https://github.com/css-modules/css-modules) is scoping every class names with a unique id/name. None class selectors are left unscoped.
+Add the `module` attribute to `<style>`
+
+```html
+<style module>
+  .red { color: red; }
+</style>
+
+<p class="red">My red text</p>
+```
+
+The component will be compiled to
+
+```html
+<style>
+  .red-30_1IC { color: red; }
+</style>
+
+<p class="red-30_1IC">My red text</p>
+```
 
 ### Approach
 
-Since the rules of non class selectors apply globally, it is best to write each selector with a class.
+The default svelte scoping appends every css selectors with a unique class to only affect the elements of the component.
+
+[CSS Modules](https://github.com/css-modules/css-modules) **scopes each class name** with a unique id/name in order to affect the elements of the component.   
+As the other selectors are not scoped, it is recommended to write each selector with a class.
 
 ```html
 <!-- Component A -->
@@ -364,7 +350,9 @@ _generating_
 
 ### Scoped classname on child components
 
-CSS Modules allows you to pass a scoped classname to a child component giving you the possibility to style it from its parent component. _Only with the `native` and `mixed` modes ([see preprocessor modes](#preprocessor-modes))._
+CSS Modules allows you to pass a scoped classname to a child component giving the possibility to style it from its parent.
+
+_Only with the `native` and `mixed` modes ([see preprocessor modes](#preprocessor-modes))._
 
 ```html
 <!-- Child Component Button.svelte -->
@@ -424,7 +412,7 @@ _generating_
   .btn-dtg87W {
     margin-top: 30px;
   }
-  .btn-dtg87W {
+  .btn-rtY6ad {
     background: red;
     color: white;
   }
