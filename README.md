@@ -13,13 +13,16 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Class directive](#class-directive)
   - [Local selector](#local-selector)
   - [CSS binding](#css-binding)
-  - [Scoped classname on child components](#scoped-classname-on-child-components)
+  - [Passing scoped className to child components](#passing-scoped-classname-to-child-components)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
   - [Unnamed import](#unnamed-import)
   - [Directive and dynamic class](#directive-and-dynamic-class)
 - [Preprocessor Modes](#preprocessor-modes)
+  - [Native](#native)
+  - [Mixed](#mixed)
+  - [Scoped](#scoped)
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
@@ -28,7 +31,7 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Options](#options)
 - [Migrating from v1](#migrating-from-v1)
 - [Code example](#code-example)
-- [Why CSS Modules on Svelte](#why-css-modules-on-svelte)
+- [Why using CSS Modules over Svelte scoping](#why-using-css-modules-over-svelte-scoping)
 
 ## Usage
 
@@ -348,16 +351,20 @@ _generating_
 
 **Note:** _The inline css variable will never be added to a component element. It will always find the first html elements._
 
-### Scoped classname on child components
+### Passing scoped className to child components
 
-CSS Modules allows you to pass a scoped classname to a child component giving the possibility to style it from its parent.
+CSS Modules allows you to pass a scoped className to a child component giving the possibility to style it from its parent.
 
 _Only with the `native` and `mixed` modes ([see preprocessor modes](#preprocessor-modes))._
 
 ```html
 <!-- Child Component Button.svelte -->
+<script>
+  let className;
+  export { className as class };
+</script>
 
-<button class="{$$restProps.class} btn">
+<button class="btn {className}">
   <slot />
 </button>
 
@@ -422,10 +429,10 @@ _generating_
 
 ## Import styles from an external stylesheet
 
-Alternatively, styles can be created into an external file and imported onto a svelte component from the `<script>` tag. The name referring to the import can then be used in the markup targetting any existing classname of the stylesheet.
+Alternatively, styles can be created into an external file and imported onto a svelte component. The name referring to the import can then be used on the markup to target any existing classname of the stylesheet.
 
 - The option `parseExternalStylesheet` need to be enabled.
-- The css file must follow the convention `FILENAME.module.css` in order to be processed.
+- The css file must follow the convention `[FILENAME].module.css` in order to be processed.
 
 **Note:** *The import option is only meant for stylesheets relative to the component. You will have to set your own bundler in order to import *node_modules* packages css files.*
 
@@ -444,7 +451,7 @@ Alternatively, styles can be created into an external file and imported onto a s
 <p class={style.blue}>My blue text</p>
 ```
 
-*Generated code*
+*generating*
 
 ```html
 <style>
@@ -477,7 +484,7 @@ section { padding: 10px; }
 </section>
 ```
 
-*Generated code*
+*generating*
 
 ```html
 <style>
@@ -495,7 +502,7 @@ section { padding: 10px; }
 
 ### kebab-case situation
 
-The kebab-case classnames are being transformed to a camelCase version on imports to facilitate their use on Markup and Javascript.
+The kebab-case class names are being transformed to a camelCase version to facilitate their use on Markup and Javascript.
 
 ```css
 /** style.module.css **/
@@ -523,7 +530,7 @@ The kebab-case classnames are being transformed to a camelCase version on import
 <p class={errorMessage}>My error message</p>
 ```
 
-*Generated code*
+*generating*
 
 ```html
 <style>
@@ -540,7 +547,7 @@ The kebab-case classnames are being transformed to a camelCase version on import
 
 ### Unnamed import
 
-If a css file is being imported without a name, the cssModules will still be applied to the classes of the stylesheet.
+If a css file is being imported without a name, the cssModules will still apply to the classes of the stylesheet.
 
 ```css
 /** style.module.css **/
@@ -556,7 +563,7 @@ p { font-size: 18px; }
 <p>My another message</p>
 ```
 
-*Generated code*
+*generating*
 
 ```html
 <style>
@@ -597,15 +604,28 @@ Use the Svelte's builtin `class:` directive or javascript template to display a 
 
 ## Preprocessor Modes
 
-Preprocessor can operate in the following modes:
+The mode can be **set globally from the config** or **locally to override the global settings**.
 
-- `native` (default) - scopes classes with cssModules, anything else is unscoped
-- `mixed` - scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
-- `scoped` - scopes classes with svelte scoping in addition to `mixed`
+### Native
 
-The mode can be **set globally from the preprocessor options** or **locally to override the global settings** per component.
+_Native_ scopes classes with cssModules, anything else is unscoped.
 
-**Mixed mode**
+Pros:
+
+- uses default [CSS Modules](https://github.com/css-modules/css-modules) approach
+- creates unique ID to avoid classname conflicts and unexpected inheritances
+- passes scoped class name to child components
+
+Cons:
+
+- does not scopes non class selectors.
+- forces to write selectors with classes to be scoped to the component.
+- needs to consider third party plugins with `useAsDefaultScoping` on – [Read more](#useasdefaultscoping).
+
+### Mixed
+
+_Mixed_ scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
+
 ```html
 <style module="mixed">
   p { font-size: 14px; }
@@ -626,7 +646,57 @@ The mode can be **set globally from the preprocessor options** or **locally to o
 <p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
-**Scoped mode**
+Pros:
+
+- creates class names with unique ID to avoid conflicts and unexpected inheritances
+- uses svelte scoping on non class selectors
+- passes scoped class name to child components
+
+Cons:
+
+- adds more weight to tag selectors than class selectors (because of the svelte scoping)
+
+```html
+<ul>
+ <li>Home</li>
+ <li class="active">About</li>
+</ul>
+
+<style module="mixed">
+ li {
+   color: gray; 
+ }
+ /* this will never be applied */
+ .active {
+   color: blue;
+ }
+ /* forcing us to write that instead */
+ li.active {
+   color: blue;
+ }
+</style>
+
+<!-- or rewriting the component -->
+
+<ul>
+ <li class="item">Home</li>
+ <li class="item active">About</li>
+</ul>
+
+<style module="mixed">
+ .item {
+   color: gray; 
+ }
+ .active {
+   color: blue;
+ }
+</style>
+```
+
+### Scoped
+
+_Scoped_ scopes classes with svelte scoping in addition to `mixed`.
+
 ```html
 <style module="scoped">
   p { font-size: 14px; }
@@ -647,6 +717,14 @@ The mode can be **set globally from the preprocessor options** or **locally to o
 <p class="red-30_1IC svelte-teyu13r">My red text</p>
 ```
 
+Pros:
+
+- creates class names with unique ID to avoid conflicts and unexpected inheritances
+- scopes every selectors at equal weight
+
+Cons:
+
+- does not pass scoped class name to child components
 
 ## Configuration
 
@@ -948,10 +1026,11 @@ preprocess: [
 </style>
 ```
 
-**Beware**   
-The enabled option will applied cssModules scoping to all imported Svelte files, even the ones coming from `node_modules`. When using a third party library, make sure the compiled version is being imported. In the case of a raw svelte file, it might break its styling.
+**Potential issue with third party plugins**   
 
-To prevent any scoping conflict, it is recommended to associate the option `useAsDefaultScoping` with `includePaths`.
+The preprocessor requires you to add the `module` attribute to `<style>` in order to apply CSS Modules to a component. When enabling `useAsDefaultScoping` the `module` attribute is not required anymore and CSS Modules will apply to all svelte components of your application, including plugins. If a third party component is relying on svelte scoping and non class selectors, its styling will apply globally and may cause unexpected results.
+
+To prevent any scoping conflict, it is recommended to set the `includePaths` option to your source folder in order to target your components only.
 
 ```js
 // Preprocess config
@@ -1074,7 +1153,7 @@ export default {
 </section>
 ```
 
-## Why CSS Modules on Svelte
+## Why using CSS Modules over Svelte scoping
 
 While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full Svelte application, paying attention to the name of a class would be no less different than to a regular html project. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` in order to prevent inheriting styles from other `.body` and `.cancel` classes.
 
