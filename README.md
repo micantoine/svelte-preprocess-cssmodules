@@ -260,7 +260,7 @@ When used with a class, `:local()` cssModules is replaced by the svelte scoping 
 
 ### CSS binding
 
-Link CSS values to the component dynamic states by using `bind()`.
+Link CSS values to any component dynamic variable by using `bind()`.
 
 
 ```html
@@ -279,7 +279,7 @@ Link CSS values to the component dynamic states by using `bind()`.
 </style>
 ```
 
-A scoped css variable, binding the state, will be created on the **root** html elements of the component. The value of the css property will inherit from this variable.
+A scoped css variable, binding the declared statement, will be created on the **root** html elements of the component. The value of the css property will inherit from this variable.
 
 ```html
 <script>
@@ -349,13 +349,9 @@ _generating_
 </style>
 ```
 
-**Note:** _The inline css variable will never be added to a component element. It will always find the first html elements._
-
 ### Passing scoped className to child components
 
-CSS Modules allows you to pass a scoped className to a child component giving the possibility to style it from its parent.
-
-_Only with the `native` and `mixed` modes ([see preprocessor modes](#preprocessor-modes))._
+CSS Modules allows you to pass a scoped className to a child component giving the possibility to style it from its parent. (Only with the `native` and `mixed` modes – [See preprocessor modes](#preprocessor-modes).
 
 ```html
 <!-- Child Component Button.svelte -->
@@ -429,12 +425,12 @@ _generating_
 
 ## Import styles from an external stylesheet
 
-Alternatively, styles can be created into an external file and imported onto a svelte component. The name referring to the import can then be used on the markup to target any existing classname of the stylesheet.
+Alternatively, styles can be created into an external file and imported onto a svelte component. The name referring to the import can then be used on the markup to target any existing class name of the stylesheet.
 
 - The option `parseExternalStylesheet` need to be enabled.
 - The css file must follow the convention `[FILENAME].module.css` in order to be processed.
 
-**Note:** *The import option is only meant for stylesheets relative to the component. You will have to set your own bundler in order to import *node_modules* packages css files.*
+**Note:** *That import is only meant for stylesheets relative to the component. You will have to set your own bundler in order to import *node_modules* css files.*
 
 ```css
 /** style.module.css **/
@@ -604,11 +600,11 @@ Use the Svelte's builtin `class:` directive or javascript template to display a 
 
 ## Preprocessor Modes
 
-The mode can be **set globally from the config** or **locally to override the global settings**.
+The mode can be **set globally from the config** or **locally to override the global setting**.
 
 ### Native
 
-_Native_ scopes classes with cssModules, anything else is unscoped.
+It scopes classes with cssModules, anything else is unscoped.
 
 Pros:
 
@@ -624,7 +620,7 @@ Cons:
 
 ### Mixed
 
-_Mixed_ scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
+It scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
 
 ```html
 <style module="mixed">
@@ -695,7 +691,7 @@ Cons:
 
 ### Scoped
 
-_Scoped_ scopes classes with svelte scoping in addition to `mixed`.
+It scopes classes with svelte scoping in addition to `mixed`.
 
 ```html
 <style module="scoped">
@@ -802,32 +798,37 @@ export default config;
 
 ### Svelte Preprocess
 
-Chaining several preprocessors may lead to errors if the svelte parser and walker is being manipulated multiple time. This issue is due to the way svelte runs its preprocessor in two phases. [Read more here](https://github.com/firefish5000/svelte-as-markup-preprocessor#motivation)
+Svelte is running the preprocessors by phases, going through all *markup* first, following by *script* and then *style*.
 
-
-In that situation, we recommend the use of the package [`svelte-as-markup-preprocessor`](https://github.com/firefish5000/svelte-as-markup-preprocessor).
-
-```bash
-npm install --save-dev svelte-as-markup-preprocessor
-```
-
-**Example with typescript**
+The CSS Modules preprocessor is doing all its work on the markup phase via `svelte.parse()` that requires the compoment to be a valid standard svelte component (using vanilla js and vanilla css). It will throw an error if it encounters any other code (such as typescript or sass).
 
 ```js
-// import packages
-const { typescript } = require('svelte-preprocess');
-const { asMarkupPreprocessor } = require('svelte-as-markup-preprocessor');
-const cssModules = require('svelte-preprocess-cssmodules');
+const { typescript, scss } = require('svelte-preprocess');
+const { cssModules } = require('svelte-preprocess-cssmodules');
 
 ...
-
-// svelte config
+// svelte config:  NOT working!
   preprocess: [
-    asMarkupPreprocessor([
-      typescript()
-    ]),
-    cssModules()
+    typescript(), // 2 run on script phase
+    scss(), // 3 run on style phase
+    cssModules(), // 1 run on markup phase
   ],
+...
+```
+
+As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with it. `linearPreprocess` will ensure a linear process from the listed preprocessors.
+
+```js
+const { typescript, scss } = require('svelte-preprocess');
+const { cssModules, linearPreprocess } = require('svelte-preprocess-cssmodules');
+
+...
+// svelte config: OK, processing one after another!
+  preprocess: linearPreprocess([
+    typescript(), // 1 run first
+    scss(), // 2 run second
+    cssModules(), // 3 run last
+  ]),
 ...
 ```
 
