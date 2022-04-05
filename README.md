@@ -23,7 +23,7 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Native](#native)
   - [Mixed](#mixed)
   - [Scoped](#scoped)
-  - [Why using CSS Modules over Svelte scoping](#why-using-css-modules-over-svelte-scoping)
+  - [Modules over Svelte scoping ?](#modules-over-svelte-scoping)
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
@@ -722,7 +722,7 @@ Cons:
 
 - does not pass scoped class name to child components
 
-### Why using CSS Modules over Svelte scoping
+### Modules over Svelte scoping ?
 
 - **On a full svelte application**: it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
 
