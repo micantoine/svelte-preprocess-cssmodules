@@ -1155,7 +1155,9 @@ export default {
 
 ## Why using CSS Modules over Svelte scoping
 
-While the native CSS Scoped system should be largely enough to avoid class conflict, it could find its limit when working on a hybrid project. On a non full Svelte application, paying attention to the name of a class would be no less different than to a regular html project. For example, on the modal component above, It would have been wiser to namespace some of the classes such as `.modal-body` and `.modal-cancel` in order to prevent inheriting styles from other `.body` and `.cancel` classes.
+- **On a full svelte application**: it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
+
+- **On a hybrid project** (like using svelte to enhance a web page): the default scoping may actually inherits from a class of the same name belonging the style of the page. In that case using CSS Modules to create a unique ID and to avoid class inheritance might be advantageous.
 
 ## License
 
