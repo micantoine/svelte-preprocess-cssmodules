@@ -23,7 +23,7 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Native](#native)
   - [Mixed](#mixed)
   - [Scoped](#scoped)
-- [Why using CSS Modules over Svelte scoping](#why-using-css-modules-over-svelte-scoping)
+  - [Why using CSS Modules over Svelte scoping](#why-using-css-modules-over-svelte-scoping)
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
@@ -604,7 +604,7 @@ The mode can be **set globally from the config** or **locally to override the gl
 
 ### Native
 
-It scopes classes with cssModules, anything else is unscoped.
+Scopes classes with CSS Modules, anything else is unscoped.
 
 Pros:
 
@@ -614,13 +614,13 @@ Pros:
 
 Cons:
 
-- does not scopes non class selectors.
-- forces to write selectors with classes to be scoped to the component.
+- does not scope non class selectors.
+- forces to write selectors with classes.
 - needs to consider third party plugins with `useAsDefaultScoping` on – [Read more](#useasdefaultscoping).
 
 ### Mixed
 
-It scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
+Scopes non-class selectors with svelte scoping in addition to `native` (same as preprocessor `v1`)
 
 ```html
 <style module="mixed">
@@ -631,7 +631,7 @@ It scopes non-class selectors with svelte scoping in addition to `native` (same 
 <p class="red">My red text</p>
 ```
 
-*generating*
+_generating_
 
 ```html
 <style>
@@ -691,7 +691,7 @@ Cons:
 
 ### Scoped
 
-It scopes classes with svelte scoping in addition to `mixed`.
+Scopes classes with svelte scoping in addition to `mixed`.
 
 ```html
 <style module="scoped">
@@ -702,7 +702,7 @@ It scopes classes with svelte scoping in addition to `mixed`.
 <p class="red">My red text</p>
 ```
 
-*generating*
+_generating_
 
 ```html
 <style>
@@ -722,7 +722,7 @@ Cons:
 
 - does not pass scoped class name to child components
 
-## Why using CSS Modules over Svelte scoping
+### Why using CSS Modules over Svelte scoping
 
 - **On a full svelte application**: it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
 
