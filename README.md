@@ -23,6 +23,7 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Native](#native)
   - [Mixed](#mixed)
   - [Scoped](#scoped)
+- [Why using CSS Modules over Svelte scoping](#why-using-css-modules-over-svelte-scoping)
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
@@ -31,7 +32,6 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Options](#options)
 - [Migrating from v1](#migrating-from-v1)
 - [Code example](#code-example)
-- [Why using CSS Modules over Svelte scoping](#why-using-css-modules-over-svelte-scoping)
 
 ## Usage
 
@@ -722,6 +722,20 @@ Cons:
 
 - does not pass scoped class name to child components
 
+## Why using CSS Modules over Svelte scoping
+
+- **On a full svelte application**: it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
+
+- **On a hybrid project** (like using svelte to enhance a web page): the default scoping may actually inherits from a class of the same name belonging the style of the page. In that case using CSS Modules to create a unique ID and to avoid class inheritance might be advantageous.
+
+| | Svelte scoping | Preprocessor Native | Preprocessor Mixed | Preprocessor Scoped |
+| -------------| ------------- | ------------- | ------------- | ------------- |
+| scopes classes  | O | O | O | O |
+| scopes non class selectors | O | X | O | O |
+| creates unique class ID | X | O | O | O |
+| has equal selector weight | O | O | X | O |
+| can pass scoped classname to child component | X | O | O | X |
+
 ## Configuration
 
 ### Rollup
@@ -816,7 +830,7 @@ const { cssModules } = require('svelte-preprocess-cssmodules');
 ...
 ```
 
-As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with it. `linearPreprocess` will ensure a linear process from the listed preprocessors.
+As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with. `linearPreprocess` will ensure a linear process from the listed preprocessors.
 
 ```js
 const { typescript, scss } = require('svelte-preprocess');
@@ -837,6 +851,7 @@ Pass an object of the following properties
 
 | Name | Type | Default | Description |
 | ------------- | ------------- | ------------- | ------------- |
+| `cssVariableHash` | `{String}` | `[hash:base64:6]`  | The hash type ([see locatonIdentName](#localidentname)) |
 | [`getLocalIdent`](#getlocalident) | `Function` | `undefined`  | Generate the classname by specifying a function instead of using the built-in interpolation |
 | [`hashSeeder`](#hashseeder) | `{Array}` | `['style', 'filepath', 'classname']` | An array of keys to base the hash on |
 | [`includeAttributes`](#includeattributes) | `{Array}` | `[]` | An array of attributes to parse along with `class` |
@@ -908,7 +923,7 @@ preprocess: [
 
 #### `hashSeeder`
 
-Set the source to create the hash from (when using `[hash]` / `[contenthash]`).
+Set the source of the hash (when using `[hash]` / `[contenthash]`).
 
 The list of available keys are:
 
@@ -916,13 +931,13 @@ The list of available keys are:
 - `filepath` the path of the component 
 - `classname` the local className
 
-*Example of use*
+*Example of use: creating a common hash per component*
 ```js
 // Preprocess config
 ...
 preprocess: [
   cssModules({
-    hashSeeder: ['filepath'],
+    hashSeeder: ['filepath', 'style'],
   })
 ],
 ...
@@ -936,7 +951,7 @@ preprocess: [
 </style>
 ```
 
-*Generating*
+_generating_
 
 ```html
 <button class="success-yr6RT">Ok</button>
@@ -970,7 +985,7 @@ preprocess: [
 </style>
 ```
 
-*Generating*
+_generating_
 
 ```html
 <button class="red-yr6RT" data-color="red-yr6RT">Red</button>
@@ -1019,7 +1034,8 @@ preprocess: [
 </style>
 ```
 
-*Generating*
+_generating_
+
 ```html
 <h1 class="title-erYt1">Welcome</h1>
 <style>
@@ -1153,13 +1169,6 @@ export default {
   </footer>
 </section>
 ```
-
-## Why using CSS Modules over Svelte scoping
-
-- **On a full svelte application**: it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
-
-- **On a hybrid project** (like using svelte to enhance a web page): the default scoping may actually inherits from a class of the same name belonging the style of the page. In that case using CSS Modules to create a unique ID and to avoid class inheritance might be advantageous.
-
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
