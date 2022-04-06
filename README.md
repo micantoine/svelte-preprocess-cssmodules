@@ -831,7 +831,7 @@ const { cssModules } = require('svelte-preprocess-cssmodules');
 ...
 ```
 
-As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with. `linearPreprocess` will ensure a linear process from the list of preprocessors.
+As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with. `linearPreprocess` will ensure a linear process with the list of preprocessors.
 
 ```js
 const { typescript, scss } = require('svelte-preprocess');
