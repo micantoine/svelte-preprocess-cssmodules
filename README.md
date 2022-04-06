@@ -1,6 +1,6 @@
 # Svelte preprocess CSS Modules
 
-Generate CSS Modules classname on Svelte components
+Generate CSS Modules classnames on Svelte components
 
 ```bash
 npm install --save-dev svelte-preprocess-cssmodules
@@ -13,7 +13,7 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Class directive](#class-directive)
   - [Local selector](#local-selector)
   - [CSS binding](#css-binding)
-  - [Passing scoped className to child components](#passing-scoped-classname-to-child-components)
+  - [Scoped class on child components](#scoped-class-on-child-components)
 - [Import styles from an external stylesheet](#import-styles-from-an-external-stylesheet)
   - [Destructuring import](#destructuring-import)
   - [kebab-case situation](#kebab-case-situation)
@@ -165,7 +165,7 @@ _generating_
 
 Force a selector to be scoped within its component to prevent style inheritance on child components.
 
-`:local()` is doing the opposite of `:global()` and can only be used with the `native` and `mixed` modes on ([see preprocessor modes](#preprocessor-modes)). The svelte scoping is applied to the selector inside `:local()`.
+`:local()` is doing the opposite of `:global()` and can only be used with the `native` and `mixed` modes ([see preprocessor modes](#preprocessor-modes)). The svelte scoping is applied to the selector inside `:local()`.
 
 ```html
 <!-- Parent Component -->
@@ -298,7 +298,7 @@ A scoped css variable, binding the declared statement, will be created on the co
 </style>
 ```
 
-An object property can also be targetted if wrapped with quotes.
+An object property can also be targetted and must be wrapped with quotes.
 
 ```html
 <script>
@@ -348,9 +348,9 @@ _generating_
 </style>
 ```
 
-### Passing scoped className to child components
+### Scoped class on child components
 
-CSS Modules allows you to pass a scoped className to a child component giving the possibility to style it from its parent. (Only with the `native` and `mixed` modes – [See preprocessor modes](#preprocessor-modes).
+CSS Modules allows you to pass a scoped classname to a child component giving the possibility to style it from its parent. (Only with the `native` and `mixed` modes – [See preprocessor modes](#preprocessor-modes)).
 
 ```html
 <!-- Child Component Button.svelte -->
@@ -424,7 +424,7 @@ _generating_
 
 ## Import styles from an external stylesheet
 
-Alternatively, styles can be created into an external file and imported onto a svelte component. The name referring to the import can then be used on the markup to target any existing class name of the stylesheet.
+Alternatively, styles can be created into an external file and imported onto a svelte component. The name referring to the import can then be used on the markup to target any existing classname of the stylesheet.
 
 - The option `parseExternalStylesheet` need to be enabled.
 - The css file must follow the convention `[FILENAME].module.css` in order to be processed.
@@ -542,7 +542,7 @@ The kebab-case class names are being transformed to a camelCase version to facil
 
 ### Unnamed import
 
-If a css file is being imported without a name, the cssModules will still apply to the classes of the stylesheet.
+If a css file is being imported without a name, CSS Modules will still apply to the classes of the stylesheet.
 
 ```css
 /** style.module.css **/
@@ -719,7 +719,7 @@ Pros:
 
 Cons:
 
-- does not pass scoped class name to child components
+- does not pass scoped classname to child components
 
 ### Comparative
 
@@ -930,7 +930,7 @@ The list of available keys are:
 
 - `style` the content of the style tag (or the imported stylesheet)
 - `filepath` the path of the component 
-- `classname` the local className
+- `classname` the local classname
 
 *Example of use: creating a common hash per component*
 ```js
@@ -1014,7 +1014,7 @@ Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#in
 
 #### `useAsDefaultScoping`
 
-Globally replace the default svelte scoping by the cssModules scoping. As a result, the `module` attribute to `<style>` becomes unnecessary.
+Globally replace the default svelte scoping by the CSS Modules scoping. As a result, the `module` attribute to `<style>` becomes unnecessary.
 
 
 ```js
