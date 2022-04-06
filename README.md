@@ -23,7 +23,8 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Native](#native)
   - [Mixed](#mixed)
   - [Scoped](#scoped)
-  - [Modules over Svelte scoping?](#modules-over-svelte-scoping)
+  - [Comparative](#comparative)
+- [Why CSS Modules over Svelte scoping?](#why-css-modules-over-svelte-scoping)
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
@@ -59,8 +60,7 @@ The component will be compiled to
 
 The default svelte scoping appends every css selectors with a unique class to only affect the elements of the component.
 
-[CSS Modules](https://github.com/css-modules/css-modules) **scopes each class name** with a unique id/name in order to affect the elements of the component.   
-As the other selectors are not scoped, it is recommended to write each selector with a class.
+[CSS Modules](https://github.com/css-modules/css-modules) **scopes each class name** with a unique id/name in order to affect the elements of the component. As the other selectors are not scoped, it is recommended to write each selector with a class.
 
 ```html
 <!-- Component A -->
@@ -260,8 +260,7 @@ When used with a class, `:local()` cssModules is replaced by the svelte scoping 
 
 ### CSS binding
 
-Link CSS values to any component dynamic variable by using `bind()`.
-
+Link the value of a CSS property to a dynamic variable by using `bind()`.
 
 ```html
 <script>
@@ -279,7 +278,7 @@ Link CSS values to any component dynamic variable by using `bind()`.
 </style>
 ```
 
-A scoped css variable, binding the declared statement, will be created on the **root** html elements of the component. The value of the css property will inherit from this variable.
+A scoped css variable, binding the declared statement, will be created on the component **root** elements which the css property will inherit from.
 
 ```html
 <script>
@@ -299,7 +298,7 @@ A scoped css variable, binding the declared statement, will be created on the **
 </style>
 ```
 
-Object nested values can also be used by wrapping them with quotes.
+An object property can also be targetted if wrapped with quotes.
 
 ```html
 <script>
@@ -722,23 +721,21 @@ Cons:
 
 - does not pass scoped class name to child components
 
-### Modules over Svelte scoping?
-
-**On a full svelte application**
-
-it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
-
-**On a hybrid project** (like using svelte to enhance a web page)
-
-the default scoping may actually inherits from a class of the same name belonging the style of the page. In that case using CSS Modules to create a unique ID and to avoid class inheritance might be advantageous.
+### Comparative
 
 | | Svelte scoping | Preprocessor Native | Preprocessor Mixed | Preprocessor Scoped |
 | -------------| ------------- | ------------- | ------------- | ------------- |
-| scopes classes  | O | O | O | O |
-| scopes non class selectors | O | X | O | O |
-| creates unique class ID | X | O | O | O |
-| has equal selector weight | O | O | X | O |
-| can pass scoped classname to child component | X | O | O | X |
+| Scopes classes  | O | O | O | O |
+| Scopes non class selectors | O | X | O | O |
+| Creates unique class ID | X | O | O | O |
+| Has equal selector weight | O | O | X | O |
+| Passes scoped classname to a child component | X | O | O | X |
+
+## Why CSS Modules over Svelte scoping?
+
+- **On a full svelte application**: it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
+
+- **On a hybrid project** (like using svelte to enhance a web page): the default scoping may actually inherits from a class of the same name belonging to the style of the page. In that case using CSS Modules to create a unique ID and to avoid class inheritance might be advantageous.
 
 ## Configuration
 
