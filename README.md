@@ -23,7 +23,7 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Native](#native)
   - [Mixed](#mixed)
   - [Scoped](#scoped)
-  - [Modules over Svelte scoping ?](#modules-over-svelte-scoping)
+  - [Modules over Svelte scoping?](#modules-over-svelte-scoping)
 - [Configuration](#configuration)
   - [Rollup](#rollup)
   - [Webpack](#webpack)
@@ -722,11 +722,15 @@ Cons:
 
 - does not pass scoped class name to child components
 
-### Modules over Svelte scoping ?
+### Modules over Svelte scoping?
 
-- **On a full svelte application**: it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
+**On a full svelte application**
 
-- **On a hybrid project** (like using svelte to enhance a web page): the default scoping may actually inherits from a class of the same name belonging the style of the page. In that case using CSS Modules to create a unique ID and to avoid class inheritance might be advantageous.
+it is just a question of taste as the default svelte scoping is largely enough. Component styles will never inherit from other styling.
+
+**On a hybrid project** (like using svelte to enhance a web page)
+
+the default scoping may actually inherits from a class of the same name belonging the style of the page. In that case using CSS Modules to create a unique ID and to avoid class inheritance might be advantageous.
 
 | | Svelte scoping | Preprocessor Native | Preprocessor Mixed | Preprocessor Scoped |
 | -------------| ------------- | ------------- | ------------- | ------------- |
@@ -812,9 +816,9 @@ export default config;
 
 ### Svelte Preprocess
 
-Svelte is running the preprocessors by phases, going through all *markup* first, following by *script* and then *style*.
+Svelte is running the preprocessors by phases, going through all *markup* first, followed by *script* and then *style*.
 
-The CSS Modules preprocessor is doing all its work on the markup phase via `svelte.parse()` that requires the compoment to be a valid standard svelte component (using vanilla js and vanilla css). It will throw an error if it encounters any other code (such as typescript or sass).
+The CSS Modules preprocessor is doing all its work on the markup phase via `svelte.parse()` which requires the compoment to be a valid standard svelte component (using vanilla js and vanilla css). if any other code (such as typescript or sass) is encountered, an error will be thrown. 
 
 ```js
 const { typescript, scss } = require('svelte-preprocess');
@@ -823,14 +827,14 @@ const { cssModules } = require('svelte-preprocess-cssmodules');
 ...
 // svelte config:  NOT working!
   preprocess: [
-    typescript(), // 2 run on script phase
-    scss(), // 3 run on style phase
-    cssModules(), // 1 run on markup phase
+    typescript(), // 2 run second on script phase
+    scss(), // 3 run last on style phase
+    cssModules(), // 1 run first on markup phase
   ],
 ...
 ```
 
-As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with. `linearPreprocess` will ensure a linear process from the listed preprocessors.
+As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with. `linearPreprocess` will ensure a linear process from the list of preprocessors.
 
 ```js
 const { typescript, scss } = require('svelte-preprocess');
