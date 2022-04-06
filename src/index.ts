@@ -1,6 +1,10 @@
-import { parse } from 'svelte/compiler';
+import { parse, preprocess } from 'svelte/compiler';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
-import type { PluginOptions, PreprocessorOptions, PreprocessorResult } from './types';
+import type {
+  PreprocessorGroup,
+  MarkupPreprocessor,
+} from 'svelte/types/compiler/preprocess/index.d';
+import type { PluginOptions } from './types';
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import {
   getLocalIdent,
@@ -12,6 +16,7 @@ import {
 
 const defaultOptions = (): PluginOptions => {
   return {
+    cssVariableHash: '[hash:base64:6]',
     getLocalIdent,
     hashSeeder: ['style', 'filepath', 'classname'],
     includeAttributes: [],
@@ -26,14 +31,25 @@ const defaultOptions = (): PluginOptions => {
 
 let pluginOptions: PluginOptions;
 
-const markup = async ({ content, filename }: PreprocessorOptions): Promise<PreprocessorResult> => {
+/**
+ * cssModules markup phase
+ * @param param0
+ * @returns the preprocessor markup
+ */
+const markup: MarkupPreprocessor = async ({ content, filename }) => {
   const isIncluded = isFileIncluded(pluginOptions.includePaths, filename);
 
   if (!isIncluded || (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)) {
     return { code: content };
   }
-
-  const ast: Ast = parse(content, { filename });
+  let ast: Ast;
+  try {
+    ast = parse(content, { filename });
+  } catch (err) {
+    throw new Error(
+      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "cssModulesPreprocess().after()"`
+    );
+  }
 
   if (
     !pluginOptions.useAsDefaultScoping &&
@@ -85,7 +101,12 @@ const markup = async ({ content, filename }: PreprocessorOptions): Promise<Prepr
   };
 };
 
-export default module.exports = (options: Partial<PluginOptions>) => {
+/**
+ * css Modules
+ * @param options
+ * @returns the css modules preprocessors
+ */
+export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup => {
   pluginOptions = {
     ...defaultOptions(),
     ...options,
@@ -99,3 +120,22 @@ export default module.exports = (options: Partial<PluginOptions>) => {
     markup,
   };
 };
+
+/**
+ * Create a group of preprocessors which will be processed in a linear order
+ * @param preprocessors list of preprocessors
+ * @returns group of `markup` preprocessors
+ */
+export const linearPreprocess = (preprocessors: PreprocessorGroup[]): PreprocessorGroup[] => {
+  return preprocessors.map((p) => {
+    return !p.script && !p.style
+      ? p
+      : {
+          async markup({ content, filename }) {
+            return preprocess(content, p, { filename });
+          },
+        };
+  });
+};
+
+export default module.exports = cssModules;

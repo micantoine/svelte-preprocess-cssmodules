@@ -90,6 +90,9 @@ const parser = (processor: Processor): void => {
 
         processor.parsePseudoLocalSelectors(node);
       }
+
+      processor.parseBoundVariables(node);
+
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);
         processor.addModule(node.name, generatedClassName);

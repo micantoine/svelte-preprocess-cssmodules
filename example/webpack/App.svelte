@@ -4,12 +4,13 @@
   import css from './app.module.css';
   import { success, successSmall } from './app2.module.css';
   import './app3.module.css';
-</script>
 
+  let theme = { color: 'blue'};
+</script>
 <div class="overlay" />
-<div class="modal">
+<div class="modal" style="display:block">
   <section>
-    <header class="active">My Modal title</header>
+    <header class="active" on:click={() => theme.color = 'red'}>My Modal title</header>
     <div class="body">
       <Time />
       <p class="{css.error} {css.errorMessage} large"><strong>Lorem ipsum dolor sit</strong>, amet consectetur adipisicing elit. Placeat, deserunt.</p>
@@ -22,7 +23,7 @@
   </section>
 </div>
 
-<style module>
+<style module="mixed">
 .overlay {
   position: fixed;
   top: 0;
@@ -57,6 +58,7 @@
   font-size: 1.2rem;
   font-weight: bold;
   border-bottom: 1px solid #d9d9d9;
+  color: bind("theme.color");
 }
 
 .body {

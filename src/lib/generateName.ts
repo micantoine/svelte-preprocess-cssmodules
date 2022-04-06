@@ -62,11 +62,11 @@ function interpolateName(resourcePath: string, localName: any, content: any) {
  * @param className The cssModules className
  * @param localIdentName The localIdentName rule
  */
-function generateName(
+export function generateName(
   resourcePath: string,
   style: string,
   className: string,
-  pluginOptions: PluginOptions
+  pluginOptions: Pick<PluginOptions, 'localIdentName' | 'hashSeeder'>
 ): string {
   const filePath = resourcePath;
   const localName = pluginOptions.localIdentName.length
@@ -108,7 +108,7 @@ function generateName(
  * @param pluginOptions preprocess-cssmodules options
  * @return the interpolated name
  */
-function createCssModulesClassName(
+export function createClassName(
   filename: string,
   markup: string,
   style: string,
@@ -132,5 +132,3 @@ function createCssModulesClassName(
     }
   );
 }
-
-export default createCssModulesClassName;

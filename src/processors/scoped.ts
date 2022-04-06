@@ -15,6 +15,9 @@ const parser = (processor: Processor): void => {
       if (node.type === 'Script' || node.type === 'Fragment') {
         this.skip();
       }
+
+      processor.parseBoundVariables(node);
+
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);
         processor.addModule(node.name, generatedClassName);

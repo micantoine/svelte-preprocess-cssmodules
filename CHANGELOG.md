@@ -1,5 +1,14 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.2.0 (Apr 6, 2022)
+
+### Features
+- CSS Binding
+- Linear preprocess utility
+
+### Updates
+- More detailed Readme
+
 ## 2.1.3 (Mar 14, 2022)
 
 ### Fixes

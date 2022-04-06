@@ -1,6 +1,11 @@
 import { walk } from 'svelte/compiler';
-import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import type { Attribute, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import type Processor from '../processors/processor';
+
+interface CssVariables {
+  styleAttribute: string;
+  values: string;
+}
 
 /**
  * Update a string of multiple Classes
@@ -38,12 +43,69 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
 };
 
 /**
+ * Add the dynamic variables to elements
+ * @param processor The CSS Module Processor
+ * @param node the node element
+ * @param cssVar the cssVariables data
+ */
+const addDynamicVariablesToElements = (
+  processor: Processor,
+  node: TemplateNode,
+  cssVar: CssVariables
+): void => {
+  node.children?.forEach((childNode) => {
+    if (childNode.type === 'InlineComponent') {
+      addDynamicVariablesToElements(processor, childNode, cssVar);
+    } else if (childNode.type === 'Element') {
+      const attributesLength = childNode.attributes.length;
+      if (attributesLength) {
+        const styleAttr = childNode.attributes.find((attr: Attribute) => attr.name === 'style');
+        if (styleAttr) {
+          processor.magicContent.appendLeft(styleAttr.value[0].start, cssVar.values);
+        } else {
+          const lastAttr = childNode.attributes[attributesLength - 1];
+          processor.magicContent.appendRight(lastAttr.end, ` ${cssVar.styleAttribute}`);
+        }
+      } else {
+        processor.magicContent.appendRight(
+          childNode.start + childNode.name.length + 1,
+          ` ${cssVar.styleAttribute}`
+        );
+      }
+    }
+  });
+};
+
+/**
+ * Get the formatted css variables values
+ * @param processor: The CSS Module Processor
+ * @returns the values and the style attribute;
+ */
+const cssVariables = (processor: Processor): CssVariables => {
+  const cssVarListKeys = Object.keys(processor.cssVarList);
+  let styleAttribute = '';
+  let values = '';
+
+  if (cssVarListKeys.length) {
+    for (let i = 0; i < cssVarListKeys.length; i += 1) {
+      const key = cssVarListKeys[i];
+      values += `--${processor.cssVarList[key]}:{${key}};`;
+    }
+    styleAttribute = `style="${values}"`;
+  }
+
+  return { styleAttribute, values };
+};
+
+/**
  * Parse the template markup to update the class attributes with CSS modules
  * @param processor The CSS Module Processor
  */
 export default (processor: Processor): void => {
   const directiveLength: number = 'class:'.length;
   const allowedAttributes = ['class', ...processor.options.includeAttributes];
+
+  const cssVar = cssVariables(processor);
 
   walk(processor.ast.html, {
     enter(baseNode) {
@@ -52,11 +114,16 @@ export default (processor: Processor): void => {
         this.skip();
       }
 
+      // css variables on parent elements
+      if (node.type === 'Fragment' && cssVar.values.length) {
+        addDynamicVariablesToElements(processor, node, cssVar);
+      }
+
       if (['Element', 'InlineComponent'].includes(node.type) && node.attributes.length > 0) {
         node.attributes.forEach((item: TemplateNode) => {
           if (item.type === 'Attribute' && allowedAttributes.includes(item.name)) {
             item.value.forEach((classItem: TemplateNode) => {
-              if (classItem.type === 'Text') {
+              if (classItem.type === 'Text' && classItem.data.length > 0) {
                 const generatedClassNames = updateMultipleClasses(processor, classItem.data);
                 processor.magicContent.overwrite(
                   classItem.start,

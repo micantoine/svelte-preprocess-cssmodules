@@ -1,7 +1,13 @@
 import MagicString from 'magic-string';
 import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import { CSSModuleList, PluginOptions } from '../types';
-import { camelCase, createClassName, hasModuleAttribute, hasModuleImports } from '../lib';
+import {
+  camelCase,
+  createClassName,
+  generateName,
+  hasModuleAttribute,
+  hasModuleImports,
+} from '../lib';
 import { parseImportDeclaration, parseTemplate } from '../parsers';
 
 export default class Processor {
@@ -9,6 +15,7 @@ export default class Processor {
   public options: PluginOptions;
   public rawContent: string;
   public cssModuleList: CSSModuleList = {};
+  public cssVarList: CSSModuleList = {};
   public importedCssModuleList: CSSModuleList = {};
 
   public ast: Ast;
@@ -74,6 +81,38 @@ export default class Processor {
   };
 
   /**
+   * Parse css dynamic variables bound to js bind()
+   * @param node The ast "Selector" node to parse
+   */
+  public parseBoundVariables = (node: TemplateNode): void => {
+    const bindedVariableNodes =
+      node.children?.filter(
+        (item) => item.type === 'Function' && item.name === 'bind' && node.children?.length
+      ) ?? [];
+
+    if (bindedVariableNodes.length > 0) {
+      bindedVariableNodes.forEach((item) => {
+        if (item.children) {
+          const child = item.children[0];
+          const name = child.name ?? child.value.replace(/'|"/g, '');
+          const varName = child.type === 'String' ? name.replace(/\./, '-') : name;
+          const generatedVarName = generateName(
+            this.filename,
+            this.ast.css.content.styles,
+            varName,
+            {
+              hashSeeder: ['style', 'filepath'],
+              localIdentName: `[local]-${this.options.cssVariableHash}`,
+            }
+          );
+          this.magicContent.overwrite(item.start, item.end, `var(--${generatedVarName})`);
+          this.cssVarList[name] = generatedVarName;
+        }
+      });
+    }
+  };
+
+  /**
    * Parse pseudo selector :local()
    * @param node The ast "Selector" node to parse
    */
@@ -109,7 +148,7 @@ export default class Processor {
       parseImportDeclaration(this);
     }
 
-    if (Object.keys(this.cssModuleList).length > 0) {
+    if (Object.keys(this.cssModuleList).length > 0 || Object.keys(this.cssVarList).length > 0) {
       parseTemplate(this);
     }
 

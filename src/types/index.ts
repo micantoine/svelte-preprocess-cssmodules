@@ -1,6 +1,7 @@
 import type { GetLocalIdent } from '../lib';
 
 export type PluginOptions = {
+  cssVariableHash: string;
   getLocalIdent: GetLocalIdent;
   hashSeeder: Array<'style' | 'filepath' | 'classname'>;
   includeAttributes: string[];
@@ -11,15 +12,6 @@ export type PluginOptions = {
   parseStyleTag: boolean;
   useAsDefaultScoping: boolean;
 };
-
-export interface PreprocessorOptions {
-  content: string;
-  filename: string;
-}
-
-export interface PreprocessorResult {
-  code: string;
-}
 
 export type CSSModuleList = Record<string, string>;
 export type CSSModuleDirectory = Record<string, CSSModuleList>;
