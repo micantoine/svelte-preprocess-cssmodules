@@ -1,3 +1,4 @@
+/* eslint-disable no-multi-assign */
 import { parse, preprocess } from 'svelte/compiler';
 import type { Ast } from 'svelte/types/compiler/interfaces.d';
 import type {
@@ -106,7 +107,7 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
  * @param options
  * @returns the css modules preprocessors
  */
-export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup => {
+const cssModulesPreprocessor = (options: Partial<PluginOptions>): PreprocessorGroup => {
   pluginOptions = {
     ...defaultOptions(),
     ...options,
@@ -126,7 +127,7 @@ export const cssModules = (options: Partial<PluginOptions>): PreprocessorGroup =
  * @param preprocessors list of preprocessors
  * @returns group of `markup` preprocessors
  */
-export const linearPreprocess = (preprocessors: PreprocessorGroup[]): PreprocessorGroup[] => {
+const linearPreprocessor = (preprocessors: PreprocessorGroup[]): PreprocessorGroup[] => {
   return preprocessors.map((p) => {
     return !p.script && !p.style
       ? p
@@ -138,4 +139,12 @@ export const linearPreprocess = (preprocessors: PreprocessorGroup[]): Preprocess
   });
 };
 
-export default module.exports = cssModules;
+// export default cssModulesPreprocessor;
+export default exports = module.exports = cssModulesPreprocessor;
+export const cssModules = cssModulesPreprocessor;
+export const linearPreprocess = linearPreprocessor;
+
+// const cssModulesPreprocessor: any = module.exports = cssModules;
+// cssModulesPreprocessor.cssModules = cssModules;
+// cssModulesPreprocessor.linearPreprocess = linearPreprocess;
+// export default module.exports = cssModules;

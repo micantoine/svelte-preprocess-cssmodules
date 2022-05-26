@@ -1,5 +1,12 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.2.1 (May 26, 2022)
+
+### Fixes
+
+- Destructuring import with commonjs
+- Emphasize on named imports instead of default
+
 ## 2.2.0 (Apr 6, 2022)
 
 ### Features

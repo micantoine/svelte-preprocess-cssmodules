@@ -35,12 +35,21 @@ const parseDir = (dir) => {
                   }
                 } else if (
                   node.type === 'ExportDefaultDeclaration'
-                  && node.declaration?.left?.type === 'MemberExpression'
-                  && node.declaration.left.object.name === 'module'
-                  && node.declaration.left.property.name === 'exports'
+                  && node.declaration.type === 'AssignmentExpression'
+                  && node.declaration.right.type === 'AssignmentExpression'
+                  && node.declaration.right.left.object.name === 'module'
+                  && node.declaration.right.left.property.name === 'exports'
                 ) {
-                  magicContent.remove(node.declaration.left.start, node.declaration.right.start);
+                  magicContent.remove(node.declaration.left.start, node.declaration.right.right.start);
                 }
+                // } else if (
+                //   node.type === 'ExportDefaultDeclaration'
+                //   && node.declaration?.left?.type === 'MemberExpression'
+                //   && node.declaration.left.object.name === 'module'
+                //   && node.declaration.left.property.name === 'exports'
+                // ) {
+                //   magicContent.remove(node.declaration.left.start, node.declaration.right.start);
+                // }
               }
             });
             const mjsPathname = pathname.replace('/esm', '').replace('.js', '.mjs');

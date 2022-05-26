@@ -745,7 +745,7 @@ To be used with the plugin [`rollup-plugin-svelte`](https://github.com/sveltejs/
 
 ```js
 import svelte from 'rollup-plugin-svelte';
-import cssModules from 'svelte-preprocess-cssmodules';
+import { cssModules } from 'svelte-preprocess-cssmodules';
 
 export default {
   ...
@@ -765,7 +765,7 @@ export default {
 To be used with the loader [`svelte-loader`](https://github.com/sveltejs/svelte-loader).
 
 ```js
-const cssModules = require('svelte-preprocess-cssmodules');
+const { cssModules } = require('svelte-preprocess-cssmodules');
 
 module.exports = {
   ...
@@ -799,7 +799,7 @@ in order to work.
 ```js
 // svelte.config.js
 
-import cssModules from 'svelte-preprocess-cssmodules';
+import { cssModules } from 'svelte-preprocess-cssmodules';
 
 const config = {
   ...
@@ -818,8 +818,8 @@ Svelte is running the preprocessors by phases, going through all *markup* first,
 The CSS Modules preprocessor is doing all its work on the markup phase via `svelte.parse()` which requires the compoment to be a valid standard svelte component (using vanilla js and vanilla css). if any other code (such as typescript or sass) is encountered, an error will be thrown. 
 
 ```js
-const { typescript, scss } = require('svelte-preprocess');
-const { cssModules } = require('svelte-preprocess-cssmodules');
+import { typescript, scss } from 'svelte-preprocess';
+import { cssModules } from 'svelte-preprocess-cssmodules';
 
 ...
 // svelte config:  NOT working!
@@ -834,8 +834,8 @@ const { cssModules } = require('svelte-preprocess-cssmodules');
 As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with. `linearPreprocess` will ensure a linear process with the list of preprocessors.
 
 ```js
-const { typescript, scss } = require('svelte-preprocess');
-const { cssModules, linearPreprocess } = require('svelte-preprocess-cssmodules');
+import { typescript, scss } from 'svelte-preprocess';
+import { cssModules, linearPreprocess } from 'svelte-preprocess-cssmodules';
 
 ...
 // svelte config: OK, processing one after another!
