@@ -152,7 +152,7 @@ describe('Bind variable to CSS', () => {
     );
   });
 
-  test('root elements has `each` statement', async () => {
+  test('root element has `each` statement', async () => {
     const output = await compiler({
       source: `${script}` +
       `{#await promise}` +
@@ -181,6 +181,24 @@ describe('Bind variable to CSS', () => {
       `{#await promise then value}` +
       `<p style="--color-123:{color};">the value is {value}</p>` +
       `{/await}<style module>:global(div){color:var(--color-123)}</style>`
+    );
+  });
+
+  test('root element has `key` statement', async () => {
+    const output = await compiler({
+      source: `${script}` +
+      `{#key value}` +
+      `<div transition:fade>{value}</div>` +
+      `{/key}<style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+    });
+
+    expect(output).toBe(
+      `${script}` +
+      `{#key value}` +
+      `<div transition:fade style="--color-123:{color};">{value}</div>` +
+      `{/key}<style module>:global(div){color:var(--color-123)}</style>`
     );
   });
 });

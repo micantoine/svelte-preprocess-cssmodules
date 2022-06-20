@@ -54,9 +54,11 @@ const addDynamicVariablesToElements = (
   cssVar: CssVariables
 ): void => {
   node.children?.forEach((childNode) => {
-    // console.log(childNode);
-
-    if (childNode.type === 'InlineComponent' || childNode.type === 'EachBlock') {
+    if (
+      childNode.type === 'InlineComponent' ||
+      childNode.type === 'EachBlock' ||
+      childNode.type === 'KeyBlock'
+    ) {
       addDynamicVariablesToElements(processor, childNode, cssVar);
     } else if (childNode.type === 'Element') {
       const attributesLength = childNode.attributes.length;
