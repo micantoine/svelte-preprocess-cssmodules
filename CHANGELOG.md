@@ -1,5 +1,11 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.2.3 (June 21, 2022)
+
+### Fixes
+
+- Add support for css binding on svelte blocks `{#if}` `{#each}` `{#await}` `{#key}` [issue 62](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/62)
+
 ## 2.2.2 (June 21, 2022)
 
 ### Fixes
