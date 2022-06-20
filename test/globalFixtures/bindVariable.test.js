@@ -133,4 +133,22 @@ describe('Bind variable to CSS', () => {
       `{/if}<style module>:global(div){color:var(--color-123)}</style>`
     );
   });
+
+  test('root elements has `each` statement', async () => {
+    const output = await compiler({
+      source: `${script}` +
+      `{#each [0,1,2,3] as number}` +
+      `<div>{number}</div>` +
+      `{/each}<style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+    });
+
+    expect(output).toBe(
+      `${script}` +
+      `{#each [0,1,2,3] as number}` +
+      `<div style="--color-123:{color};">{number}</div>` +
+      `{/each}<style module>:global(div){color:var(--color-123)}</style>`
+    );
+  });
 });
