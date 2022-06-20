@@ -54,6 +54,8 @@ const addDynamicVariablesToElements = (
   cssVar: CssVariables
 ): void => {
   node.children?.forEach((childNode) => {
+    // console.log(childNode);
+
     if (childNode.type === 'InlineComponent') {
       addDynamicVariablesToElements(processor, childNode, cssVar);
     } else if (childNode.type === 'Element') {
@@ -72,6 +74,9 @@ const addDynamicVariablesToElements = (
           ` ${cssVar.styleAttribute}`
         );
       }
+    } else if (childNode.type === 'IfBlock') {
+      addDynamicVariablesToElements(processor, childNode, cssVar);
+      addDynamicVariablesToElements(processor, childNode.else, cssVar);
     }
   });
 };
