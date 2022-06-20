@@ -113,4 +113,92 @@ describe('Bind variable to CSS', () => {
       </style>`
     );
   });
+
+  test('root elements has if statement', async () => {
+    const output = await compiler({
+      source: `${script}` +
+      `{#if color === 'blue'}<div>blue</div>` +
+      `{:else if color === 'red'}<div>red</div>` +
+      `{:else}<div>none</div>` +
+      `{/if}<style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+    });
+
+    expect(output).toBe(
+      `${script}` +
+      `{#if color === 'blue'}<div style="--color-123:{color};">blue</div>` +
+      `{:else if color === 'red'}<div style="--color-123:{color};">red</div>` +
+      `{:else}<div style="--color-123:{color};">none</div>`+
+      `{/if}<style module>:global(div){color:var(--color-123)}</style>`
+    );
+  });
+
+  test('root elements has `each` statement', async () => {
+    const output = await compiler({
+      source: `${script}` +
+      `{#each [0,1,2,3] as number}` +
+      `<div>{number}</div>` +
+      `{/each}<style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+    });
+
+    expect(output).toBe(
+      `${script}` +
+      `{#each [0,1,2,3] as number}` +
+      `<div style="--color-123:{color};">{number}</div>` +
+      `{/each}<style module>:global(div){color:var(--color-123)}</style>`
+    );
+  });
+
+  test('root element has `each` statement', async () => {
+    const output = await compiler({
+      source: `${script}` +
+      `{#await promise}` +
+      `<p>...waiting</p>` +
+      `{:then number}` +
+      `<p>The number is {number}</p>` +
+      `{:catch error}` +
+      `<p>{error.message}</p>` +
+      `{/await}` +
+      `{#await promise then value}` +
+      `<p>the value is {value}</p>` +
+      `{/await}<style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+    });
+
+    expect(output).toBe(
+      `${script}` +
+      `{#await promise}` +
+      `<p style="--color-123:{color};">...waiting</p>` +
+      `{:then number}` +
+      `<p style="--color-123:{color};">The number is {number}</p>` +
+      `{:catch error}` +
+      `<p style="--color-123:{color};">{error.message}</p>` +
+      `{/await}` +
+      `{#await promise then value}` +
+      `<p style="--color-123:{color};">the value is {value}</p>` +
+      `{/await}<style module>:global(div){color:var(--color-123)}</style>`
+    );
+  });
+
+  test('root element has `key` statement', async () => {
+    const output = await compiler({
+      source: `${script}` +
+      `{#key value}` +
+      `<div transition:fade>{value}</div>` +
+      `{/key}<style module>div{color:bind(color)}</style>`,
+    }, {
+      cssVariableHash: '123',
+    });
+
+    expect(output).toBe(
+      `${script}` +
+      `{#key value}` +
+      `<div transition:fade style="--color-123:{color};">{value}</div>` +
+      `{/key}<style module>:global(div){color:var(--color-123)}</style>`
+    );
+  });
 });

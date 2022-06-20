@@ -54,7 +54,11 @@ const addDynamicVariablesToElements = (
   cssVar: CssVariables
 ): void => {
   node.children?.forEach((childNode) => {
-    if (childNode.type === 'InlineComponent') {
+    if (
+      childNode.type === 'InlineComponent' ||
+      childNode.type === 'EachBlock' ||
+      childNode.type === 'KeyBlock'
+    ) {
       addDynamicVariablesToElements(processor, childNode, cssVar);
     } else if (childNode.type === 'Element') {
       const attributesLength = childNode.attributes.length;
@@ -72,6 +76,13 @@ const addDynamicVariablesToElements = (
           ` ${cssVar.styleAttribute}`
         );
       }
+    } else if (childNode.type === 'IfBlock') {
+      addDynamicVariablesToElements(processor, childNode, cssVar);
+      addDynamicVariablesToElements(processor, childNode.else, cssVar);
+    } else if (childNode.type === 'AwaitBlock') {
+      addDynamicVariablesToElements(processor, childNode.pending, cssVar);
+      addDynamicVariablesToElements(processor, childNode.then, cssVar);
+      addDynamicVariablesToElements(processor, childNode.catch, cssVar);
     }
   });
 };
