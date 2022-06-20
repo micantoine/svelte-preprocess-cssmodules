@@ -58,7 +58,7 @@ const getHashDigest = (
   digestType: string,
   maxLength = 9999
 ): string => {
-  const hash = createHash(hashType || 'md4');
+  const hash = createHash(hashType || 'md5');
 
   hash.update(buffer);
 
