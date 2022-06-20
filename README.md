@@ -1006,9 +1006,9 @@ Inspired by [webpack interpolateName](https://github.com/webpack/loader-utils#in
 - `[name]` the basename of the resource
 - `[path]` the path of the resource
 - `[folder]` the folder the resource is in
-- `[contenthash]` or `[hash]` *(they are the same)* the hash of the resource content (by default it's the hex digest of the md4 hash)
+- `[contenthash]` or `[hash]` *(they are the same)* the hash of the resource content (by default it's the hex digest of the md5 hash)
 - `[<hashType>:contenthash:<digestType>:<length>]` optionally one can configure
-  - other hashTypes, i. e. `sha1`, `md4`, `md5`, `sha256`, `sha512`
+  - other hashTypes, i. e. `sha1`, `md5`, `sha256`, `sha512`
   - other digestTypes, i. e. `hex`, `base26`, `base32`, `base36`, `base49`, `base52`, `base58`, `base62`, `base64`
   - and `length` the length in chars
 
