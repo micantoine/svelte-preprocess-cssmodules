@@ -77,6 +77,10 @@ const addDynamicVariablesToElements = (
     } else if (childNode.type === 'IfBlock') {
       addDynamicVariablesToElements(processor, childNode, cssVar);
       addDynamicVariablesToElements(processor, childNode.else, cssVar);
+    } else if (childNode.type === 'AwaitBlock') {
+      addDynamicVariablesToElements(processor, childNode.pending, cssVar);
+      addDynamicVariablesToElements(processor, childNode.then, cssVar);
+      addDynamicVariablesToElements(processor, childNode.catch, cssVar);
     }
   });
 };
