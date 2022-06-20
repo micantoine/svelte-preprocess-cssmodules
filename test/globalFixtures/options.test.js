@@ -59,7 +59,7 @@ test('Use the filepath only as hash seeder', async () => {
   });
 
   expect(output).toBe(
-    '<style module>:global(.red-027d15) { color: red; } :global(.bold-027d15) { color: bold; }</style><span class="red-027d15 bold-027d15">Red</span>'
+    '<style module>:global(.red-727f4c) { color: red; } :global(.bold-727f4c) { color: bold; }</style><span class="red-727f4c bold-727f4c">Red</span>'
   );
 });
 

@@ -1,5 +1,11 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.2.2 (June 21, 2022)
+
+### Fixes
+
+- Set default hash method to `md5` to support node17+ [issue 60](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/60)
+
 ## 2.2.1 (May 26, 2022)
 
 ### Fixes
