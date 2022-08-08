@@ -53,7 +53,7 @@ const addDynamicVariablesToElements = (
   node: TemplateNode,
   cssVar: CssVariables
 ): void => {
-  node.children?.forEach((childNode) => {
+  node?.children?.forEach((childNode) => {
     if (
       childNode.type === 'InlineComponent' ||
       childNode.type === 'EachBlock' ||
