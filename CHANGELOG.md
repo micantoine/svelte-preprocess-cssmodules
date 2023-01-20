@@ -1,5 +1,12 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.2.4 (Jan 20, 2022)
+
+### Fixes
+
+- Syntax error on keyframes for native mode [issue 84](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/84)
+- Prevent svelte to remove the keyframes rule if no html tag exist [issue 76](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/76)
+
 ## 2.2.3 (June 21, 2022)
 
 ### Fixes
