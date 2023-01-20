@@ -1,6 +1,9 @@
 <script>
   import { onDestroy } from 'svelte';
 
+  let className;
+  export { className as class };
+
   let date = new Date();
   const active = true;
   $: time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -12,7 +15,7 @@
   })
 </script>
 
-<style module>
+<style module="mixed">
   :local(div) {
     text-align: right;
     font-size: 1.2rem;
@@ -47,8 +50,28 @@
   :global(div) :local(p > strong) { font-weight: 600; }
 
   :local(div) *.bold { font-size: 12px;}
+
+  .btn {
+    float:right;
+		animation: opacity 4s infinite alternate;
+	}
+
+  @media screen {
+    .btn {
+      color: red;
+    }
+  }
+
+	@keyframes opacity {
+		0% {
+			opacity: 0;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
 </style>
 <div
-  class=" bolder light { true ? 'lighter red' : ''}"
+  class="btn bolder light { true ? 'lighter red' : ''}"
   class:bold={true}
 >{time}</div>

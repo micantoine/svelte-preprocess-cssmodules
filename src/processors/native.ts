@@ -41,6 +41,12 @@ const parser = (processor: Processor): void => {
       if (node.type === 'Script' || node.type === 'Fragment') {
         this.skip();
       }
+
+      if (node.type === 'Atrule' && node.name === 'keyframes') {
+        processor.parseKeyframes(node);
+        this.skip();
+      }
+
       if (node.type === 'Selector') {
         let start = 0;
         let end = 0;
@@ -70,11 +76,11 @@ const parser = (processor: Processor): void => {
             }
           });
         }
-
-        processor.parsePseudoLocalSelectors(node);
       }
 
       processor.parseBoundVariables(node);
+      processor.parsePseudoLocalSelectors(node);
+      processor.storeAnimationProperties(node);
 
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);
@@ -83,6 +89,8 @@ const parser = (processor: Processor): void => {
       }
     },
   });
+
+  processor.overwriteAnimationProperties();
 
   selectorBoundaries.forEach((boundary) => {
     processor.magicContent.appendLeft(boundary.start, ':global(');
