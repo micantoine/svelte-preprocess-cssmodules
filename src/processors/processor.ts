@@ -16,6 +16,8 @@ export default class Processor {
   public rawContent: string;
   public cssModuleList: CSSModuleList = {};
   public cssVarList: CSSModuleList = {};
+  public cssKeyframeList: CSSModuleList = {};
+  public cssAnimationProperties: TemplateNode[] = [];
   public importedCssModuleList: CSSModuleList = {};
 
   public ast: Ast;
@@ -81,6 +83,31 @@ export default class Processor {
   };
 
   /**
+   * Parse component
+   * @returns The CssModule updated component
+   */
+  public parse = (): string => {
+    if (
+      this.options.parseStyleTag &&
+      (hasModuleAttribute(this.ast) || (this.options.useAsDefaultScoping && this.ast.css))
+    ) {
+      this.isParsingImports = false;
+      this.styleParser(this);
+    }
+
+    if (this.options.parseExternalStylesheet && hasModuleImports(this.rawContent)) {
+      this.isParsingImports = true;
+      parseImportDeclaration(this);
+    }
+
+    if (Object.keys(this.cssModuleList).length > 0 || Object.keys(this.cssVarList).length > 0) {
+      parseTemplate(this);
+    }
+
+    return this.magicContent.toString();
+  };
+
+  /**
    * Parse css dynamic variables bound to js bind()
    * @param node The ast "Selector" node to parse
    */
@@ -113,45 +140,58 @@ export default class Processor {
   };
 
   /**
+   * Parse keyframes
+   * @param node The ast "Selector" node to parse
+   */
+  public parseKeyframes = (node: TemplateNode): void => {
+    const rulePrelude = node.prelude.children[0];
+    if (rulePrelude.name.indexOf('-global-') === -1) {
+      const animationName = this.createModuleClassname(rulePrelude.name);
+      this.magicContent.overwrite(rulePrelude.start, rulePrelude.end, `-global-${animationName}`);
+      this.cssKeyframeList[rulePrelude.name] = animationName;
+    }
+  };
+
+  /**
    * Parse pseudo selector :local()
    * @param node The ast "Selector" node to parse
    */
   public parsePseudoLocalSelectors = (node: TemplateNode): void => {
-    const pseudoLocalSelectors =
-      node.children?.filter(
-        (item) => item.type === 'PseudoClassSelector' && item.name === 'local'
-      ) ?? [];
+    if (node.type === 'PseudoClassSelector' && node.name === 'local') {
+      this.magicContent.remove(node.start, node.start + `:local(`.length);
+      this.magicContent.remove(node.end - 1, node.end);
+    }
+  };
 
-    if (pseudoLocalSelectors.length > 0) {
-      pseudoLocalSelectors.forEach((item) => {
-        this.magicContent.remove(item.start, item.start + `:local(`.length);
-        this.magicContent.remove(item.end - 1, item.end);
+  /**
+   * Store animation properties
+   * @param node The ast "Selector" node to parse
+   */
+  public storeAnimationProperties = (node: TemplateNode): void => {
+    if (node.type === 'Declaration' && node.property === 'animation') {
+      let names = 0;
+      let properties = 0;
+      node.value.children.forEach((item: TemplateNode) => {
+        if (item.type === 'Identifier' && properties === names) {
+          names += 1;
+          this.cssAnimationProperties.push(item);
+        }
+        if (item.type === 'Operator' && item.value === ',') {
+          properties += 1;
+        }
       });
     }
   };
 
   /**
-   * Parse component
-   * @returns The CssModule updated component
+   * Overwrite animation properties
+   * apply module when required
    */
-  public parse = (): string => {
-    if (
-      this.options.parseStyleTag &&
-      (hasModuleAttribute(this.ast) || (this.options.useAsDefaultScoping && this.ast.css))
-    ) {
-      this.isParsingImports = false;
-      this.styleParser(this);
-    }
-
-    if (this.options.parseExternalStylesheet && hasModuleImports(this.rawContent)) {
-      this.isParsingImports = true;
-      parseImportDeclaration(this);
-    }
-
-    if (Object.keys(this.cssModuleList).length > 0 || Object.keys(this.cssVarList).length > 0) {
-      parseTemplate(this);
-    }
-
-    return this.magicContent.toString();
+  public overwriteAnimationProperties = (): void => {
+    this.cssAnimationProperties.forEach((item) => {
+      if (item.name in this.cssKeyframeList) {
+        this.magicContent.overwrite(item.start, item.end, this.cssKeyframeList[item.name]);
+      }
+    });
   };
 }

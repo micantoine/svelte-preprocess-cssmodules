@@ -39,6 +39,11 @@ const parser = (processor: Processor): void => {
         this.skip();
       }
 
+      if (node.type === 'Atrule' && node.name === 'keyframes') {
+        processor.parseKeyframes(node);
+        this.skip();
+      }
+
       if (node.type === 'Selector') {
         const classSelectors = node.children
           ? node.children.filter((item: { type: string }) => item.type === 'ClassSelector')
@@ -87,11 +92,11 @@ const parser = (processor: Processor): void => {
             }
           });
         }
-
-        processor.parsePseudoLocalSelectors(node);
       }
 
       processor.parseBoundVariables(node);
+      processor.parsePseudoLocalSelectors(node);
+      processor.storeAnimationProperties(node);
 
       if (node.type === 'ClassSelector') {
         const generatedClassName = processor.createModuleClassname(node.name);
@@ -100,6 +105,8 @@ const parser = (processor: Processor): void => {
       }
     },
   });
+
+  processor.overwriteAnimationProperties();
 };
 
 const mixedProcessor = async (
