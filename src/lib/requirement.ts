@@ -1,5 +1,5 @@
 import path from 'path';
-import type { Ast } from 'svelte/types/compiler/interfaces.d';
+import type { Ast } from 'svelte/types/compiler/interfaces';
 
 /**
  * Normalize path by replacing potential backslashes to slashes

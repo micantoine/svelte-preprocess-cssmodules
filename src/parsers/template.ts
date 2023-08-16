@@ -1,5 +1,5 @@
 import { walk } from 'svelte/compiler';
-import type { Attribute, TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import type { Attribute, TemplateNode } from 'svelte/types/compiler/interfaces';
 import type Processor from '../processors/processor';
 
 interface CssVariables {
@@ -118,7 +118,7 @@ export default (processor: Processor): void => {
 
   const cssVar = cssVariables(processor);
 
-  walk(processor.ast.html, {
+  walk(processor.ast.html.expression, {
     enter(baseNode) {
       const node = baseNode as TemplateNode;
       if (node.type === 'Script' || node.type === 'Style') {
