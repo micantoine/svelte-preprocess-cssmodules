@@ -1,5 +1,5 @@
 import MagicString from 'magic-string';
-import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces';
 import { CSSModuleList, PluginOptions } from '../types';
 import {
   camelCase,
@@ -46,8 +46,10 @@ export default class Processor {
     this.magicContent = new MagicString(content);
     this.styleParser = parser.bind(this);
 
+    if (!this.ast.css) throw new Error('ast.css is not defined.');
+
     this.style = {
-      ast: ast.css,
+      ast: this.ast.css,
       openTag: ast.css ? content.substring(ast.css.start, ast.css.content.start) : '<style module>',
       closeTag: '</style>',
     };
@@ -59,6 +61,8 @@ export default class Processor {
    * @returns The generated module classname
    */
   public createModuleClassname = (name: string): string => {
+    if (!this.ast.css) throw new Error('ast.css is not defined.');
+
     const generatedClassName = createClassName(
       this.filename,
       this.rawContent,
@@ -123,6 +127,7 @@ export default class Processor {
           const child = item.children[0];
           const name = child.name ?? child.value.replace(/'|"/g, '');
           const varName = child.type === 'String' ? name.replace(/\./, '-') : name;
+          if (!this.ast.css) throw new Error('ast.css is not defined.');
           const generatedVarName = generateName(
             this.filename,
             this.ast.css.content.styles,

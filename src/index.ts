@@ -1,10 +1,7 @@
 /* eslint-disable no-multi-assign */
 import { parse, preprocess } from 'svelte/compiler';
-import type { Ast } from 'svelte/types/compiler/interfaces.d';
-import type {
-  PreprocessorGroup,
-  MarkupPreprocessor,
-} from 'svelte/types/compiler/preprocess/index.d';
+import type { Ast } from 'svelte/types/compiler/interfaces';
+import type { PreprocessorGroup, MarkupPreprocessor } from 'svelte/types/compiler/preprocess';
 import type { PluginOptions } from './types';
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import {
@@ -38,14 +35,15 @@ let pluginOptions: PluginOptions;
  * @returns the preprocessor markup
  */
 const markup: MarkupPreprocessor = async ({ content, filename }) => {
-  const isIncluded = isFileIncluded(pluginOptions.includePaths, filename);
+  const useFilename: string = filename || '';
+  const isIncluded = isFileIncluded(pluginOptions.includePaths, useFilename);
 
   if (!isIncluded || (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)) {
     return { code: content };
   }
   let ast: Ast;
   try {
-    ast = parse(content, { filename });
+    ast = parse(content, { filename: useFilename });
   } catch (err) {
     throw new Error(
       `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "cssModulesPreprocess().after()"`
@@ -57,6 +55,10 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
     !hasModuleAttribute(ast) &&
     !hasModuleImports(content)
   ) {
+    return { code: content };
+  }
+
+  if (!ast.css) {
     return { code: content };
   }
 
@@ -84,15 +86,15 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
 
   switch (mode) {
     case 'scoped': {
-      parsedContent = await scopedProcessor(ast, content, filename, pluginOptions);
+      parsedContent = await scopedProcessor(ast, content, useFilename, pluginOptions);
       break;
     }
     case 'mixed': {
-      parsedContent = await mixedProcessor(ast, content, filename, pluginOptions);
+      parsedContent = await mixedProcessor(ast, content, useFilename, pluginOptions);
       break;
     }
     default: {
-      parsedContent = await nativeProcessor(ast, content, filename, pluginOptions);
+      parsedContent = await nativeProcessor(ast, content, useFilename, pluginOptions);
       break;
     }
   }

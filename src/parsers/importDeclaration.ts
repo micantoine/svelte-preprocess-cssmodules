@@ -3,7 +3,7 @@ import path from 'path';
 import fs, { constants } from 'fs';
 import MagicString from 'magic-string';
 import { parse, walk } from 'svelte/compiler';
-import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import type { TemplateNode } from 'svelte/types/compiler/interfaces';
 import type Processor from '../processors/processor';
 
 /**
@@ -18,7 +18,7 @@ export default (processor: Processor): void => {
 
   let importedContent = '';
 
-  walk(ast, {
+  walk(ast.expression, {
     enter(baseNode) {
       const node = baseNode as TemplateNode;
       if (node.type === 'Style' || node.type === 'Fragment') {

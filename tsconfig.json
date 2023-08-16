@@ -11,7 +11,8 @@
     "baseUrl": ".",
     "resolveJsonModule": true,
     "lib": [
-      "esnext"
+      "esnext",
+      "dom"
     ],
     "typeRoots": [
       "./src/types",
