@@ -1,4 +1,4 @@
-import { walk } from 'svelte/compiler';
+import { walk } from 'estree-walker';
 import type { Attribute, TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import type Processor from '../processors/processor';
 
