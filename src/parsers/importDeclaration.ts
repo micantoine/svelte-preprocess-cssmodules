@@ -2,7 +2,8 @@
 import path from 'path';
 import fs, { constants } from 'fs';
 import MagicString from 'magic-string';
-import { parse, walk } from 'estree-walker';
+import { parse } from 'svelte/compiler';
+import { walk } from 'estree-walker';
 import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
 import type Processor from '../processors/processor';
 
