@@ -56,7 +56,7 @@
   "dependencies": {
     "acorn": "^8.5.0",
     "big.js": "^6.1.1",
-    "estree-walker": "^3.0.3",
+    "estree-walker": "^2.0.2",
     "magic-string": "^0.25.7"
   },
   "devDependencies": {
