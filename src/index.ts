@@ -107,7 +107,7 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
  * @param options
  * @returns the css modules preprocessors
  */
-const cssModulesPreprocessor = (options: Partial<PluginOptions>): PreprocessorGroup => {
+const cssModulesPreprocessor = (options: Partial<PluginOptions> = {}): PreprocessorGroup => {
   pluginOptions = {
     ...defaultOptions(),
     ...options,
