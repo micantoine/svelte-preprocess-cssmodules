@@ -168,7 +168,7 @@ export default class Processor {
    * @param node The ast "Selector" node to parse
    */
   public storeAnimationProperties = (node: TemplateNode): void => {
-    if (node.type === 'Declaration' && node.property === 'animation') {
+    if (node.type === 'Declaration' && ['animation', 'animation-name'].includes(node.property)) {
       let names = 0;
       let properties = 0;
       node.value.children.forEach((item: TemplateNode) => {

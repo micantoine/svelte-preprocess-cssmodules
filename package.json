@@ -1,6 +1,6 @@
 {
   "name": "svelte-preprocess-cssmodules",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "Svelte preprocessor to generate CSS Modules classname on Svelte components",
   "keywords": [
     "svelte",
@@ -76,8 +76,7 @@
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
-    "svelte": "^3.20.0",
-    "typescript": "^4.0.0"
+    "svelte": "^3.20.0 || ^4.0.0"
   },
   "files": [
     "dist/"

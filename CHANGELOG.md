@@ -1,5 +1,19 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.2.5 (Sept 19, 2022)
+
+### Updates
+
+- Replace deprecated method by use of `walk()` from `estree-walker` [#100](https://github.com/micantoine/svelte-preprocess-cssmodules/pull/100)
+- Upgrade dev dependencies
+- Add svelte 4 to peer dependencies
+
+### Fixes
+
+- Make `cssModules()` parameter optional [#94](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/94)
+- Remove typescript from peer dependencies (not needed, keep in dev dependencies) [#93](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/93)
+- Properly transform `animation-name` [#98](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/98)
+
 ## 2.2.4 (Jan 20, 2022)
 
 ### Fixes

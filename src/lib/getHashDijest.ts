@@ -1,5 +1,5 @@
 import Big from 'big.js';
-import { createHash } from 'crypto';
+import { createHash, type BinaryToTextEncoding } from 'crypto';
 
 const baseEncodeTables = {
   26: 'abcdefghijklmnopqrstuvwxyz',
@@ -72,13 +72,13 @@ const getHashDigest = (
     digestType === 'base62' ||
     digestType === 'base64'
   ) {
-    return encodeBufferToBase(hash.digest(), parseInt(digestType.substr(4), 10)).substr(
+    return encodeBufferToBase(hash.digest(), parseInt(digestType.substring(4), 10)).substring(
       0,
       maxLength
     );
   }
-  const encoding = (digestType as 'latin1') || 'hex';
-  return hash.digest(encoding).substr(0, maxLength);
+  const encoding = (digestType as BinaryToTextEncoding) || 'hex';
+  return hash.digest(encoding).substring(0, maxLength);
 };
 
 export default getHashDigest;
