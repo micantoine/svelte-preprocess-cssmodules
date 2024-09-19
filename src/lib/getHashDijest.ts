@@ -35,7 +35,7 @@ const encodeBufferToBase = (buffer: Buffer, base: number): string => {
 
   let output = '';
   while (big.gt(0)) {
-    const modulo = (big.mod(base) as unknown) as number;
+    const modulo = big.mod(base) as unknown as number;
     output = encodeTable[modulo] + output;
     big = big.div(base);
   }

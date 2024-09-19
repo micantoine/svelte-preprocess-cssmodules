@@ -1,5 +1,5 @@
-import { walk } from 'svelte/compiler';
-import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import { walk, type BaseNode } from 'estree-walker';
+import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
 
@@ -32,7 +32,7 @@ const updateSelectorBoundaries = (
  * @param processor The CSS Module Processor
  */
 const parser = (processor: Processor): void => {
-  const ast = (processor.ast as unknown) as TemplateNode;
+  const ast = processor.ast as unknown as BaseNode;
   let selectorBoundaries: Boundaries[] = [];
 
   walk(ast, {

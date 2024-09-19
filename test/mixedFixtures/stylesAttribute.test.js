@@ -1,14 +1,13 @@
 const compiler = require('../compiler.js');
 
 describe('Mixed Mode', () => {
-
   test('Chain Selector', async () => {
     const source =
-      '<style module>span.red.large:hover { font-size: 20px; } \n.red { color: red; }</style>\n'+
+      '<style module>span.red.large:hover { font-size: 20px; } \n.red { color: red; }</style>\n' +
       '<span class="red large">Red</span>';
 
     const expectedOutput =
-      '<style module>:global(span.red-123456.large-123456:hover) { font-size: 20px; } \n:global(.red-123456) { color: red; }</style>\n'+
+      '<style module>:global(span.red-123456.large-123456:hover) { font-size: 20px; } \n:global(.red-123456) { color: red; }</style>\n' +
       '<span class="red-123456 large-123456">Red</span>';
 
     const output = await compiler(
@@ -143,5 +142,4 @@ describe('Mixed Mode', () => {
 
     expect(output).toBe(expectedOutput);
   });
-
 });

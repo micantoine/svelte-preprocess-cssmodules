@@ -1,10 +1,7 @@
 /* eslint-disable no-multi-assign */
 import { parse, preprocess } from 'svelte/compiler';
-import type { Ast } from 'svelte/types/compiler/interfaces.d';
-import type {
-  PreprocessorGroup,
-  MarkupPreprocessor,
-} from 'svelte/types/compiler/preprocess/index.d';
+import type { Ast } from 'svelte/types/compiler/interfaces';
+import type { PreprocessorGroup, MarkupPreprocessor } from 'svelte/types/compiler/preprocess/index';
 import type { PluginOptions } from './types';
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import {
@@ -38,17 +35,20 @@ let pluginOptions: PluginOptions;
  * @returns the preprocessor markup
  */
 const markup: MarkupPreprocessor = async ({ content, filename }) => {
-  const isIncluded = isFileIncluded(pluginOptions.includePaths, filename);
-
-  if (!isIncluded || (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)) {
+  if (
+    !filename ||
+    !isFileIncluded(pluginOptions.includePaths, filename) ||
+    (!pluginOptions.parseStyleTag && !pluginOptions.parseExternalStylesheet)
+  ) {
     return { code: content };
   }
+
   let ast: Ast;
   try {
     ast = parse(content, { filename });
   } catch (err) {
     throw new Error(
-      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "cssModulesPreprocess().after()"`
+      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "linearPreprocess()" from svelte-preprocess-cssmodules`
     );
   }
 
@@ -64,7 +64,7 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
   let { mode, hashSeeder } = pluginOptions;
 
   if (pluginOptions.parseStyleTag && hasModuleAttribute(ast)) {
-    const moduleAttribute = ast.css.attributes.find((item) => item.name === 'module');
+    const moduleAttribute = ast.css?.attributes.find((item) => item.name === 'module');
     mode = moduleAttribute.value !== true ? moduleAttribute.value[0].data : mode;
   }
 
