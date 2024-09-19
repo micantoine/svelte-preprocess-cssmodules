@@ -45,7 +45,7 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
     ast = parse(content, { filename });
   } catch (err) {
     throw new Error(
-      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "cssModulesPreprocess().after()"`
+      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "linearPreprocess()" from svelte-preprocess-cssmodules`
     );
   }
 
