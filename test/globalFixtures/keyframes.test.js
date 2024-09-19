@@ -29,6 +29,34 @@ describe('Scoped Keyframes', () => {
     expect(output).toBe(expectedOutput);
   });
 
+  test('Mixed mode on tag selector with animation-name property', async () => {
+    const source =
+      '<style module>' +
+      'h1 { font-size:18px; animation-name:fadeIn; animation-duration:2s; animation-timing-function:ease-in; }' +
+      '@keyframes fadeIn {0% {opacity:0} 100% {opacity:1}}' +
+      '</style>' +
+      '<h1>Title</h1>';
+
+    const expectedOutput =
+      '<style module>' +
+      'h1 { font-size:18px; animation-name:fadeIn-123; animation-duration:2s; animation-timing-function:ease-in; }' +
+      '@keyframes -global-fadeIn-123 {0% {opacity:0} 100% {opacity:1}}' +
+      '</style>' +
+      '<h1>Title</h1>';
+
+    const output = await compiler(
+      {
+        source,
+      },
+      {
+        mode: 'mixed',
+        localIdentName: '[local]-123',
+      }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
+
   test('Native mode with multiple animation properties', async () => {
     const source =
       '<style module>' +
