@@ -22,7 +22,7 @@ export default class Processor {
 
   public ast: Ast;
   public style: {
-    ast: Style;
+    ast?: Style;
     openTag: string;
     closeTag: string;
   };
@@ -62,7 +62,7 @@ export default class Processor {
     const generatedClassName = createClassName(
       this.filename,
       this.rawContent,
-      this.ast.css.content.styles,
+      this.ast.css?.content.styles ?? '',
       name,
       this.options
     );
@@ -125,7 +125,7 @@ export default class Processor {
           const varName = child.type === 'String' ? name.replace(/\./, '-') : name;
           const generatedVarName = generateName(
             this.filename,
-            this.ast.css.content.styles,
+            this.ast.css?.content.styles ?? '',
             varName,
             {
               hashSeeder: ['style', 'filepath'],

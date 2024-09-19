@@ -3,15 +3,15 @@ import path from 'path';
 import fs, { constants } from 'fs';
 import MagicString from 'magic-string';
 import { parse } from 'svelte/compiler';
-import { walk } from 'estree-walker';
-import type { TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import { walk, type BaseNode } from 'estree-walker';
+import type { TemplateNode } from 'svelte/types/compiler/interfaces';
 import type Processor from '../processors/processor';
 
 /**
  * Parse CssModules Imports
  */
 export default (processor: Processor): void => {
-  const ast = (processor.ast as unknown) as TemplateNode;
+  const ast = processor.ast as unknown as BaseNode;
   const backup = {
     ast: processor.ast,
     magicContent: processor.magicContent,
