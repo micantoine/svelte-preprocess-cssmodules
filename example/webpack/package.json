@@ -15,8 +15,8 @@
     "style-loader": "^2.0.0",
     "svelte": "^3.49.0",
     "svelte-loader": "^2.13.6",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.11",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
