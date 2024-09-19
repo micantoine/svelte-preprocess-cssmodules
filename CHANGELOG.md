@@ -1,5 +1,16 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 2.2.5 Upcoming
+
+### Upgrade
+
+- Replace deprecated method by use of `walk()` from `estree-walker` [#100](https://github.com/micantoine/svelte-preprocess-cssmodules/pull/100)
+
+### Fixes
+
+- Make `cssModules()` parameter optional [#94](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/94)
+
+
 ## 2.2.4 (Jan 20, 2022)
 
 ### Fixes
