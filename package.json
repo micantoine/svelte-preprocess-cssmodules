@@ -72,7 +72,7 @@
     "jest": "^26.0.1",
     "lint-staged": "^10.5.1",
     "prettier": "^3.3.3",
-    "svelte": "^3.59.2",
+    "svelte": "^4.2.19",
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
