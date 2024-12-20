@@ -1,5 +1,5 @@
 import MagicString from 'magic-string';
-import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces';
+import type { AST } from 'svelte/compiler';
 import { CSSModuleList, PluginOptions } from '../types';
 import {
   camelCase,
@@ -20,9 +20,9 @@ export default class Processor {
   public cssAnimationProperties: TemplateNode[] = [];
   public importedCssModuleList: CSSModuleList = {};
 
-  public ast: Ast;
+  public ast: AST.Root;
   public style: {
-    ast?: Style;
+    ast?: AST.Root['css'];
     openTag: string;
     closeTag: string;
   };
@@ -33,7 +33,7 @@ export default class Processor {
   public isParsingImports = false;
 
   constructor(
-    ast: Ast,
+    ast: AST.Root,
     content: string,
     filename: string,
     options: PluginOptions,
