@@ -111,30 +111,29 @@ export default class Processor {
    * Parse css dynamic variables bound to js bind()
    * @param node The ast "Selector" node to parse
    */
-  public parseBoundVariables = (node: TemplateNode): void => {
-    const bindedVariableNodes =
-      node.children?.filter(
-        (item) => item.type === 'Function' && item.name === 'bind' && node.children?.length
-      ) ?? [];
+  public parseBoundVariables = (node: AST.CSS.Block): void => {
+    const bindedVariableNodes = (node.children.filter(
+      (item) => item.type === 'Declaration' && item.value.includes('bind(')
+    ) ?? []) as AST.CSS.Declaration[];
 
     if (bindedVariableNodes.length > 0) {
       bindedVariableNodes.forEach((item) => {
-        if (item.children) {
-          const child = item.children[0];
-          const name = child.name ?? child.value.replace(/'|"/g, '');
-          const varName = child.type === 'String' ? name.replace(/\./, '-') : name;
-          const generatedVarName = generateName(
-            this.filename,
-            this.ast.css?.content.styles ?? '',
-            varName,
-            {
-              hashSeeder: ['style', 'filepath'],
-              localIdentName: `[local]-${this.options.cssVariableHash}`,
-            }
-          );
-          this.magicContent.overwrite(item.start, item.end, `var(--${generatedVarName})`);
-          this.cssVarList[name] = generatedVarName;
-        }
+        const name = item.value.replace(/'|"|bind\(|\)/g, '');
+        const varName = name.replace(/\./, '-');
+
+        const generatedVarName = generateName(
+          this.filename,
+          this.ast.css?.content.styles ?? '',
+          varName,
+          {
+            hashSeeder: ['style', 'filepath'],
+            localIdentName: `[local]-${this.options.cssVariableHash}`,
+          }
+        );
+        const bindStart = item.end - item.value.length;
+        console.log('bindStart', bindStart);
+        this.magicContent.overwrite(bindStart, item.end, `var(--${generatedVarName})`);
+        this.cssVarList[name] = generatedVarName;
       });
     }
   };
