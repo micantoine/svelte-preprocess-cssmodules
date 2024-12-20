@@ -1,7 +1,7 @@
 /* eslint-disable no-multi-assign */
 import { parse, preprocess } from 'svelte/compiler';
 import type { Ast } from 'svelte/types/compiler/interfaces';
-import type { PreprocessorGroup, MarkupPreprocessor } from 'svelte/types/compiler/preprocess/index';
+import type { PreprocessorGroup, MarkupPreprocessor } from 'svelte/types/compiler/preprocess';
 import type { PluginOptions } from './types';
 import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import {

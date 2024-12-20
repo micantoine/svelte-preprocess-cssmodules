@@ -1,5 +1,5 @@
 import MagicString from 'magic-string';
-import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces';
 import { CSSModuleList, PluginOptions } from '../types';
 import {
   camelCase,
