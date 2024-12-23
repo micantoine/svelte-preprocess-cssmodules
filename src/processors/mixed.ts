@@ -1,5 +1,5 @@
 import { walk, type BaseNode } from 'estree-walker';
-import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces';
+import { AST } from 'svelte/compiler';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
 
@@ -31,78 +31,94 @@ const updateSelectorBoundaries = (
  * @param processor The CSS Module Processor
  */
 const parser = (processor: Processor): void => {
-  const ast = processor.ast as unknown as BaseNode;
-  walk(ast, {
+  if (!processor.ast.css) {
+    return;
+  }
+  walk(processor.ast.css, {
     enter(baseNode) {
-      const node = baseNode as TemplateNode;
-      if (node.type === 'Script' || node.type === 'Fragment') {
-        this.skip();
-      }
+      (baseNode as AST.CSS.StyleSheet).children?.forEach((node) => {
+        if (node.type === 'Atrule' && node.name === 'keyframes') {
+          processor.parseKeyframes(node);
+        }
+        if (node.type === 'Rule') {
+          node.prelude.children.forEach((child) => {
+            child.children.forEach((grandChild) => {
+              if (grandChild.type === 'RelativeSelector') {
+                const classSelectors = grandChild.selectors.filter(
+                  (item) => item.type === 'ClassSelector'
+                );
+                if (classSelectors.length > 0) {
+                  let selectorBoundaries: Array<Boundaries> = [];
+                  let start = 0;
+                  let end = 0;
 
-      if (node.type === 'Atrule' && node.name === 'keyframes') {
-        processor.parseKeyframes(node);
-        this.skip();
-      }
+                  grandChild.selectors.forEach((item, index) => {
+                    if (!item.start && start > 0) {
+                      selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+                      start = 0;
+                      end = 0;
+                    } else {
+                      let hasPushed = false;
+                      if (end !== item.start) {
+                        start = item.start;
+                        end = item.end;
+                      } else {
+                        selectorBoundaries = updateSelectorBoundaries(
+                          selectorBoundaries,
+                          start,
+                          item.end
+                        );
+                        hasPushed = true;
+                        start = 0;
+                        end = 0;
+                      }
+                      if (
+                        hasPushed === false &&
+                        grandChild.selectors &&
+                        index === grandChild.selectors.length - 1
+                      ) {
+                        selectorBoundaries = updateSelectorBoundaries(
+                          selectorBoundaries,
+                          start,
+                          end
+                        );
+                      }
+                    }
+                  });
 
-      if (node.type === 'Selector') {
-        const classSelectors = node.children
-          ? node.children.filter((item: { type: string }) => item.type === 'ClassSelector')
-          : [];
-        if (classSelectors.length > 0) {
-          let selectorBoundaries: Array<Boundaries> = [];
-          let start = 0;
-          let end = 0;
-
-          if (node.children) {
-            node.children.forEach((item: { start: number; end: number }, index: number) => {
-              if (!item.start && start > 0) {
-                selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-                start = 0;
-                end = 0;
-              } else {
-                let hasPushed = false;
-                if (end !== item.start) {
-                  start = item.start;
-                  end = item.end;
-                } else {
-                  selectorBoundaries = updateSelectorBoundaries(
-                    selectorBoundaries,
-                    start,
-                    item.end
-                  );
-                  hasPushed = true;
-                  start = 0;
-                  end = 0;
+                  selectorBoundaries.forEach((boundary) => {
+                    const hasClassSelector = classSelectors.filter(
+                      (item: { start: number; end: number }) =>
+                        boundary.start <= item.start && boundary.end >= item.end
+                    );
+                    if (hasClassSelector.length > 0) {
+                      processor.magicContent.appendLeft(boundary.start, ':global(');
+                      processor.magicContent.appendRight(boundary.end, ')');
+                    }
+                  });
                 }
-                if (hasPushed === false && node.children && index === node.children.length - 1) {
-                  selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-                }
+
+                grandChild.selectors.forEach((item) => {
+                  processor.parsePseudoLocalSelectors(item);
+
+                  if (item.type === 'ClassSelector') {
+                    const generatedClassName = processor.createModuleClassname(item.name);
+                    processor.addModule(item.name, generatedClassName);
+                    processor.magicContent.overwrite(
+                      item.start,
+                      item.end,
+                      `.${generatedClassName}`
+                    );
+                  }
+                });
               }
             });
-          }
-
-          selectorBoundaries.forEach((boundary) => {
-            const hasClassSelector = classSelectors.filter(
-              (item: { start: number; end: number }) =>
-                boundary.start <= item.start && boundary.end >= item.end
-            );
-            if (hasClassSelector.length > 0) {
-              processor.magicContent.appendLeft(boundary.start, ':global(');
-              processor.magicContent.appendRight(boundary.end, ')');
-            }
           });
+
+          processor.parseBoundVariables(node.block);
+          processor.storeAnimationProperties(node.block);
         }
-      }
-
-      processor.parseBoundVariables(node);
-      processor.parsePseudoLocalSelectors(node);
-      processor.storeAnimationProperties(node);
-
-      if (node.type === 'ClassSelector') {
-        const generatedClassName = processor.createModuleClassname(node.name);
-        processor.addModule(node.name, generatedClassName);
-        processor.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
-      }
+      });
     },
   });
 
@@ -110,7 +126,7 @@ const parser = (processor: Processor): void => {
 };
 
 const mixedProcessor = async (
-  ast: Ast,
+  ast: AST.Root,
   content: string,
   filename: string,
   options: PluginOptions
