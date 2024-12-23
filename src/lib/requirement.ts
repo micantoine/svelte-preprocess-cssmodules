@@ -1,5 +1,5 @@
 import path from 'path';
-import type { Ast } from 'svelte/types/compiler/interfaces';
+import type { AST } from 'svelte/compiler';
 
 /**
  * Normalize path by replacing potential backslashes to slashes
@@ -46,7 +46,7 @@ export const hasModuleImports = (content: string): boolean => {
  * @param ast the component content tree
  * @returns The status
  */
-export const hasModuleAttribute = (ast: Ast): boolean => {
+export const hasModuleAttribute = (ast: AST.Root): boolean => {
   const moduleAttribute = ast?.css?.attributes.find((item) => item.name === 'module');
   return moduleAttribute !== undefined;
 };
