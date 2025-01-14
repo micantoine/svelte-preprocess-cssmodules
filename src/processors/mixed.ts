@@ -88,8 +88,7 @@ const parser = (processor: Processor): void => {
 
                   selectorBoundaries.forEach((boundary) => {
                     const hasClassSelector = classSelectors.filter(
-                      (item: { start: number; end: number }) =>
-                        boundary.start <= item.start && boundary.end >= item.end
+                      (item) => boundary.start <= item.start && boundary.end >= item.end
                     );
                     if (hasClassSelector.length > 0) {
                       processor.magicContent.appendLeft(boundary.start, ':global(');
