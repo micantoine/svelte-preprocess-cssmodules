@@ -1,4 +1,4 @@
-import { walk, type BaseNode } from 'estree-walker';
+import { walk } from 'estree-walker';
 import { AST } from 'svelte/compiler';
 import type { PluginOptions } from '../types';
 import Processor from './processor';

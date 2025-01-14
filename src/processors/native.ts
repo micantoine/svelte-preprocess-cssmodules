@@ -1,5 +1,5 @@
 import { walk, type BaseNode } from 'estree-walker';
-import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces';
+import { AST } from 'svelte/compiler';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
 
@@ -32,61 +32,78 @@ const updateSelectorBoundaries = (
  * @param processor The CSS Module Processor
  */
 const parser = (processor: Processor): void => {
-  const ast = processor.ast as unknown as BaseNode;
+  if (!processor.ast.css) {
+    return;
+  }
+
   let selectorBoundaries: Boundaries[] = [];
 
-  walk(ast, {
+  walk(processor.ast.css, {
     enter(baseNode) {
-      const node = baseNode as TemplateNode;
-      if (node.type === 'Script' || node.type === 'Fragment') {
-        this.skip();
-      }
-
-      if (node.type === 'Atrule' && node.name === 'keyframes') {
-        processor.parseKeyframes(node);
-        this.skip();
-      }
-
-      if (node.type === 'Selector') {
-        let start = 0;
-        let end = 0;
-
-        if (node.children) {
-          node.children.forEach((item, index) => {
-            let hasPushed = false;
-            if (
-              (item.name === 'global' || item.name === 'local') &&
-              item.type === 'PseudoClassSelector'
-            ) {
-              if (start > 0 && end > 0) {
-                selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-                hasPushed = true;
-              }
-              start = item.end + 1;
-              end = 0;
-            } else if (item.start && item.end) {
-              if (start === 0) {
-                start = item.start;
-              }
-              end = item.end;
-            }
-
-            if (!hasPushed && node.children && index === node.children.length - 1 && end > 0) {
-              selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-            }
-          });
+      (baseNode as AST.CSS.StyleSheet).children?.forEach((node) => {
+        if (node.type === 'Atrule' && node.name === 'keyframes') {
+          processor.parseKeyframes(node);
         }
-      }
+        if (node.type === 'Rule') {
+          node.prelude.children.forEach((child) => {
+            child.children.forEach((grandChild) => {
+              if (grandChild.type === 'RelativeSelector') {
+                let start = 0;
+                let end = 0;
 
-      processor.parseBoundVariables(node);
-      processor.parsePseudoLocalSelectors(node);
-      processor.storeAnimationProperties(node);
+                grandChild.selectors.forEach((item, index) => {
+                  if (item.type === 'Percentage') {
+                    return;
+                  }
 
-      if (node.type === 'ClassSelector') {
-        const generatedClassName = processor.createModuleClassname(node.name);
-        processor.addModule(node.name, generatedClassName);
-        processor.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
-      }
+                  let hasPushed = false;
+                  if (
+                    item.type === 'PseudoClassSelector' &&
+                    (item.name === 'global' || item.name === 'local')
+                  ) {
+                    if (start > 0 && end > 0) {
+                      selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+                      hasPushed = true;
+                    }
+                    start = item.end + 1;
+                    end = 0;
+                  } else if (item.start && item.end) {
+                    if (start === 0) {
+                      start = item.start;
+                    }
+                    end = item.end;
+                  }
+
+                  if (
+                    hasPushed === false &&
+                    grandChild.selectors &&
+                    index === grandChild.selectors.length - 1 &&
+                    end > 0
+                  ) {
+                    selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+                  }
+                });
+
+                grandChild.selectors.forEach((item) => {
+                  processor.parsePseudoLocalSelectors(item);
+                  if (item.type === 'ClassSelector') {
+                    const generatedClassName = processor.createModuleClassname(item.name);
+                    processor.addModule(item.name, generatedClassName);
+                    processor.magicContent.overwrite(
+                      item.start,
+                      item.end,
+                      `.${generatedClassName}`
+                    );
+                  }
+                });
+              }
+            });
+          });
+
+          processor.parseBoundVariables(node.block);
+          processor.storeAnimationProperties(node.block);
+        }
+      });
     },
   });
 
@@ -99,7 +116,7 @@ const parser = (processor: Processor): void => {
 };
 
 const nativeProcessor = async (
-  ast: Ast,
+  ast: AST.Root,
   content: string,
   filename: string,
   options: PluginOptions
