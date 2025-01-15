@@ -1,5 +1,5 @@
-import { walk, type BaseNode } from 'estree-walker';
-import { AST } from 'svelte/compiler';
+import { walk } from 'estree-walker';
+import type { AST } from 'svelte/compiler';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
 
@@ -86,15 +86,7 @@ const parser = (processor: Processor): void => {
 
                 grandChild.selectors.forEach((item) => {
                   processor.parsePseudoLocalSelectors(item);
-                  if (item.type === 'ClassSelector') {
-                    const generatedClassName = processor.createModuleClassname(item.name);
-                    processor.addModule(item.name, generatedClassName);
-                    processor.magicContent.overwrite(
-                      item.start,
-                      item.end,
-                      `.${generatedClassName}`
-                    );
-                  }
+                  processor.parseClassSelectors(item);
                 });
               }
             });
