@@ -159,6 +159,18 @@ export default class Processor {
    * Parse pseudo selector :local()
    * @param node The ast "Selector" node to parse
    */
+  public parseClassSelectors = (node: AST.CSS.SimpleSelector): void => {
+    if (node.type === 'ClassSelector') {
+      const generatedClassName = this.createModuleClassname(node.name);
+      this.addModule(node.name, generatedClassName);
+      this.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
+    }
+  };
+
+  /**
+   * Parse pseudo selector :local()
+   * @param node The ast "Selector" node to parse
+   */
   public parsePseudoLocalSelectors = (node: AST.CSS.SimpleSelector): void => {
     if (node.type === 'PseudoClassSelector' && node.name === 'local') {
       this.magicContent.remove(node.start, node.start + `:local(`.length);
