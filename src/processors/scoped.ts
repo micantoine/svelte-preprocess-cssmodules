@@ -1,6 +1,5 @@
-import { walk, type BaseNode } from 'estree-walker';
-import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces';
-
+import { walk } from 'estree-walker';
+import type { AST } from 'svelte/compiler';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
 
@@ -9,27 +8,33 @@ import Processor from './processor';
  * @param processor The CSS Module Processor
  */
 const parser = (processor: Processor): void => {
-  const ast = processor.ast as unknown as BaseNode;
-  walk(ast, {
+  if (!processor.ast.css) {
+    return;
+  }
+  walk(processor.ast.css, {
     enter(baseNode) {
-      const node = baseNode as TemplateNode;
-      if (node.type === 'Script' || node.type === 'Fragment') {
-        this.skip();
-      }
+      (baseNode as AST.CSS.StyleSheet).children?.forEach((node) => {
+        if (node.type === 'Rule') {
+          node.prelude.children.forEach((child) => {
+            child.children.forEach((grandChild) => {
+              if (grandChild.type === 'RelativeSelector') {
+                grandChild.selectors.forEach((item) => {
+                  processor.parsePseudoLocalSelectors(item);
+                  processor.parseClassSelectors(item);
+                });
+              }
+            });
+          });
 
-      processor.parseBoundVariables(node);
-
-      if (node.type === 'ClassSelector') {
-        const generatedClassName = processor.createModuleClassname(node.name);
-        processor.addModule(node.name, generatedClassName);
-        processor.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
-      }
+          processor.parseBoundVariables(node.block);
+        }
+      });
     },
   });
 };
 
 const scopedProcessor = async (
-  ast: Ast,
+  ast: AST.Root,
   content: string,
   filename: string,
   options: PluginOptions
