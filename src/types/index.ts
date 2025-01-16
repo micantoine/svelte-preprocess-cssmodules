@@ -8,6 +8,7 @@ export type PluginOptions = {
   includePaths: string[];
   localIdentName: string;
   mode: 'native' | 'mixed' | 'scoped';
+  rune: boolean;
   parseExternalStylesheet: boolean;
   parseStyleTag: boolean;
   useAsDefaultScoping: boolean;

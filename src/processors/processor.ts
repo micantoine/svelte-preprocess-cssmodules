@@ -8,7 +8,7 @@ import {
   hasModuleAttribute,
   hasModuleImports,
 } from '../lib';
-import { parseImportDeclaration, parseTemplate } from '../parsers';
+import { parseImportDeclaration, parseTemplate, parseRune } from '../parsers';
 
 export default class Processor {
   public filename: string;
@@ -98,6 +98,10 @@ export default class Processor {
     if (this.options.parseExternalStylesheet && hasModuleImports(this.rawContent)) {
       this.isParsingImports = true;
       parseImportDeclaration(this);
+    }
+
+    if(this.options.rune) {
+      parseRune(this);
     }
 
     if (Object.keys(this.cssModuleList).length > 0 || Object.keys(this.cssVarList).length > 0) {
