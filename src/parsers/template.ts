@@ -1,5 +1,5 @@
-import { walk, type BaseNode } from 'estree-walker';
-import type { Attribute, TemplateNode } from 'svelte/types/compiler/interfaces';
+import { walk } from 'estree-walker';
+import type { AST } from 'svelte/compiler';
 import type Processor from '../processors/processor';
 
 interface CssVariables {
@@ -35,10 +35,14 @@ const updateMultipleClasses = (processor: Processor, classNames: string): string
  * @param processor: The CSS Module Processor
  * @param expression The expression node (consequent, alternate)
  */
-const parseExpression = (processor: Processor, expression: TemplateNode): void => {
-  if (expression.type === 'Literal') {
-    const generatedClassNames = updateMultipleClasses(processor, expression.value);
-    processor.magicContent.overwrite(expression.start, expression.end, `'${generatedClassNames}'`);
+const parseExpression = (
+  processor: Processor,
+  expression: AST.ExpressionTag['expression']
+): void => {
+  const exp = expression as typeof expression & AST.BaseNode;
+  if (exp.type === 'Literal' && typeof exp.value === 'string') {
+    const generatedClassNames = updateMultipleClasses(processor, exp.value);
+    processor.magicContent.overwrite(exp.start, exp.end, `'${generatedClassNames}'`);
   }
 };
 
@@ -50,21 +54,26 @@ const parseExpression = (processor: Processor, expression: TemplateNode): void =
  */
 const addDynamicVariablesToElements = (
   processor: Processor,
-  node: TemplateNode,
+  fragment: AST.Fragment,
   cssVar: CssVariables
 ): void => {
-  node?.children?.forEach((childNode) => {
-    if (
-      childNode.type === 'InlineComponent' ||
-      childNode.type === 'EachBlock' ||
-      childNode.type === 'KeyBlock'
-    ) {
-      addDynamicVariablesToElements(processor, childNode, cssVar);
-    } else if (childNode.type === 'Element') {
+  fragment.nodes?.forEach((childNode) => {
+    if (childNode.type === 'Component' || childNode.type === 'KeyBlock') {
+      addDynamicVariablesToElements(processor, childNode.fragment, cssVar);
+    } else if (childNode.type === 'EachBlock') {
+      addDynamicVariablesToElements(processor, childNode.body, cssVar);
+      if (childNode.fallback) {
+        addDynamicVariablesToElements(processor, childNode.fallback, cssVar);
+      }
+    } else if (childNode.type === 'SnippetBlock') {
+      addDynamicVariablesToElements(processor, childNode.body, cssVar);
+    } else if (childNode.type === 'RegularElement') {
       const attributesLength = childNode.attributes.length;
       if (attributesLength) {
-        const styleAttr = childNode.attributes.find((attr: Attribute) => attr.name === 'style');
-        if (styleAttr) {
+        const styleAttr = childNode.attributes.find(
+          (attr) => attr.type !== 'SpreadAttribute' && attr.name === 'style'
+        ) as AST.Attribute;
+        if (styleAttr && Array.isArray(styleAttr.value)) {
           processor.magicContent.appendLeft(styleAttr.value[0].start, cssVar.values);
         } else {
           const lastAttr = childNode.attributes[attributesLength - 1];
@@ -77,12 +86,20 @@ const addDynamicVariablesToElements = (
         );
       }
     } else if (childNode.type === 'IfBlock') {
-      addDynamicVariablesToElements(processor, childNode, cssVar);
-      addDynamicVariablesToElements(processor, childNode.else, cssVar);
+      addDynamicVariablesToElements(processor, childNode.consequent, cssVar);
+      if (childNode.alternate) {
+        addDynamicVariablesToElements(processor, childNode.alternate, cssVar);
+      }
     } else if (childNode.type === 'AwaitBlock') {
-      addDynamicVariablesToElements(processor, childNode.pending, cssVar);
-      addDynamicVariablesToElements(processor, childNode.then, cssVar);
-      addDynamicVariablesToElements(processor, childNode.catch, cssVar);
+      if (childNode.pending) {
+        addDynamicVariablesToElements(processor, childNode.pending, cssVar);
+      }
+      if (childNode.then) {
+        addDynamicVariablesToElements(processor, childNode.then, cssVar);
+      }
+      if (childNode.catch) {
+        addDynamicVariablesToElements(processor, childNode.catch, cssVar);
+      }
     }
   });
 };
@@ -117,23 +134,29 @@ export default (processor: Processor): void => {
   const allowedAttributes = ['class', ...processor.options.includeAttributes];
 
   const cssVar = cssVariables(processor);
+  let dynamicVariablesAdded = false;
 
-  walk(processor.ast.html as BaseNode, {
+  walk(processor.ast.fragment, {
     enter(baseNode) {
-      const node = baseNode as TemplateNode;
-      if (node.type === 'Script' || node.type === 'Style') {
-        this.skip();
-      }
+      const node = baseNode as AST.Fragment | AST.Fragment['nodes'][0];
 
       // css variables on parent elements
-      if (node.type === 'Fragment' && cssVar.values.length) {
+      if (node.type === 'Fragment' && cssVar.values.length && !dynamicVariablesAdded) {
+        dynamicVariablesAdded = true;
         addDynamicVariablesToElements(processor, node, cssVar);
       }
 
-      if (['Element', 'InlineComponent'].includes(node.type) && node.attributes.length > 0) {
-        node.attributes.forEach((item: TemplateNode) => {
-          if (item.type === 'Attribute' && allowedAttributes.includes(item.name)) {
-            item.value.forEach((classItem: TemplateNode) => {
+      if (
+        ['RegularElement', 'Component'].includes(node.type) &&
+        (node as AST.Component | AST.RegularElement).attributes.length > 0
+      ) {
+        (node as AST.Component | AST.RegularElement).attributes.forEach((item) => {
+          if (
+            item.type === 'Attribute' &&
+            allowedAttributes.includes(item.name) &&
+            Array.isArray(item.value)
+          ) {
+            item.value.forEach((classItem) => {
               if (classItem.type === 'Text' && classItem.data.length > 0) {
                 const generatedClassNames = updateMultipleClasses(processor, classItem.data);
                 processor.magicContent.overwrite(
@@ -142,7 +165,7 @@ export default (processor: Processor): void => {
                   generatedClassNames
                 );
               } else if (
-                classItem.type === 'MustacheTag' &&
+                classItem.type === 'ExpressionTag' &&
                 classItem?.expression?.type === 'ConditionalExpression'
               ) {
                 const { consequent, alternate } = classItem.expression;
@@ -151,7 +174,7 @@ export default (processor: Processor): void => {
               }
             });
           }
-          if (item.type === 'Class') {
+          if (item.type === 'ClassDirective') {
             const classNames = item.name.split('.');
             const name = classNames.length > 1 ? classNames[1] : classNames[0];
             if (name in processor.cssModuleList) {

@@ -26,7 +26,7 @@ export default (processor: Processor): void => {
           node.type === 'ImportDeclaration' &&
           String(node.source.value)?.search(/\.module\.s?css$/) !== -1
         ) {
-          const nodeBody = node as unknown as ImportDeclaration & AST.BaseNode;
+          const nodeBody = node as ImportDeclaration & AST.BaseNode;
           const sourceValue = String(nodeBody.source.value);
           const absolutePath = path.resolve(path.dirname(processor.filename), sourceValue);
           const nodeModulesPath = path.resolve(`${path.resolve()}/node_modules`, sourceValue);
