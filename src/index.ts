@@ -109,29 +109,10 @@ const cssModulesPreprocessor = (options: Partial<PluginOptions> = {}): Preproces
   };
 };
 
-/**
- * Create a group of preprocessors which will be processed in a linear order
- * @param preprocessors list of preprocessors
- * @returns group of `markup` preprocessors
- */
-const linearPreprocessor = (preprocessors: PreprocessorGroup[]): PreprocessorGroup[] => {
-  return preprocessors.map((p) => {
-    return !p.script && !p.style
-      ? p
-      : {
-          async markup({ content, filename }) {
-            return preprocess(content, p, { filename });
-          },
-        };
-  });
-};
-
 // export default cssModulesPreprocessor;
 export default exports = module.exports = cssModulesPreprocessor;
 export const cssModules = cssModulesPreprocessor;
-export const linearPreprocess = linearPreprocessor;
 
 // const cssModulesPreprocessor: any = module.exports = cssModules;
 // cssModulesPreprocessor.cssModules = cssModules;
-// cssModulesPreprocessor.linearPreprocess = linearPreprocess;
 // export default module.exports = cssModules;
