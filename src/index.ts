@@ -1,5 +1,5 @@
 /* eslint-disable no-multi-assign */
-import { parse, preprocess } from 'svelte/compiler';
+import { parse } from 'svelte/compiler';
 import type { AST, PreprocessorGroup, MarkupPreprocessor } from 'svelte/compiler';
 import { mixedProcessor, nativeProcessor, scopedProcessor } from './processors';
 import type { PluginOptions } from './types';
