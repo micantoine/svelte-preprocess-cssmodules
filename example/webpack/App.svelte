@@ -1,21 +1,31 @@
 <script>
   import 'swiper/swiper.min.css';
   import Time from './components/Time.svelte';
+  import Body from './components/Body.svelte';
+
   import css from './app.module.css';
   import { success, successSmall } from './app2.module.css';
   import './app3.module.css';
 
   let theme = { color: 'blue'};
 </script>
-<div class="overlay" />
+<div class="overlay"></div>
 <div class="modal" style="display:block">
   <section>
-    <header class="active" on:click={() => theme.color = 'red'}>My Modal title</header>
-    <div class="body">
-      <Time />
+    <header
+      class="active"
+      role="button"
+      tabindex="-1"
+      on:click={() => theme.color = 'red'}
+      on:keyup={() => theme.color = 'green'}
+    >
+      My Modal title
+    </header>
+    <Body>
+      <Time class="time" />
       <p class="{css.error} {css.errorMessage} large"><strong>Lorem ipsum dolor sit</strong>, amet consectetur adipisicing elit. Placeat, deserunt.</p>
       <p class="{success} {successSmall}">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Placeat, deserunt. Lorem ipsum dolor sit amet. </p>
-    </div>
+    </Body>
     <footer>
       <button class="active">Ok</button>
       <button class="cancel">Cancel</button>
@@ -61,15 +71,6 @@
   color: bind("theme.color");
 }
 
-.body {
-  padding: 1rem;
-  flex: 1 0 0;
-  min-height: 0;
-  max-height: 100%;
-  overflow: scroll;
-  -webkit-overflow-scrolling: touch;
-}
-
 :local(footer) {
   padding: 1rem;
   text-align: right;
@@ -89,5 +90,11 @@ button {
 }
 .active {
   font-weight: 700;
+}
+
+@media screen {
+  .time {
+    color: red;
+  }
 }
 </style>
