@@ -20,6 +20,7 @@ const defaultOptions = (): PluginOptions => {
     includePaths: [],
     localIdentName: '[local]-[hash:base64:6]',
     mode: 'native',
+    rune: false,
     parseExternalStylesheet: false,
     parseStyleTag: true,
     useAsDefaultScoping: false,
