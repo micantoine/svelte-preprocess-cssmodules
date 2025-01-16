@@ -47,50 +47,49 @@ const parser = (processor: Processor): void => {
         }
         if (node.type === 'Rule') {
           node.prelude.children.forEach((child) => {
-            child.children.forEach((grandChild) => {
-              if (grandChild.type === 'RelativeSelector') {
-                let start = 0;
-                let end = 0;
+            if (child.type === 'ComplexSelector') {
+              let start = 0;
+              let end = 0;
 
-                grandChild.selectors.forEach((item, index) => {
-                  if (item.type === 'Percentage') {
-                    return;
-                  }
-
-                  let hasPushed = false;
-                  if (
-                    item.type === 'PseudoClassSelector' &&
-                    (item.name === 'global' || item.name === 'local')
-                  ) {
-                    if (start > 0 && end > 0) {
-                      selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-                      hasPushed = true;
+              child.children.forEach((grandChild, index) => {
+                let hasPushed = false;
+                if (grandChild.type === 'RelativeSelector') {
+                  grandChild.selectors.forEach((item) => {
+                    if (
+                      item.type === 'PseudoClassSelector' &&
+                      (item.name === 'global' || item.name === 'local')
+                    ) {
+                      processor.parsePseudoLocalSelectors(item);
+                      if (start > 0 && end > 0) {
+                        selectorBoundaries = updateSelectorBoundaries(
+                          selectorBoundaries,
+                          start,
+                          end
+                        );
+                        hasPushed = true;
+                      }
+                      start = item.end + 1;
+                      end = 0;
+                    } else if (item.start && item.end) {
+                      if (start === 0) {
+                        start = item.start;
+                      }
+                      end = item.end;
+                      processor.parseClassSelectors(item);
                     }
-                    start = item.end + 1;
-                    end = 0;
-                  } else if (item.start && item.end) {
-                    if (start === 0) {
-                      start = item.start;
-                    }
-                    end = item.end;
-                  }
+                  });
 
                   if (
                     hasPushed === false &&
-                    grandChild.selectors &&
-                    index === grandChild.selectors.length - 1 &&
+                    child.children &&
+                    index === child.children.length - 1 &&
                     end > 0
                   ) {
                     selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
                   }
-                });
-
-                grandChild.selectors.forEach((item) => {
-                  processor.parsePseudoLocalSelectors(item);
-                  processor.parseClassSelectors(item);
-                });
-              }
-            });
+                }
+              });
+            }
           });
 
           processor.parseBoundVariables(node.block);
