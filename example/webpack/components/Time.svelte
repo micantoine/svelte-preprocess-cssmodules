@@ -1,19 +1,29 @@
 <script>
-  import { onDestroy } from 'svelte';
+  let { class: className, ...props} = $props();
 
-  let className;
-  export { className as class };
+  let date = $state(new Date());
+  let time = $derived(`${date.getHours()}:${twoDigits(date.getMinutes())}:${twoDigits(date.getSeconds())}`);
 
-  let date = new Date();
-  const active = true;
-  $: time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+  function twoDigits(str) {
+    return str.toLocaleString('en', { minimumIntegerDigits: 2 });
+  }
   
-  const interval = setInterval(() => date = new Date(), 1000);
+  $effect(() => {
+    const interval = setInterval(() => {
+			date = new Date();
+		}, 1000);
 
-  onDestroy(() => {
-    clearInterval(interval);
-  })
+		return () => {
+			clearInterval(interval);
+		};
+  });
 </script>
+
+<div
+  class="time bolder light { true ? 'lighter red' : ''} {className}"
+  class:bold={true}
+  {...props}
+>{time}</div>
 
 <style module="mixed">
   :local(div) {
@@ -51,16 +61,10 @@
 
   :local(div) *.bold { font-size: 12px;}
 
-  .btn {
+  .time {
     float:right;
 		animation: opacity 4s infinite alternate;
 	}
-
-  @media screen {
-    .btn {
-      color: red;
-    }
-  }
 
 	@keyframes opacity {
 		0% {
@@ -70,8 +74,12 @@
 			opacity: 1;
 		}
 	}
+	@keyframes opacity2 {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
 </style>
-<div
-  class="btn bolder light { true ? 'lighter red' : ''}"
-  class:bold={true}
->{time}</div>
