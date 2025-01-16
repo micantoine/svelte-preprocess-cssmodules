@@ -43,6 +43,7 @@ const parser = (processor: Processor): void => {
       (baseNode as AST.CSS.StyleSheet).children?.forEach((node) => {
         if (node.type === 'Atrule' && node.name === 'keyframes') {
           processor.parseKeyframes(node);
+          this.skip();
         }
         if (node.type === 'Rule') {
           node.prelude.children.forEach((child) => {
