@@ -2,7 +2,7 @@
 import { readdir, lstat, readFile, existsSync, writeFile } from 'fs';
 import { resolve, dirname } from 'path';
 import { Parser } from 'acorn';
-import { walk } from 'svelte/compiler';
+import { walk } from 'estree-walker';
 import MagicString from 'magic-string';
 
 const parseDir = (dir) => {

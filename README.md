@@ -6,6 +6,8 @@ Generate CSS Modules classnames on Svelte components
 npm install --save-dev svelte-preprocess-cssmodules
 ```
 
+for `svelte 4` and below, use version 2 of the preprocessor.
+
 ## Table of Content
 
 - [Usage](#usage)
@@ -30,8 +32,8 @@ npm install --save-dev svelte-preprocess-cssmodules
   - [Webpack](#webpack)
   - [SvelteKit](#sveltekit)
   - [Svelte Preprocess](#svelte-preprocess)
+  - [Vite](#vite)
   - [Options](#options)
-- [Migrating from v1](#migrating-from-v1)
 - [Code example](#code-example)
 
 ## Usage
@@ -113,8 +115,8 @@ Toggle a class on an element.
 
 ```html
 <script>
-  let route = 'home';
-  $: isActive = route === 'home';
+  let route = $state('home');
+  let isActive = $derived(route === 'home');
 </script>
 
 <style module>
@@ -140,8 +142,8 @@ _generating_
 
 ```html
 <script>
-  let route = 'home';
-  $: active = route === 'home';
+  let route = $state('home');
+  let active = $derived(route === 'home');
 </script>
 
 <style module>
@@ -264,7 +266,7 @@ Link the value of a CSS property to a dynamic variable by using `bind()`.
 
 ```html
 <script>
-  let color = 'red';
+  let color = $state('red');
 </script>
 
 <p class="text">My lorem ipsum text</p>
@@ -302,9 +304,9 @@ An object property can also be targetted and must be wrapped with quotes.
 
 ```html
 <script>
-  const style = {
+  const style = $state({
     opacity: 0;
-  };
+  });
 </script>
 
 <div class="content">
@@ -327,9 +329,9 @@ _generating_
 
 ```html
 <script>
-  const style = {
+  const style = $state({
     opacity: 0;
-  };
+  });
 </script>
 
 <div class="content-dhye8T" style="--opacity-r1gf51:{style.opacity}">
@@ -355,8 +357,7 @@ CSS Modules allows you to pass a scoped classname to a child component giving th
 ```html
 <!-- Child Component Button.svelte -->
 <script>
-  let className;
-  export { className as class };
+  let { class: className } = $props();
 </script>
 
 <button class="btn {className}">
@@ -579,8 +580,8 @@ Use the Svelte's builtin `class:` directive or javascript template to display a 
 <script>
   import { success, error } from './style.module.css';
 
-  let isSuccess = true;
-  $: notice = isSuccess ? success : error;
+  let isSuccess = $state(true);
+  let notice = $derived(isSuccess ? success : error);
 </script>
 
 <button on:click={() => isSuccess = !isSuccess}>Toggle</button>
@@ -813,39 +814,38 @@ export default config;
 
 ### Svelte Preprocess
 
-Svelte is running the preprocessors by phases, going through all *markup* first, followed by *script* and then *style*.
-
-The CSS Modules preprocessor is doing all its work on the markup phase via `svelte.parse()` which requires the compoment to be a valid standard svelte component (using vanilla js and vanilla css). if any other code (such as typescript or sass) is encountered, an error will be thrown. 
+The CSS Modules preprocessor requires the compoment to be a standard svelte component (using vanilla js and vanilla css). if any other code, such as Typescript or Sass, is encountered, an error will be thrown. Therefore CSS Modules needs to be run at the very end.
 
 ```js
 import { typescript, scss } from 'svelte-preprocess';
 import { cssModules } from 'svelte-preprocess-cssmodules';
 
 ...
-// svelte config:  NOT working!
+// svelte config:
   preprocess: [
-    typescript(), // 2 run second on script phase
-    scss(), // 3 run last on style phase
-    cssModules(), // 1 run first on markup phase
+    typescript(),
+    scss(),
+    cssModules(), // run last
   ],
 ...
 ```
 
-As it is extremely common for developers to use `svelte-preprocess` in their application, CSS Modules provides a small utility to easily be incorporated with. `linearPreprocess` will ensure a linear process with the list of preprocessors.
+### Vite
+
+Set the `svelte.config.js` accordingly.
 
 ```js
-import { typescript, scss } from 'svelte-preprocess';
-import { cssModules, linearPreprocess } from 'svelte-preprocess-cssmodules';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { cssModules } from 'svelte-preprocess-cssmodules';
 
-...
-// svelte config: OK, processing one after another!
-  preprocess: linearPreprocess([
-    typescript(), // 1 run first
-    scss(), // 2 run second
-    cssModules(), // 3 run last
-  ]),
-...
+export default {
+  preprocess: [
+    vitePreprocess(),
+    cssModules()
+  ]
+};
 ```
+
 
 ### Options
 Pass an object of the following properties
@@ -1061,28 +1061,6 @@ preprocess: [
 ],
 ...
 ```
-
-## Migrating from v1
-If you want to migrate an existing project to `v2` keeping the approach of the 1st version, follow the steps below:
-
-- Set the `mixed` mode from the global settings.
-   ```js
-   // Preprocess config
-   ...
-   preprocess: [
-    cssModules({
-      mode: 'mixed',
-    }),
-   ],
-   ...
-   ```
-- Remove all `$style.` prefix from the html markup
-- Add the attribute `module` to `<style>` within your components.
-   ```html
-   <style module>
-   ...
-   </style>
-   ```
 
 ## Code Example
 

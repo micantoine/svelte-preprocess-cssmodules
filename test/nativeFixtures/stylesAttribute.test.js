@@ -80,7 +80,7 @@ describe('Native Mode', () => {
       ':global(.bold-123.red-123:last-child) :global(div) :global(span.light-123 span.light-123:first-child) { color: red; }' +
       ':global(div) p > strong { font-weight: 600; }' +
       '.bolder:last-child + p:not(:first-child) :global(p.bold-123) { color: blue; }' +
-      ':global(.boldest-123:last-child +) p:not(:first-child) { color: blue; }' +
+      ':global(.boldest-123:last-child) + p:not(:first-child) { color: blue; }' +
       '</style>' +
       '<span class="red-123 bold-123 center">Red</span>';
 

@@ -13,8 +13,8 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.svelte$/,
-        exclude: /node_modules/,
+        test: /\.(svelte|svelte\.js)$/,
+        // exclude: /node_modules/,
         use: [
           {
             loader: 'svelte-loader',
@@ -32,13 +32,25 @@ module.exports = {
         ]
       },
       {
+        test: /node_modules\/svelte\/.*\.mjs$/,
+        resolve: {
+          fullySpecified: false
+        }
+      },
+      {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
       },
     ]
   },
+  resolve: {
+    extensions: ['.mjs', '.js', '.svelte'],
+    mainFields: ['svelte', 'browser', 'module', 'main'],
+    conditionNames: ['svelte', 'browser'],
+    fallback: { "events": false }
+  },
   devServer: {
-    contentBase: path.join(__dirname, 'dist'),
+    static: path.join(__dirname, 'dist'),
     port: 9090
   }
 };

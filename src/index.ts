@@ -1,9 +1,8 @@
 /* eslint-disable no-multi-assign */
-import { parse, preprocess } from 'svelte/compiler';
-import type { Ast } from 'svelte/types/compiler/interfaces';
-import type { PreprocessorGroup, MarkupPreprocessor } from 'svelte/types/compiler/preprocess/index';
+import { parse } from 'svelte/compiler';
+import type { AST, PreprocessorGroup, MarkupPreprocessor } from 'svelte/compiler';
+import { mixedProcessor, nativeProcessor, scopedProcessor } from './processors';
 import type { PluginOptions } from './types';
-import { nativeProcessor, mixedProcessor, scopedProcessor } from './processors';
 import {
   getLocalIdent,
   isFileIncluded,
@@ -43,13 +42,11 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
     return { code: content };
   }
 
-  let ast: Ast;
+  let ast: AST.Root;
   try {
-    ast = parse(content, { filename });
+    ast = parse(content, { modern: true, filename });
   } catch (err) {
-    throw new Error(
-      `${err}\n\nThe svelte component failed to be parsed. Make sure cssModules is running after all other preprocessors by wrapping them with "linearPreprocess()" from svelte-preprocess-cssmodules`
-    );
+    throw new Error(`${err}\n\nThe svelte component failed to be parsed.`);
   }
 
   if (
@@ -80,26 +77,16 @@ const markup: MarkupPreprocessor = async ({ content, filename }) => {
     }
   });
 
-  let parsedContent: string;
+  let processor = nativeProcessor;
 
-  switch (mode) {
-    case 'scoped': {
-      parsedContent = await scopedProcessor(ast, content, filename, pluginOptions);
-      break;
-    }
-    case 'mixed': {
-      parsedContent = await mixedProcessor(ast, content, filename, pluginOptions);
-      break;
-    }
-    default: {
-      parsedContent = await nativeProcessor(ast, content, filename, pluginOptions);
-      break;
-    }
+  if (mode === 'mixed') {
+    processor = mixedProcessor;
+  } else if (mode === 'scoped') {
+    processor = scopedProcessor;
   }
 
-  return {
-    code: parsedContent,
-  };
+  const parsedContent = await processor(ast, content, filename, pluginOptions);
+  return { code: parsedContent };
 };
 
 /**
@@ -122,29 +109,10 @@ const cssModulesPreprocessor = (options: Partial<PluginOptions> = {}): Preproces
   };
 };
 
-/**
- * Create a group of preprocessors which will be processed in a linear order
- * @param preprocessors list of preprocessors
- * @returns group of `markup` preprocessors
- */
-const linearPreprocessor = (preprocessors: PreprocessorGroup[]): PreprocessorGroup[] => {
-  return preprocessors.map((p) => {
-    return !p.script && !p.style
-      ? p
-      : {
-          async markup({ content, filename }) {
-            return preprocess(content, p, { filename });
-          },
-        };
-  });
-};
-
 // export default cssModulesPreprocessor;
 export default exports = module.exports = cssModulesPreprocessor;
 export const cssModules = cssModulesPreprocessor;
-export const linearPreprocess = linearPreprocessor;
 
 // const cssModulesPreprocessor: any = module.exports = cssModules;
 // cssModulesPreprocessor.cssModules = cssModules;
-// cssModulesPreprocessor.linearPreprocess = linearPreprocess;
 // export default module.exports = cssModules;

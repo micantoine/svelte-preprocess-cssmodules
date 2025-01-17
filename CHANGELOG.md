@@ -1,6 +1,17 @@
 # Svelte preprocess CSS Modules, changelog
 
-## 2.2.5 (Sept 19, 2022)
+## 3.0.0 (Jan 17 2025)
+
+### Update
+
+- Support for svelte 5 [#124](https://github.com/micantoine/svelte-preprocess-cssmodules/issues/124)
+- Use modern AST
+
+### Breaking Changes
+- Remove `linearPreprocess` util since it is not being needed anymore
+- Set peer dependencies to svelte 5 only
+
+## 2.2.5 (Sept 19, 2024)
 
 ### Updates
 

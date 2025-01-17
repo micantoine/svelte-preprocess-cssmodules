@@ -1,5 +1,5 @@
-import { walk, type BaseNode } from 'estree-walker';
-import type { Ast, TemplateNode } from 'svelte/types/compiler/interfaces';
+import { walk } from 'estree-walker';
+import type { AST } from 'svelte/compiler';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
 
@@ -32,61 +32,70 @@ const updateSelectorBoundaries = (
  * @param processor The CSS Module Processor
  */
 const parser = (processor: Processor): void => {
-  const ast = processor.ast as unknown as BaseNode;
+  if (!processor.ast.css) {
+    return;
+  }
+
   let selectorBoundaries: Boundaries[] = [];
 
-  walk(ast, {
+  walk(processor.ast.css, {
     enter(baseNode) {
-      const node = baseNode as TemplateNode;
-      if (node.type === 'Script' || node.type === 'Fragment') {
-        this.skip();
-      }
+      (baseNode as AST.CSS.StyleSheet).children?.forEach((node) => {
+        if (node.type === 'Atrule' && node.name === 'keyframes') {
+          processor.parseKeyframes(node);
+          this.skip();
+        }
+        if (node.type === 'Rule') {
+          node.prelude.children.forEach((child) => {
+            if (child.type === 'ComplexSelector') {
+              let start = 0;
+              let end = 0;
 
-      if (node.type === 'Atrule' && node.name === 'keyframes') {
-        processor.parseKeyframes(node);
-        this.skip();
-      }
+              child.children.forEach((grandChild, index) => {
+                let hasPushed = false;
+                if (grandChild.type === 'RelativeSelector') {
+                  grandChild.selectors.forEach((item) => {
+                    if (
+                      item.type === 'PseudoClassSelector' &&
+                      (item.name === 'global' || item.name === 'local')
+                    ) {
+                      processor.parsePseudoLocalSelectors(item);
+                      if (start > 0 && end > 0) {
+                        selectorBoundaries = updateSelectorBoundaries(
+                          selectorBoundaries,
+                          start,
+                          end
+                        );
+                        hasPushed = true;
+                      }
+                      start = item.end + 1;
+                      end = 0;
+                    } else if (item.start && item.end) {
+                      if (start === 0) {
+                        start = item.start;
+                      }
+                      end = item.end;
+                      processor.parseClassSelectors(item);
+                    }
+                  });
 
-      if (node.type === 'Selector') {
-        let start = 0;
-        let end = 0;
-
-        if (node.children) {
-          node.children.forEach((item, index) => {
-            let hasPushed = false;
-            if (
-              (item.name === 'global' || item.name === 'local') &&
-              item.type === 'PseudoClassSelector'
-            ) {
-              if (start > 0 && end > 0) {
-                selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
-                hasPushed = true;
-              }
-              start = item.end + 1;
-              end = 0;
-            } else if (item.start && item.end) {
-              if (start === 0) {
-                start = item.start;
-              }
-              end = item.end;
-            }
-
-            if (!hasPushed && node.children && index === node.children.length - 1 && end > 0) {
-              selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+                  if (
+                    hasPushed === false &&
+                    child.children &&
+                    index === child.children.length - 1 &&
+                    end > 0
+                  ) {
+                    selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+                  }
+                }
+              });
             }
           });
+
+          processor.parseBoundVariables(node.block);
+          processor.storeAnimationProperties(node.block);
         }
-      }
-
-      processor.parseBoundVariables(node);
-      processor.parsePseudoLocalSelectors(node);
-      processor.storeAnimationProperties(node);
-
-      if (node.type === 'ClassSelector') {
-        const generatedClassName = processor.createModuleClassname(node.name);
-        processor.addModule(node.name, generatedClassName);
-        processor.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
-      }
+      });
     },
   });
 
@@ -99,7 +108,7 @@ const parser = (processor: Processor): void => {
 };
 
 const nativeProcessor = async (
-  ast: Ast,
+  ast: AST.Root,
   content: string,
   filename: string,
   options: PluginOptions

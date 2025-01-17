@@ -62,7 +62,7 @@ describe('Scoped Keyframes', () => {
       '<style module>' +
       '.title { font-size:18px; animation: fadeIn 2s ease-in, rotate 2s linear infinite; }' +
       '@keyframes fadeIn {from {opacity:0} to {opacity:1}}' +
-      '@keyframes rotate {from {transform:rotate(0deg);} to {transform:rotate(360deg);}' +
+      '@keyframes rotate {from {transform:rotate(0deg);} to {transform:rotate(360deg);}}' +
       '</style>' +
       '<span class="title">Red</span>';
 
@@ -70,7 +70,7 @@ describe('Scoped Keyframes', () => {
       '<style module>' +
       ':global(.title-123) { font-size:18px; animation: fadeIn-123 2s ease-in, rotate-123 2s linear infinite; }' +
       '@keyframes -global-fadeIn-123 {from {opacity:0} to {opacity:1}}' +
-      '@keyframes -global-rotate-123 {from {transform:rotate(0deg);} to {transform:rotate(360deg);}' +
+      '@keyframes -global-rotate-123 {from {transform:rotate(0deg);} to {transform:rotate(360deg);}}' +
       '</style>' +
       '<span class="title-123">Red</span>';
 
@@ -92,7 +92,7 @@ describe('Scoped Keyframes', () => {
       '<style module>' +
       '.title { font-size:18px; animation: fadeIn 2s ease-in, rotate 2s linear infinite; }' +
       '@keyframes fadeIn {from {opacity:0} to {opacity:1}}' +
-      '@keyframes -global-rotate {from {transform:rotate(0deg);} to {transform:rotate(360deg);}' +
+      '@keyframes -global-rotate {from {transform:rotate(0deg);} to {transform:rotate(360deg);}}' +
       '</style>' +
       '<span class="title">Red</span>';
 
@@ -100,7 +100,7 @@ describe('Scoped Keyframes', () => {
       '<style module>' +
       ':global(.title-123) { font-size:18px; animation: fadeIn-123 2s ease-in, rotate 2s linear infinite; }' +
       '@keyframes -global-fadeIn-123 {from {opacity:0} to {opacity:1}}' +
-      '@keyframes -global-rotate {from {transform:rotate(0deg);} to {transform:rotate(360deg);}' +
+      '@keyframes -global-rotate {from {transform:rotate(0deg);} to {transform:rotate(360deg);}}' +
       '</style>' +
       '<span class="title-123">Red</span>';
 

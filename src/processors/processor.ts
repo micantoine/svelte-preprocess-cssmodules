@@ -1,5 +1,5 @@
 import MagicString from 'magic-string';
-import type { Ast, Style, TemplateNode } from 'svelte/types/compiler/interfaces.d';
+import type { AST } from 'svelte/compiler';
 import { CSSModuleList, PluginOptions } from '../types';
 import {
   camelCase,
@@ -17,12 +17,12 @@ export default class Processor {
   public cssModuleList: CSSModuleList = {};
   public cssVarList: CSSModuleList = {};
   public cssKeyframeList: CSSModuleList = {};
-  public cssAnimationProperties: TemplateNode[] = [];
+  public cssAnimationProperties: AST.CSS.Declaration[] = [];
   public importedCssModuleList: CSSModuleList = {};
 
-  public ast: Ast;
+  public ast: AST.Root;
   public style: {
-    ast?: Style;
+    ast?: AST.Root['css'];
     openTag: string;
     closeTag: string;
   };
@@ -33,7 +33,7 @@ export default class Processor {
   public isParsingImports = false;
 
   constructor(
-    ast: Ast,
+    ast: AST.Root,
     content: string,
     filename: string,
     options: PluginOptions,
@@ -111,30 +111,28 @@ export default class Processor {
    * Parse css dynamic variables bound to js bind()
    * @param node The ast "Selector" node to parse
    */
-  public parseBoundVariables = (node: TemplateNode): void => {
-    const bindedVariableNodes =
-      node.children?.filter(
-        (item) => item.type === 'Function' && item.name === 'bind' && node.children?.length
-      ) ?? [];
+  public parseBoundVariables = (node: AST.CSS.Block): void => {
+    const bindedVariableNodes = (node.children.filter(
+      (item) => item.type === 'Declaration' && item.value.includes('bind(')
+    ) ?? []) as AST.CSS.Declaration[];
 
     if (bindedVariableNodes.length > 0) {
       bindedVariableNodes.forEach((item) => {
-        if (item.children) {
-          const child = item.children[0];
-          const name = child.name ?? child.value.replace(/'|"/g, '');
-          const varName = child.type === 'String' ? name.replace(/\./, '-') : name;
-          const generatedVarName = generateName(
-            this.filename,
-            this.ast.css?.content.styles ?? '',
-            varName,
-            {
-              hashSeeder: ['style', 'filepath'],
-              localIdentName: `[local]-${this.options.cssVariableHash}`,
-            }
-          );
-          this.magicContent.overwrite(item.start, item.end, `var(--${generatedVarName})`);
-          this.cssVarList[name] = generatedVarName;
-        }
+        const name = item.value.replace(/'|"|bind\(|\)/g, '');
+        const varName = name.replace(/\./, '-');
+
+        const generatedVarName = generateName(
+          this.filename,
+          this.ast.css?.content.styles ?? '',
+          varName,
+          {
+            hashSeeder: ['style', 'filepath'],
+            localIdentName: `[local]-${this.options.cssVariableHash}`,
+          }
+        );
+        const bindStart = item.end - item.value.length;
+        this.magicContent.overwrite(bindStart, item.end, `var(--${generatedVarName})`);
+        this.cssVarList[name] = generatedVarName;
       });
     }
   };
@@ -143,12 +141,17 @@ export default class Processor {
    * Parse keyframes
    * @param node The ast "Selector" node to parse
    */
-  public parseKeyframes = (node: TemplateNode): void => {
-    const rulePrelude = node.prelude.children[0];
-    if (rulePrelude.name.indexOf('-global-') === -1) {
-      const animationName = this.createModuleClassname(rulePrelude.name);
-      this.magicContent.overwrite(rulePrelude.start, rulePrelude.end, `-global-${animationName}`);
-      this.cssKeyframeList[rulePrelude.name] = animationName;
+  public parseKeyframes = (node: AST.CSS.Atrule): void => {
+    if (node.prelude.indexOf('-global-') === -1) {
+      const animationName = this.createModuleClassname(node.prelude);
+      if (node.block?.end) {
+        this.magicContent.overwrite(
+          node.start,
+          node.block.start - 1,
+          `@keyframes -global-${animationName}`
+        );
+        this.cssKeyframeList[node.prelude] = animationName;
+      }
     }
   };
 
@@ -156,7 +159,19 @@ export default class Processor {
    * Parse pseudo selector :local()
    * @param node The ast "Selector" node to parse
    */
-  public parsePseudoLocalSelectors = (node: TemplateNode): void => {
+  public parseClassSelectors = (node: AST.CSS.SimpleSelector): void => {
+    if (node.type === 'ClassSelector') {
+      const generatedClassName = this.createModuleClassname(node.name);
+      this.addModule(node.name, generatedClassName);
+      this.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
+    }
+  };
+
+  /**
+   * Parse pseudo selector :local()
+   * @param node The ast "Selector" node to parse
+   */
+  public parsePseudoLocalSelectors = (node: AST.CSS.SimpleSelector): void => {
     if (node.type === 'PseudoClassSelector' && node.name === 'local') {
       this.magicContent.remove(node.start, node.start + `:local(`.length);
       this.magicContent.remove(node.end - 1, node.end);
@@ -167,19 +182,14 @@ export default class Processor {
    * Store animation properties
    * @param node The ast "Selector" node to parse
    */
-  public storeAnimationProperties = (node: TemplateNode): void => {
-    if (node.type === 'Declaration' && ['animation', 'animation-name'].includes(node.property)) {
-      let names = 0;
-      let properties = 0;
-      node.value.children.forEach((item: TemplateNode) => {
-        if (item.type === 'Identifier' && properties === names) {
-          names += 1;
-          this.cssAnimationProperties.push(item);
-        }
-        if (item.type === 'Operator' && item.value === ',') {
-          properties += 1;
-        }
-      });
+  public storeAnimationProperties = (node: AST.CSS.Block): void => {
+    const animationNodes = (node.children.filter(
+      (item) =>
+        item.type === 'Declaration' && ['animation', 'animation-name'].includes(item.property)
+    ) ?? []) as AST.CSS.Declaration[];
+
+    if (animationNodes.length > 0) {
+      this.cssAnimationProperties.push(...animationNodes);
     }
   };
 
@@ -189,9 +199,14 @@ export default class Processor {
    */
   public overwriteAnimationProperties = (): void => {
     this.cssAnimationProperties.forEach((item) => {
-      if (item.name in this.cssKeyframeList) {
-        this.magicContent.overwrite(item.start, item.end, this.cssKeyframeList[item.name]);
-      }
+      Object.keys(this.cssKeyframeList).forEach((key) => {
+        const index = item.value.indexOf(key);
+        if (index > -1) {
+          const keyStart = item.end - item.value.length + index;
+          const keyEnd = keyStart + key.length;
+          this.magicContent.overwrite(keyStart, keyEnd, this.cssKeyframeList[key]);
+        }
+      });
     });
   };
 }
