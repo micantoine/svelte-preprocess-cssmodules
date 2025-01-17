@@ -13,7 +13,7 @@ interface CssVariables {
  * @param classNames The attribute value containing one or multiple classes
  * @returns the CSS Modules classnames
  */
-const updateMultipleClasses = (processor: Processor, classNames: string): string => {
+export const updateMultipleClasses = (processor: Processor, classNames: string): string => {
   const classes: string[] = classNames.split(' ');
   const generatedClassNames: string = classes.reduce((accumulator, currentValue, currentIndex) => {
     let value: string = currentValue;
