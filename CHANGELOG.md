@@ -1,5 +1,11 @@
 # Svelte preprocess CSS Modules, changelog
 
+## 3.0.1 (Feb 7 2025)
+
+### Fixes
+
+- Add support to class objects and arrays
+
 ## 3.0.0 (Jan 17 2025)
 
 ### Update
