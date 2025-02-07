@@ -31,18 +31,89 @@ const updateMultipleClasses = (processor: Processor, classNames: string): string
 };
 
 /**
- * Parse and update classes of a js expression element
+ * Parse and update literal expression element
  * @param processor: The CSS Module Processor
- * @param expression The expression node (consequent, alternate)
+ * @param expression The expression node
  */
-const parseExpression = (
+const parseLiteralExpression = (
   processor: Processor,
-  expression: AST.ExpressionTag['expression']
+  expression: AST.ExpressionTag['expression'] | null
 ): void => {
   const exp = expression as typeof expression & AST.BaseNode;
   if (exp.type === 'Literal' && typeof exp.value === 'string') {
     const generatedClassNames = updateMultipleClasses(processor, exp.value);
     processor.magicContent.overwrite(exp.start, exp.end, `'${generatedClassNames}'`);
+  }
+};
+
+/**
+ * Parse and update conditional expression
+ * @param processor: The CSS Module Processor
+ * @param expression The expression node
+ */
+const parseConditionalExpression = (
+  processor: Processor,
+  expression: AST.ExpressionTag['expression']
+): void => {
+  if (expression.type === 'ConditionalExpression') {
+    const { consequent, alternate } = expression;
+    parseLiteralExpression(processor, consequent);
+    parseLiteralExpression(processor, alternate);
+  }
+};
+
+/**
+ * Parse and update object expression
+ * @param processor: The CSS Module Processor
+ * @param expression The expression node
+ */
+const parseObjectExpression = (
+  processor: Processor,
+  expression: AST.ExpressionTag['expression']
+): void => {
+  if (expression.type === 'ObjectExpression') {
+    expression?.properties.forEach((property) => {
+      if (property.type === 'Property') {
+        const key = property.key as (typeof property)['key'] & AST.BaseNode;
+
+        if (property.shorthand) {
+          if (key.type === 'Identifier') {
+            processor.magicContent.overwrite(
+              key.start,
+              key.end,
+              `'${processor.cssModuleList[key.name]}': ${key.name}`
+            );
+          }
+        } else if (key.type === 'Identifier') {
+          processor.magicContent.overwrite(
+            key.start,
+            key.end,
+            `'${processor.cssModuleList[key.name]}'`
+          );
+        } else if (key.type !== 'PrivateIdentifier') {
+          parseLiteralExpression(processor, key);
+        }
+      }
+    });
+  }
+};
+/**
+ * Parse and update array expression
+ * @param processor: The CSS Module Processor
+ * @param expression The expression node
+ */
+const parseArrayExpression = (
+  processor: Processor,
+  expression: AST.ExpressionTag['expression']
+): void => {
+  if (expression.type === 'ArrayExpression') {
+    expression.elements.forEach((el) => {
+      if (el?.type === 'LogicalExpression') {
+        parseLiteralExpression(processor, el.right);
+      } else if (el?.type !== 'SpreadElement') {
+        parseLiteralExpression(processor, el);
+      }
+    });
   }
 };
 
@@ -151,28 +222,25 @@ export default (processor: Processor): void => {
         (node as AST.Component | AST.RegularElement).attributes.length > 0
       ) {
         (node as AST.Component | AST.RegularElement).attributes.forEach((item) => {
-          if (
-            item.type === 'Attribute' &&
-            allowedAttributes.includes(item.name) &&
-            Array.isArray(item.value)
-          ) {
-            item.value.forEach((classItem) => {
-              if (classItem.type === 'Text' && classItem.data.length > 0) {
-                const generatedClassNames = updateMultipleClasses(processor, classItem.data);
-                processor.magicContent.overwrite(
-                  classItem.start,
-                  classItem.start + classItem.data.length,
-                  generatedClassNames
-                );
-              } else if (
-                classItem.type === 'ExpressionTag' &&
-                classItem?.expression?.type === 'ConditionalExpression'
-              ) {
-                const { consequent, alternate } = classItem.expression;
-                parseExpression(processor, consequent);
-                parseExpression(processor, alternate);
-              }
-            });
+          if (item.type === 'Attribute' && allowedAttributes.includes(item.name)) {
+            if (Array.isArray(item.value)) {
+              item.value.forEach((classItem) => {
+                if (classItem.type === 'Text' && classItem.data.length > 0) {
+                  const generatedClassNames = updateMultipleClasses(processor, classItem.data);
+                  processor.magicContent.overwrite(
+                    classItem.start,
+                    classItem.start + classItem.data.length,
+                    generatedClassNames
+                  );
+                } else if (classItem.type === 'ExpressionTag') {
+                  parseConditionalExpression(processor, classItem.expression);
+                }
+              });
+            } else if (typeof item.value === 'object' && item.value.type === 'ExpressionTag') {
+              parseObjectExpression(processor, item.value.expression);
+              parseArrayExpression(processor, item.value.expression);
+              parseConditionalExpression(processor, item.value.expression);
+            }
           }
           if (item.type === 'ClassDirective') {
             const classNames = item.name.split('.');
