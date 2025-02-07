@@ -12,7 +12,7 @@ for `svelte 4` and below, use version 2 of the preprocessor.
 
 - [Usage](#usage)
   - [Approach](#approach)
-  - [Class objects and arrays](#class-object-and-arrays)
+  - [Class objects and arrays](#class-objects-and-arrays)
   - [Class directive](#class-directive)
   - [Local selector](#local-selector)
   - [CSS binding](#css-binding)
