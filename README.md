@@ -12,6 +12,7 @@ for `svelte 4` and below, use version 2 of the preprocessor.
 
 - [Usage](#usage)
   - [Approach](#approach)
+  - [Class objects and arrays](#class-object-and-arrays)
   - [Class directive](#class-directive)
   - [Local selector](#local-selector)
   - [CSS binding](#css-binding)
@@ -106,6 +107,70 @@ _transformed to_
 <style> /* all scoped to component */
   .text-456rty { font-size: 14px; }
   .red-123qwe { color: red; }
+</style>
+```
+
+### Class objects and arrays
+
+#### Object with thruthy values
+
+```html
+<script>
+	let active = $state(true);
+</script>
+
+<div class={{ active, red: !active, 'bold': active }}>...</div>
+
+<style module>
+  .active { color: green; }
+  .red { color: red; }
+  .bold { font-weight: bold; }
+</style>
+```
+
+*generating*
+
+```html
+<div class="active-aft3ew bold-sfkje6">...</div>
+<!-- OR -->
+<div class="red-bft3ed">...</div>
+
+<style>
+  .active-aft3ew { color: green; }
+  .red-bft3ed { color: red; }
+  .bold-sfkje6 { font-weight: bold; }
+</style>
+```
+
+#### Array with thruthy values
+
+```html
+<script>
+	let active = $state(true);
+</script>
+
+<div class={[ active && 'green bold', 'italic', !active && 'red' ]}>...</div>
+
+<style module>
+  .green { color: green; }
+  .red { color: red; }
+  .bold { font-weight: bold; }
+  .italic { font-style: italic; }
+</style>
+```
+
+*generating*
+
+```html
+<div class="green-dhy6wu bold-uytsge italic-b65wfq">...</div>
+<!-- OR -->
+<div class="red-uyqrw4 italic-b65wfq">...</div>
+
+<style>
+  .green-dhy6wu { color: green; }
+  .red-uyqrw4 { color: red; }
+  .bold-uytsge { font-weight: bold; }
+  .italic-b65wfq { font-style: italic; }
 </style>
 ```
 
@@ -357,11 +422,11 @@ CSS Modules allows you to pass a scoped classname to a child component giving th
 ```html
 <!-- Child Component Button.svelte -->
 <script>
-  let { class: className } = $props();
+  let props = $props();
 </script>
 
-<button class="btn {className}">
-  <slot />
+<button class={['btn', props.class]}>
+  {@render props.children?.()}
 </button>
 
 <style module>
