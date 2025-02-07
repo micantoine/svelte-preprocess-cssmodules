@@ -116,7 +116,7 @@ _transformed to_
 
 ```html
 <script>
-	let active = $state(true);
+  let active = $state(true);
 </script>
 
 <div class={{ active, red: !active, 'bold': active }}>...</div>
@@ -146,7 +146,7 @@ _transformed to_
 
 ```html
 <script>
-	let active = $state(true);
+  let active = $state(true);
 </script>
 
 <div class={[ active && 'green bold', 'italic', !active && 'red' ]}>...</div>
