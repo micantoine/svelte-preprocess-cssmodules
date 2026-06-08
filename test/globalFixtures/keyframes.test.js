@@ -116,4 +116,84 @@ describe('Scoped Keyframes', () => {
 
     expect(output).toBe(expectedOutput);
   });
+
+  test('Native mode: class inside @media is hashed when @keyframes is also present', async () => {
+    const source =
+      '<style module>' +
+      '.foo { color: red; }' +
+      '@media (forced-colors: active) {' +
+      '.foo { color: CanvasText; }' +
+      '}' +
+      '@keyframes spin {' +
+      'from { transform: rotate(0deg); }' +
+      'to { transform: rotate(360deg); }' +
+      '}' +
+      '</style>' +
+      '<div class="foo"></div>';
+
+    const expectedOutput =
+      '<style module>' +
+      ':global(.foo-123) { color: red; }' +
+      '@media (forced-colors: active) {' +
+      ':global(.foo-123) { color: CanvasText; }' +
+      '}' +
+      '@keyframes -global-spin-123 {' +
+      'from { transform: rotate(0deg); }' +
+      'to { transform: rotate(360deg); }' +
+      '}' +
+      '</style>' +
+      '<div class="foo-123"></div>';
+
+    const output = await compiler(
+      {
+        source,
+      },
+      {
+        mode: 'native',
+        localIdentName: '[local]-123',
+      }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
+
+  test('Native mode: class inside @media after @keyframes is hashed', async () => {
+    const source =
+      '<style module>' +
+      '.bar { color: blue; }' +
+      '@keyframes pulse {' +
+      'from { opacity: 1; }' +
+      'to { opacity: 0; }' +
+      '}' +
+      '@media (prefers-reduced-motion: no-preference) {' +
+      '.bar { animation: pulse 1s ease-in-out; }' +
+      '}' +
+      '</style>' +
+      '<span class="bar">Bar</span>';
+
+    const expectedOutput =
+      '<style module>' +
+      ':global(.bar-123) { color: blue; }' +
+      '@keyframes -global-pulse-123 {' +
+      'from { opacity: 1; }' +
+      'to { opacity: 0; }' +
+      '}' +
+      '@media (prefers-reduced-motion: no-preference) {' +
+      ':global(.bar-123) { animation: pulse-123 1s ease-in-out; }' +
+      '}' +
+      '</style>' +
+      '<span class="bar-123">Bar</span>';
+
+    const output = await compiler(
+      {
+        source,
+      },
+      {
+        mode: 'native',
+        localIdentName: '[local]-123',
+      }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
 });

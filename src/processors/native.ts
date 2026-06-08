@@ -1,4 +1,3 @@
-import { walk } from 'estree-walker';
 import type { AST } from 'svelte/compiler';
 import type { PluginOptions } from '../types';
 import Processor from './processor';
@@ -21,7 +20,7 @@ const updateSelectorBoundaries = (
   const lastIndex = selectorBoundaries.length - 1;
   if (selectorBoundaries[lastIndex]?.end === start) {
     selectorBoundaries[lastIndex].end = end;
-  } else if (selectorBoundaries.length < 1 || selectorBoundaries[lastIndex].end < end) {
+  } else {
     selectorBoundaries.push({ start, end });
   }
   return selectorBoundaries;
@@ -38,66 +37,77 @@ const parser = (processor: Processor): void => {
 
   let selectorBoundaries: Boundaries[] = [];
 
-  walk(processor.ast.css, {
-    enter(baseNode) {
-      (baseNode as AST.CSS.StyleSheet).children?.forEach((node) => {
-        if (node.type === 'Atrule' && node.name === 'keyframes') {
-          processor.parseKeyframes(node);
-          this.skip();
-        }
-        if (node.type === 'Rule') {
-          node.prelude.children.forEach((child) => {
-            if (child.type === 'ComplexSelector') {
-              let start = 0;
-              let end = 0;
+  const visitNode = (node: AST.CSS.Node): void => {
+    if (node.type === 'Atrule') {
+      if (node.name === 'keyframes') {
+        processor.parseKeyframes(node);
+        return;
+      }
+      // Recurse into @media, @supports, @layer, etc.
+      (node.block as AST.CSS.Block)?.children?.forEach(visitNode);
+      return;
+    }
 
-              child.children.forEach((grandChild, index) => {
-                let hasPushed = false;
-                if (grandChild.type === 'RelativeSelector') {
-                  grandChild.selectors.forEach((item) => {
-                    if (
-                      item.type === 'PseudoClassSelector' &&
-                      (item.name === 'global' || item.name === 'local')
-                    ) {
-                      processor.parsePseudoLocalSelectors(item);
-                      if (start > 0 && end > 0) {
-                        selectorBoundaries = updateSelectorBoundaries(
-                          selectorBoundaries,
-                          start,
-                          end
-                        );
-                        hasPushed = true;
-                      }
-                      start = item.end + 1;
-                      end = 0;
-                    } else if (item.start && item.end) {
-                      if (start === 0) {
-                        start = item.start;
-                      }
-                      end = item.end;
-                      processor.parseClassSelectors(item);
-                    }
-                  });
+    if (node.type === 'Rule') {
+      node.prelude.children.forEach((child) => {
+        if (child.type === 'ComplexSelector') {
+          let start = 0;
+          let end = 0;
 
-                  if (
-                    hasPushed === false &&
-                    child.children &&
-                    index === child.children.length - 1 &&
-                    end > 0
-                  ) {
-                    selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+          child.children.forEach((grandChild, index) => {
+            let hasPushed = false;
+            if (grandChild.type === 'RelativeSelector') {
+              grandChild.selectors.forEach((item) => {
+                if (
+                  item.type === 'PseudoClassSelector' &&
+                  (item.name === 'global' || item.name === 'local')
+                ) {
+                  processor.parsePseudoLocalSelectors(item);
+                  if (start > 0 && end > 0) {
+                    selectorBoundaries = updateSelectorBoundaries(
+                      selectorBoundaries,
+                      start,
+                      end
+                    );
+                    hasPushed = true;
                   }
+                  start = item.end + 1;
+                  end = 0;
+                } else if (item.start && item.end) {
+                  if (start === 0) {
+                    start = item.start;
+                  }
+                  end = item.end;
+                  processor.parseClassSelectors(item);
                 }
               });
+
+              if (
+                hasPushed === false &&
+                child.children &&
+                index === child.children.length - 1 &&
+                end > 0
+              ) {
+                selectorBoundaries = updateSelectorBoundaries(selectorBoundaries, start, end);
+              }
             }
           });
-
-          processor.parseBoundVariables(node.block);
-          processor.storeAnimationProperties(node.block);
         }
       });
-    },
-  });
+
+      processor.parseBoundVariables(node.block);
+      processor.storeAnimationProperties(node.block);
+
+      // Recurse into nested rules (CSS nesting: rules inside rule blocks)
+      (node.block as AST.CSS.Block)?.children?.forEach((child) => {
+        if (child.type === 'Rule' || child.type === 'Atrule') {
+          visitNode(child);
+        }
+      });
+    }
+  };
+
+  processor.ast.css?.children?.forEach(visitNode);
 
   processor.overwriteAnimationProperties();
 

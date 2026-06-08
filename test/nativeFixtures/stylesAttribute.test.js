@@ -63,6 +63,165 @@ describe('Native Mode', () => {
     expect(output).toBe(expectedOutput);
   });
 
+  test('Globalize class selector inside @media block', async () => {
+    const source =
+      '<style module>\n' +
+      '@media (min-width: 37.5em) {\n' +
+      '.red { color: red; }\n' +
+      'div.bold { font-weight: bold; }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="bold"><span class="red">Red</span></div>';
+
+    const expectedOutput =
+      '<style module>\n' +
+      '@media (min-width: 37.5em) {\n' +
+      ':global(.red-123) { color: red; }\n' +
+      ':global(div.bold-123) { font-weight: bold; }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="bold-123"><span class="red-123">Red</span></div>';
+
+    const output = await compiler(
+      {
+        source,
+      },
+      {
+        mode: 'native',
+        localIdentName: '[local]-123',
+      }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
+
+  test('Globalize class selectors inside nested @supports block', async () => {
+    const source =
+      '<style module>\n' +
+      '@supports (display: grid) {\n' +
+      '.grid { display: grid; }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="grid">Grid</div>';
+
+    const expectedOutput =
+      '<style module>\n' +
+      '@supports (display: grid) {\n' +
+      ':global(.grid-123) { display: grid; }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="grid-123">Grid</div>';
+
+    const output = await compiler(
+      {
+        source,
+      },
+      {
+        mode: 'native',
+        localIdentName: '[local]-123',
+      }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
+
+  test('Globalize class selector directly nested inside a rule (CSS nesting)', async () => {
+    const source =
+      '<style module>\n' +
+      '.slider {\n' +
+      '  width: 100%;\n' +
+      '  .bar { height: 4px; }\n' +
+      '  .track { background: grey; }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="slider"><span class="bar"></span><span class="track"></span></div>';
+
+    const expectedOutput =
+      '<style module>\n' +
+      ':global(.slider-123) {\n' +
+      '  width: 100%;\n' +
+      '  :global(.bar-123) { height: 4px; }\n' +
+      '  :global(.track-123) { background: grey; }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="slider-123"><span class="bar-123"></span><span class="track-123"></span></div>';
+
+    const output = await compiler(
+      { source },
+      { mode: 'native', localIdentName: '[local]-123' }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
+
+  test('Globalize class selector in deeply nested CSS nesting (&.modifier > .child)', async () => {
+    const source =
+      '<style module>\n' +
+      '.wrapper {\n' +
+      '  color: black;\n' +
+      '  &.active {\n' +
+      '    .icon { color: red; }\n' +
+      '  }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="wrapper active"><span class="icon"></span></div>';
+
+    const expectedOutput =
+      '<style module>\n' +
+      ':global(.wrapper-123) {\n' +
+      '  color: black;\n' +
+      '  :global(&.active-123) {\n' +
+      '    :global(.icon-123) { color: red; }\n' +
+      '  }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="wrapper-123 active-123"><span class="icon-123"></span></div>';
+
+    const output = await compiler(
+      { source },
+      { mode: 'native', localIdentName: '[local]-123' }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
+
+  test('Globalize class selector nested inside rule inside @media (combined nesting)', async () => {
+    const source =
+      '<style module>\n' +
+      '.slider {\n' +
+      '  width: 100%;\n' +
+      '  &.vertical {\n' +
+      '    .bar { height: 100%; }\n' +
+      '  }\n' +
+      '  @media (forced-colors: active) {\n' +
+      '    .bar { border: 1px solid CanvasText; }\n' +
+      '  }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="slider vertical"><span class="bar"></span></div>';
+
+    const expectedOutput =
+      '<style module>\n' +
+      ':global(.slider-123) {\n' +
+      '  width: 100%;\n' +
+      '  :global(&.vertical-123) {\n' +
+      '    :global(.bar-123) { height: 100%; }\n' +
+      '  }\n' +
+      '  @media (forced-colors: active) {\n' +
+      '    :global(.bar-123) { border: 1px solid CanvasText; }\n' +
+      '  }\n' +
+      '}\n' +
+      '</style>\n' +
+      '<div class="slider-123 vertical-123"><span class="bar-123"></span></div>';
+
+    const output = await compiler(
+      { source },
+      { mode: 'native', localIdentName: '[local]-123' }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
+
   test('Scoped local selector', async () => {
     const source =
       '<style module>' +
