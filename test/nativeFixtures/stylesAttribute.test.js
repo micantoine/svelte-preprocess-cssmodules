@@ -96,4 +96,39 @@ describe('Native Mode', () => {
 
     expect(output).toBe(expectedOutput);
   });
+
+  test('Hash class selectors inside :not/:has/:is/:where arguments', async () => {
+    const source =
+      '<style module>' +
+      '.a { color: blue; }' +
+      '.b { color: green; }' +
+      '.b:not(.a) { color: yellow; }' +
+      '.b:has(.a) { color: purple; }' +
+      '.b:is(.a) { color: orange; }' +
+      '.b:where(.a) { color: pink; }' +
+      '</style>' +
+      '<span class="a b">x</span>';
+
+    const expectedOutput =
+      '<style module>' +
+      ':global(.a-123) { color: blue; }' +
+      ':global(.b-123) { color: green; }' +
+      ':global(.b-123:not(.a-123)) { color: yellow; }' +
+      ':global(.b-123:has(.a-123)) { color: purple; }' +
+      ':global(.b-123:is(.a-123)) { color: orange; }' +
+      ':global(.b-123:where(.a-123)) { color: pink; }' +
+      '</style>' +
+      '<span class="a-123 b-123">x</span>';
+
+    const output = await compiler(
+      {
+        source,
+      },
+      {
+        localIdentName: '[local]-123',
+      }
+    );
+
+    expect(output).toBe(expectedOutput);
+  });
 });
