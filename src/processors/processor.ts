@@ -164,6 +164,22 @@ export default class Processor {
       const generatedClassName = this.createModuleClassname(node.name);
       this.addModule(node.name, generatedClassName);
       this.magicContent.overwrite(node.start, node.end, `.${generatedClassName}`);
+      return;
+    }
+
+    if (
+      node.type === 'PseudoClassSelector' &&
+      node.name !== 'global' &&
+      node.name !== 'local' &&
+      node.args
+    ) {
+      node.args.children.forEach((complexSelector) => {
+        complexSelector.children.forEach((relativeSelector) => {
+          relativeSelector.selectors.forEach((item) => {
+            this.parseClassSelectors(item);
+          });
+        });
+      });
     }
   };
 
